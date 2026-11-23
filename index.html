@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1877f2">
-<meta name="description" content="ADAM MK CHAT - Connect, chat, share photos, videos, music, and 24-hour status updates.">
+<meta name="description" content="ADAM MK CHAT - Connect, Share and Communicate with the World">
 <title>ADAM MK CHAT</title>
-
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -54,285 +53,139 @@ header{
  z-index:20;
  box-shadow:0 2px 8px rgba(0,0,0,0.15);
 }
-.brand{
- display:flex;
- align-items:center;
- gap:10px;
- font-size:18px;
- font-weight:bold;
- letter-spacing:0.3px;
-}
+.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:bold}
 .logo{
  width:38px;height:38px;
- background:white;
- color:var(--blue);
- border-radius:11px;
- display:grid;
- place-items:center;
- font-size:16px;
- font-weight:800;
- position:relative;
+ background:white;color:var(--blue);
+ border-radius:11px;display:grid;place-items:center;
+ font-size:16px;font-weight:800;position:relative;
 }
 .logo:after{
- content:"";
- position:absolute;
- bottom:-4px;
- right:6px;
- border-width:6px 6px 0 0;
- border-style:solid;
+ content:"";position:absolute;bottom:-4px;right:6px;
+ border-width:6px 6px 0 0;border-style:solid;
  border-color:white transparent transparent transparent;
 }
-.header-actions{display:flex;gap:14px;align-items:center}
+.header-actions{display:flex;gap:12px;align-items:center}
 .header-actions button{
- background:rgba(255,255,255,0.15);
- border:0;color:white;
- width:36px;height:36px;
- border-radius:50%;
- display:grid;place-items:center;
- position:relative;
+ background:rgba(255,255,255,0.15);border:0;color:white;
+ width:36px;height:36px;border-radius:50%;
+ display:grid;place-items:center;position:relative;
 }
-.badge{
- position:absolute;top:-2px;right:-2px;
- background:#ef4444;color:white;
- font-size:10px;font-weight:bold;
- padding:2px 5px;border-radius:10px;
-}
-.container{
- max-width:1050px;
- margin:auto;
- padding:15px;
-}
+.container{max-width:1050px;margin:auto;padding:15px}
 .hidden{display:none!important}
 .card{
- background:var(--card);
- border:1px solid var(--border);
- border-radius:14px;
- padding:15px;
- margin-bottom:14px;
- box-shadow:0 1px 3px rgba(0,0,0,0.03);
+ background:var(--card);border:1px solid var(--border);
+ border-radius:14px;padding:15px;margin-bottom:14px;
 }
-.auth{
- max-width:420px;
- margin:30px auto;
-}
+.auth{max-width:420px;margin:30px auto}
 .auth h2{text-align:center;color:var(--blue);margin-bottom:6px}
 .auth p{text-align:center;color:var(--muted);margin-bottom:20px;font-size:14px}
 .form-group{margin-bottom:14px}
-.form-group label{
- display:block;margin-bottom:6px;font-weight:600;font-size:13px;
-}
+.form-group label{display:block;margin-bottom:6px;font-weight:600;font-size:13px}
 .form-group input,.form-group textarea{
- width:100%;padding:12px;
- border:1px solid var(--border);
- border-radius:9px;
- outline:none;
- background:var(--bg);
+ width:100%;padding:12px;border:1px solid var(--border);
+ border-radius:9px;outline:none;background:var(--bg);
 }
-.form-group input:focus,.form-group textarea:focus{
- border-color:var(--blue);
-}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--blue)}
 .primary{
- width:100%;
- background:var(--blue);
- color:white;
- border:0;
- padding:12px;
- border-radius:9px;
- font-weight:bold;
- transition:background 0.2s;
+ width:100%;background:var(--blue);color:white;
+ border:0;padding:12px;border-radius:9px;font-weight:bold;
 }
 .primary:hover{background:var(--dark)}
 .link{
- color:var(--blue);
- cursor:pointer;
- font-weight:600;
- background:none;border:0;
- display:inline-flex;align-items:center;gap:5px;
+ color:var(--blue);cursor:pointer;font-weight:600;
+ background:none;border:0;display:inline-flex;align-items:center;gap:5px;
 }
 .auth-footer{text-align:center;margin-top:17px;font-size:14px}
 .top-profile{display:flex;align-items:center;gap:12px}
 .avatar{
  width:44px;height:44px;border-radius:50%;
  background:#d9eaff;color:var(--blue);
- display:grid;place-items:center;
- font-weight:bold;flex-shrink:0;
- overflow:hidden;
+ display:grid;place-items:center;font-weight:bold;flex-shrink:0;
 }
-.avatar img{width:100%;height:100%;object-fit:cover}
-
-/* Status / Stories */
-.status-area{
- display:flex;gap:12px;overflow-x:auto;
- padding:4px 0 8px;
-}
-.status-item{
- min-width:72px;max-width:72px;text-align:center;
- cursor:pointer;
-}
+.status-area{display:flex;gap:12px;overflow-x:auto;padding:4px 0 8px}
+.status-item{min-width:72px;max-width:72px;text-align:center;cursor:pointer}
 .status-ring{
- width:60px;height:60px;
- border:2.5px solid var(--blue);
- padding:2px;border-radius:50%;
- margin:0 auto 6px;
+ width:60px;height:60px;border:2.5px solid var(--blue);
+ padding:2px;border-radius:50%;margin:0 auto 6px;
 }
 .status-ring .avatar{width:100%;height:100%}
-.status-item small{
- font-size:11px;display:block;
- white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.add-status{
- background:var(--light);
- color:var(--blue);
- font-size:24px;
-}
-
-/* Create Post */
+.status-item small{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.add-status{background:var(--light);color:var(--blue);font-size:24px}
 .section-title{font-size:16px;font-weight:bold;margin-bottom:12px}
 .create-post{display:flex;gap:10px;align-items:center}
 .create-post input{
- flex:1;min-width:0;
- padding:12px 16px;
- border:1px solid var(--border);
- border-radius:25px;
- background:var(--bg);
- outline:none;
+ flex:1;min-width:0;padding:12px 16px;
+ border:1px solid var(--border);border-radius:25px;background:var(--bg);outline:none;
 }
-.media-preview{
- margin-top:10px;padding:8px;
- background:var(--bg);border-radius:9px;
- display:flex;justify-content:space-between;align-items:center;
- font-size:13px;
-}
-.post-tools{
- margin-top:12px;padding-top:10px;
- border-top:1px solid var(--border);
- display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
-}
-
-/* Feed Posts */
 .post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .post-header .details{flex:1}
 .post-header small{color:var(--muted);font-size:12px}
 .post-text{line-height:1.5;margin:10px 0;white-space:pre-wrap}
-.post-media{
- width:100%;max-height:420px;
- object-fit:cover;border-radius:10px;margin-top:8px;
-}
-audio.post-audio{width:100%;margin-top:8px;border-radius:8px}
 .post-actions{
  display:flex;justify-content:space-around;
- border-top:1px solid var(--border);
- padding-top:10px;margin-top:12px;
+ border-top:1px solid var(--border);padding-top:10px;margin-top:12px;
 }
 .post-actions button{
  background:none;border:0;color:var(--muted);
- font-size:13px;font-weight:600;
- display:flex;align-items:center;gap:5px;
+ font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;
  padding:5px 10px;border-radius:6px;
 }
 .post-actions button.liked{color:#ef4444}
-.post-actions button.liked svg{fill:#ef4444;stroke:#ef4444}
-.comments-box{
- margin-top:12px;padding-top:10px;
- border-top:1px solid var(--border);
-}
-.comment-item{
- background:var(--bg);padding:8px 12px;
- border-radius:10px;margin-bottom:6px;font-size:13px;
-}
+.comments-box{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.comment-item{background:var(--bg);padding:8px 12px;border-radius:10px;margin-bottom:6px;font-size:13px}
 .comment-form{display:flex;gap:8px;margin-top:8px}
 .comment-form input{
  flex:1;padding:8px 12px;border-radius:20px;
  border:1px solid var(--border);background:var(--bg);font-size:13px;
 }
-
-/* Bottom Navbar */
 .navbar{
  position:fixed;bottom:0;left:0;right:0;
- background:var(--card);
- border-top:1px solid var(--border);
- display:flex;justify-content:space-around;
- padding:8px 3px;
- z-index:20;
+ background:var(--card);border-top:1px solid var(--border);
+ display:flex;justify-content:space-around;padding:8px 3px;z-index:20;
 }
 .navbar button{
- border:0;background:none;
- color:var(--muted);font-size:11px;
- display:flex;flex-direction:column;
- align-items:center;gap:3px;
+ border:0;background:none;color:var(--muted);font-size:11px;
+ display:flex;flex-direction:column;align-items:center;gap:3px;
 }
 .navbar button.active{color:var(--blue);font-weight:bold}
 main{padding-bottom:85px}
 .page-title{font-size:20px;color:var(--blue);margin:6px 0 15px}
-
-/* Profile */
-.profile-cover{
- height:130px;background:linear-gradient(120deg,#1877f2,#60a5fa);
- border-radius:12px;
-}
+.profile-cover{height:130px;background:linear-gradient(120deg,#1877f2,#60a5fa);border-radius:12px}
 .profile-info{text-align:center;margin-top:-42px}
-.profile-info .avatar{
- width:84px;height:84px;
- margin:auto;border:4px solid var(--card);
- font-size:26px;
-}
-.stats{
- display:flex;justify-content:space-around;
- text-align:center;margin:18px 0;
-}
+.profile-info .avatar{width:84px;height:84px;margin:auto;border:4px solid var(--card);font-size:26px}
+.stats{display:flex;justify-content:space-around;text-align:center;margin:18px 0}
 .stats strong{display:block;color:var(--blue);font-size:18px}
 .stats small{color:var(--muted);font-size:12px}
-
-/* Lists & Chat */
 .menu-item{
- padding:14px 6px;
- border-bottom:1px solid var(--border);
- cursor:pointer;
- display:flex;align-items:center;justify-content:space-between;
+ padding:14px 6px;border-bottom:1px solid var(--border);
+ cursor:pointer;display:flex;align-items:center;justify-content:space-between;
 }
 .menu-item:last-child{border:0}
 .chat-row{
- display:flex;align-items:center;gap:12px;
- padding:12px 4px;border-bottom:1px solid var(--border);
- cursor:pointer;
+ display:flex;align-items:center;gap:12px;padding:12px 4px;
+ border-bottom:1px solid var(--border);cursor:pointer;
 }
 .chat-row:last-child{border:0}
 .chat-row .details{flex:1}
 .chat-row small{color:var(--muted)}
-.chat-window{
- display:flex;flex-direction:column;height:65vh;
-}
-.chat-messages{
- flex:1;overflow-y:auto;padding:10px;
- display:flex;flex-direction:column;gap:8px;
-}
-.msg-bubble{
- max-width:75%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.4;
-}
+.chat-window{display:flex;flex-direction:column;height:62vh}
+.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg-bubble{max-width:75%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.4}
 .msg-sent{background:var(--blue);color:white;align-self:flex-end;border-bottom-right-radius:3px}
 .msg-recv{background:var(--light);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px}
 .chat-input-bar{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
-.chat-input-bar input{
- flex:1;padding:11px 14px;border:1px solid var(--border);border-radius:22px;background:var(--bg);
-}
-
-/* Modal */
+.chat-input-bar input{flex:1;padding:11px 14px;border:1px solid var(--border);border-radius:22px;background:var(--bg)}
 .modal{
  position:fixed;inset:0;background:rgba(0,0,0,0.65);
  display:grid;place-items:center;z-index:40;padding:15px;
 }
-.modal-content{
- background:var(--card);width:100%;max-width:420px;
- border-radius:14px;padding:18px;position:relative;
-}
-.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.modal-content{background:var(--card);width:100%;max-width:420px;border-radius:14px;padding:18px}
+.empty{text-align:center;color:var(--muted);padding:28px 10px}
 #toast{
- position:fixed;bottom:80px;left:50%;
- transform:translateX(-50%);
- background:#172b4d;color:white;
- padding:10px 18px;border-radius:10px;
+ position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+ background:#172b4d;color:white;padding:10px 18px;border-radius:10px;
  z-index:50;display:none;font-size:13px;
- box-shadow:0 4px 12px rgba(0,0,0,0.2);
 }
 @media(min-width:700px){
  .container{padding:22px}
@@ -351,7 +204,6 @@ main{padding-bottom:85px}
  <div class="header-actions hidden" id="headerActions">
   <button onclick="showPage('notifications')" title="Notifications">
    <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-   <span class="badge" id="notifBadge">1</span>
   </button>
   <button onclick="showPage('messages')" title="Messages">
    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -376,8 +228,8 @@ main{padding-bottom:85px}
   </div>
 
   <div class="form-group">
-   <label>Email or Phone Number</label>
-   <input id="regContact" placeholder="Email or phone number">
+   <label>Email Address</label>
+   <input id="regEmail" type="email" placeholder="Enter your email">
   </div>
 
   <div class="form-group">
@@ -401,8 +253,8 @@ main{padding-bottom:85px}
   <p>Login to your ADAM MK CHAT account.</p>
 
   <div class="form-group">
-   <label>Email, Username, or Phone</label>
-   <input id="loginContact" placeholder="Enter your login ID">
+   <label>Email Address</label>
+   <input id="loginEmail" type="email" placeholder="Enter your email">
   </div>
 
   <div class="form-group">
@@ -427,43 +279,24 @@ main{padding-bottom:85px}
   <section id="homePage">
    <div class="home-layout">
     <div>
-     <!-- 24-Hour Status -->
      <div class="card">
       <div class="section-title">24-Hour Status & Stories</div>
       <div class="status-area" id="statusList"></div>
      </div>
 
-     <!-- Create Post -->
      <div class="card">
       <div class="create-post">
        <div class="avatar" id="homeAvatar">MK</div>
        <input id="postInput" placeholder="What's on your mind?">
       </div>
-      <div id="mediaPreview" class="media-preview hidden">
-       <span id="mediaName">File selected</span>
-       <button class="link" onclick="clearMedia()" style="color:#ef4444">Remove</button>
-      </div>
-      <input type="file" id="mediaFile" accept="image/*,video/*,audio/*" class="hidden" onchange="handleMediaSelect(event)">
-      <div class="post-tools">
-       <div style="display:flex;gap:12px">
-        <button class="link" onclick="triggerMedia('image/*,video/*')">
-         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-         Photo/Video
-        </button>
-        <button class="link" onclick="triggerMedia('audio/*')">
-         <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-         Music
-        </button>
-       </div>
-       <button class="primary" style="width:auto;padding:8px 18px" onclick="addPost()">Post</button>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end">
+       <button class="primary" style="width:auto;padding:8px 20px" onclick="addPost()">Post</button>
       </div>
      </div>
 
-     <!-- Social Feed -->
      <div id="feed"></div>
     </div>
 
-    <!-- Sidebar -->
     <div>
      <div class="card">
       <div class="section-title">Your Account</div>
@@ -484,17 +317,14 @@ main{padding-bottom:85px}
   <section id="messagesPage" class="hidden">
    <h2 class="page-title">Messages</h2>
    <div class="card" id="chatListCard">
-    <input id="chatSearch" oninput="renderChats()" placeholder="Search conversations..."
-     style="width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg);margin-bottom:10px">
     <div id="chatList"></div>
    </div>
 
-   <!-- Active Chat Room -->
    <div class="card hidden" id="chatRoomCard">
     <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
      <button class="link" onclick="closeChatRoom()">← Back</button>
      <div class="avatar" id="chatPeerAvatar" style="width:36px;height:36px">A</div>
-     <strong id="chatPeerName">Friend</strong>
+     <strong id="chatPeerName">User</strong>
     </div>
     <div class="chat-window">
      <div class="chat-messages" id="chatMessages"></div>
@@ -508,14 +338,14 @@ main{padding-bottom:85px}
 
   <!-- FRIENDS -->
   <section id="friendsPage" class="hidden">
-   <h2 class="page-title">People & Community</h2>
+   <h2 class="page-title">People on ADAM MK CHAT</h2>
    <div class="card" id="peopleList"></div>
   </section>
 
   <!-- NOTIFICATIONS -->
   <section id="notificationsPage" class="hidden">
    <h2 class="page-title">Notifications</h2>
-   <div class="card" id="notifList"></div>
+   <div class="card empty">All notifications are up to date.</div>
   </section>
 
   <!-- PROFILE -->
@@ -531,9 +361,9 @@ main{padding-bottom:85px}
     </div>
     <div class="stats">
      <div><strong id="statPosts">0</strong><small>Posts</small></div>
-     <div><strong id="statFollowers">12</strong><small>Followers</small></div>
-     <div><strong id="statFollowing">8</strong><small>Following</small></div>
-     <div><strong id="statFriends">5</strong><small>Friends</small></div>
+     <div><strong>0</strong><small>Followers</small></div>
+     <div><strong>0</strong><small>Following</small></div>
+     <div><strong id="statUsers">0</strong><small>Members</small></div>
     </div>
     <button class="primary" onclick="openEditProfile()">Edit Profile</button>
    </div>
@@ -547,17 +377,9 @@ main{padding-bottom:85px}
      <span>🌙 Dark Mode</span>
      <strong id="darkModeStatus">Off</strong>
     </div>
-    <div class="menu-item" onclick="showToast('Language: English (Hausa coming soon)')">
-     <span>🌐 Language</span>
-     <small style="color:var(--muted)">English</small>
-    </div>
-    <div class="menu-item" onclick="showToast('Your account is protected')">
-     <span>🔒 Privacy & Security</span>
-     <span>›</span>
-    </div>
-    <div class="menu-item" onclick="showToast('ADAM MK CHAT v1.0 - Global Social & Messaging')">
-     <span>ℹ️ About ADAM MK CHAT</span>
-     <span>›</span>
+    <div class="menu-item" onclick="showToast('Connected to Firebase (adam-mk-chat-a5074)')">
+     <span>☁️ Cloud Status</span>
+     <small style="color:var(--muted)">Active</small>
     </div>
     <div class="menu-item" onclick="logoutUser()" style="color:#ef4444;font-weight:bold">
      <span>↪ Logout</span>
@@ -580,37 +402,28 @@ main{padding-bottom:85px}
    <label>Bio</label>
    <textarea id="editBioInput" rows="3"></textarea>
   </div>
-  <div class="form-group">
-   <label>Profile Picture</label>
-   <input type="file" id="editAvatarInput" accept="image/*">
-  </div>
   <div style="display:flex;gap:10px">
-   <button class="primary" onclick="saveProfile()">Save Changes</button>
+   <button class="primary" onclick="saveProfile()">Save</button>
    <button class="primary" style="background:#64748b" onclick="closeEditProfile()">Cancel</button>
   </div>
  </div>
 </div>
 
-<!-- ADD / VIEW STATUS MODAL -->
+<!-- STATUS MODAL -->
 <div id="statusModal" class="modal hidden">
  <div class="modal-content">
-  <h3 id="statusModalTitle" style="margin-bottom:10px;color:var(--blue)">Post 24-Hour Status</h3>
+  <h3 id="statusModalTitle" style="margin-bottom:10px;color:var(--blue)">24-Hour Status</h3>
   <div id="statusCreateBox">
    <div class="form-group">
     <textarea id="statusText" rows="3" placeholder="Share a status update (expires in 24 hours)..."></textarea>
    </div>
-   <div class="form-group">
-    <label>Optional Photo</label>
-    <input type="file" id="statusImgInput" accept="image/*">
-   </div>
    <div style="display:flex;gap:10px">
-    <button class="primary" onclick="saveStatus()">Share Status</button>
+    <button class="primary" onclick="saveStatus()">Post Status</button>
     <button class="primary" style="background:#64748b" onclick="closeStatusModal()">Cancel</button>
    </div>
   </div>
   <div id="statusViewBox" class="hidden">
    <p id="statusViewContent" style="margin:15px 0;font-size:16px;line-height:1.5"></p>
-   <img id="statusViewImg" class="post-media hidden" style="margin-bottom:12px">
    <small id="statusViewTime" style="color:var(--muted);display:block;margin-bottom:12px"></small>
    <button class="primary" onclick="closeStatusModal()">Close</button>
   </div>
@@ -625,15 +438,11 @@ main{padding-bottom:85px}
  </button>
  <button onclick="showPage('friends')">
   <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-  Friends
+  People
  </button>
  <button onclick="showPage('messages')">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   Messages
- </button>
- <button onclick="showPage('notifications')">
-  <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-  Alerts
  </button>
  <button onclick="showPage('profile')">
   <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -647,124 +456,140 @@ main{padding-bottom:85px}
 
 <div id="toast"></div>
 
-<script>
-// State Management using LocalStorage
-let users = JSON.parse(localStorage.getItem('amk_users') || '[]');
-let currentUser = JSON.parse(localStorage.getItem('amk_currentUser') || 'null');
-let posts = JSON.parse(localStorage.getItem('amk_posts') || '[]');
-let statuses = JSON.parse(localStorage.getItem('amk_statuses') || '[]');
-let chats = JSON.parse(localStorage.getItem('amk_chats') || '{}');
-let notifications = JSON.parse(localStorage.getItem('amk_notifs') || '["Welcome to ADAM MK CHAT! Start connecting with friends."]');
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
+import {
+ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+ signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+import {
+ getFirestore, collection, doc, setDoc, getDoc, getDocs,
+ addDoc, updateDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
-let selectedMedia = null;
-let activeChatPeer = null;
+const firebaseConfig = {
+ apiKey: "AIzaSyDaJPCz84-E4p-eSUQNNjp7T8mMyQ-Kqlo",
+ authDomain: "adam-mk-chat-a5074.firebaseapp.com",
+ projectId: "adam-mk-chat-a5074",
+ storageBucket: "adam-mk-chat-a5074.firebasestorage.app",
+ messagingSenderId: "332376253838",
+ appId: "1:332376253838:web:1988971be6f942c0b7f0df",
+ measurementId: "G-H18B4DPJ3Y"
+};
 
-// Sample Community Contacts
-const sampleContacts = [
- {id:'adam_bot', name:'Adam MK Official', username:'adammk_official', bio:'Founder of ADAM MK CHAT'},
- {id:'amina_k', name:'Amina Kabir', username:'aminak', bio:'Music lover & creator'},
- {id:'musa_b', name:'Musa Bello', username:'musabello', bio:'Tech & Social Media'}
-];
+const app = initializeApp(firebaseConfig);
+try { getAnalytics(app); } catch (e) {}
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-function saveData(){
- localStorage.setItem('amk_users', JSON.stringify(users));
- localStorage.setItem('amk_currentUser', JSON.stringify(currentUser));
- localStorage.setItem('amk_posts', JSON.stringify(posts));
- localStorage.setItem('amk_statuses', JSON.stringify(statuses));
- localStorage.setItem('amk_chats', JSON.stringify(chats));
- localStorage.setItem('amk_notifs', JSON.stringify(notifications));
-}
+let currentUser = null;
+let allUsers = [];
+let allPosts = [];
+let allStatuses = [];
+let activePeer = null;
+let unsubPosts = null;
+let unsubStatuses = null;
+let unsubUsers = null;
+let unsubMessages = null;
 
-function showToast(message){
- const toast=document.getElementById('toast');
- toast.textContent=message;
- toast.style.display='block';
- setTimeout(()=>toast.style.display='none',2600);
-}
+window.showToast = function(msg){
+ const t=document.getElementById('toast');
+ t.textContent=msg; t.style.display='block';
+ setTimeout(()=>t.style.display='none',2600);
+};
 
-// Auth Functions
-function showAuth(type){
+window.showAuth = function(type){
  document.getElementById('register').classList.toggle('hidden',type!=='register');
  document.getElementById('login').classList.toggle('hidden',type!=='login');
  document.getElementById('app').classList.add('hidden');
  document.getElementById('navbar').classList.add('hidden');
  document.getElementById('headerActions').classList.add('hidden');
-}
+};
 
-function showApp(){
+function showAppUI(){
  document.getElementById('register').classList.add('hidden');
  document.getElementById('login').classList.add('hidden');
  document.getElementById('app').classList.remove('hidden');
  document.getElementById('navbar').classList.remove('hidden');
  document.getElementById('headerActions').classList.remove('hidden');
  updateProfileUI();
- renderStatuses();
- renderPosts();
- renderChats();
- renderPeople();
- renderNotifications();
- showPage('home');
+ listenRealtime();
+ window.showPage('home');
 }
 
-function registerUser(){
+window.registerUser = async function(){
  const name=document.getElementById('regName').value.trim();
  const username=document.getElementById('regUsername').value.trim().replace(/^@/,'').toLowerCase();
- const contact=document.getElementById('regContact').value.trim();
+ const email=document.getElementById('regEmail').value.trim();
  const password=document.getElementById('regPassword').value;
 
- if(!name||!username||!contact||!password){
-  showToast('Please complete all fields');
-  return;
+ if(!name||!username||!email||!password){
+  showToast('Please complete all fields'); return;
  }
  if(password.length<6){
-  showToast('Password must be at least 6 characters');
-  return;
- }
- if(users.some(u=>u.username===username || u.contact===contact)){
-  showToast('Account already exists. Please login.');
-  return;
+  showToast('Password must be at least 6 characters'); return;
  }
 
- const newUser={
-  id:'u_'+Date.now(),
-  name,username,contact,password,
-  bio:'Welcome to ADAM MK CHAT!',
-  avatar:null
- };
- users.push(newUser);
- currentUser=newUser;
- saveData();
- showToast('Account created successfully!');
- showApp();
-}
+ try{
+  const cred=await createUserWithEmailAndPassword(auth, email, password);
+  const profile={
+   uid:cred.user.uid,
+   name,
+   username,
+   email,
+   bio:'Welcome to ADAM MK CHAT!'
+  };
+  await setDoc(doc(db,'users',cred.user.uid), profile);
+  showToast('Account created on ADAM MK CHAT!');
+ }catch(err){
+  showToast(err.message);
+ }
+};
 
-function loginUser(){
- const contact=document.getElementById('loginContact').value.trim().toLowerCase();
+window.loginUser = async function(){
+ const email=document.getElementById('loginEmail').value.trim();
  const password=document.getElementById('loginPassword').value;
- if(!contact||!password){
-  showToast('Enter your login details');
-  return;
+ if(!email||!password){
+  showToast('Enter email and password'); return;
  }
- const found=users.find(u=>(u.contact.toLowerCase()===contact || u.username===contact) && u.password===password);
- if(!found){
-  showToast('Invalid credentials or account not found');
-  return;
+ try{
+  await signInWithEmailAndPassword(auth, email, password);
+  showToast('Welcome back!');
+ }catch(err){
+  showToast(err.message);
  }
- currentUser=found;
- saveData();
- showToast('Welcome back, '+found.name+'!');
- showApp();
-}
+};
 
-function logoutUser(){
+window.logoutUser = async function(){
+ if(unsubPosts) unsubPosts();
+ if(unsubStatuses) unsubStatuses();
+ if(unsubUsers) unsubUsers();
+ if(unsubMessages) unsubMessages();
+ await signOut(auth);
  currentUser=null;
- saveData();
  showAuth('login');
- showToast('You have logged out');
-}
+ showToast('Logged out');
+};
 
-// Navigation
-function showPage(page){
+onAuthStateChanged(auth, async (user)=>{
+ if(user){
+  const snap=await getDoc(doc(db,'users',user.uid));
+  currentUser = snap.exists() ? snap.data() : {
+   uid:user.uid,
+   name:user.email.split('@')[0],
+   username:user.email.split('@')[0],
+   email:user.email,
+   bio:'Welcome to ADAM MK CHAT!'
+  };
+  showAppUI();
+ }else{
+  currentUser=null;
+  showAuth('login');
+ }
+});
+
+window.showPage = function(page){
  const pages=['home','messages','friends','notifications','profile','settings'];
  pages.forEach(p=>{
   document.getElementById(p+'Page').classList.toggle('hidden',p!==page);
@@ -772,317 +597,209 @@ function showPage(page){
  document.querySelectorAll('.navbar button').forEach((btn,i)=>{
   btn.classList.toggle('active',pages[i]===page);
  });
- if(page==='notifications'){
-  document.getElementById('notifBadge').classList.add('hidden');
- }
  window.scrollTo(0,0);
-}
-
-// Profile UI & Edit
-function renderAvatar(el, userObj){
- if(userObj && userObj.avatar){
-  el.innerHTML=`<img src="${userObj.avatar}" alt="avatar">`;
- } else {
-  el.textContent=(userObj && userObj.name ? userObj.name[0] : 'M').toUpperCase();
- }
-}
+};
 
 function updateProfileUI(){
  if(!currentUser)return;
- document.getElementById('profileName').textContent=currentUser.name;
- document.getElementById('profileUsername').textContent='@'+currentUser.username;
- document.getElementById('profileBio').textContent=currentUser.bio || 'Welcome to ADAM MK CHAT!';
+ const initial=(currentUser.name || 'M')[0].toUpperCase();
+ document.getElementById('homeAvatar').textContent=initial;
+ document.getElementById('sideAvatar').textContent=initial;
+ document.getElementById('profileAvatar').textContent=initial;
  document.getElementById('sideName').textContent=currentUser.name;
  document.getElementById('sideUsername').textContent='@'+currentUser.username;
-
- renderAvatar(document.getElementById('homeAvatar'), currentUser);
- renderAvatar(document.getElementById('sideAvatar'), currentUser);
- renderAvatar(document.getElementById('profileAvatar'), currentUser);
-
- const myPostsCount = posts.filter(p=>p.userId===currentUser.id).length;
- document.getElementById('statPosts').textContent=myPostsCount;
+ document.getElementById('profileName').textContent=currentUser.name;
+ document.getElementById('profileUsername').textContent='@'+currentUser.username;
+ document.getElementById('profileBio').textContent=currentUser.bio || '';
+ const myPosts=allPosts.filter(p=>p.uid===currentUser.uid).length;
+ document.getElementById('statPosts').textContent=myPosts;
+ document.getElementById('statUsers').textContent=allUsers.length;
 }
 
-function openEditProfile(){
+window.openEditProfile = function(){
  document.getElementById('editNameInput').value=currentUser.name;
  document.getElementById('editBioInput').value=currentUser.bio || '';
  document.getElementById('editModal').classList.remove('hidden');
-}
+};
 
-function closeEditProfile(){
+window.closeEditProfile = function(){
  document.getElementById('editModal').classList.add('hidden');
-}
+};
 
-function saveProfile(){
- const newName=document.getElementById('editNameInput').value.trim();
- const newBio=document.getElementById('editBioInput').value.trim();
- const fileInput=document.getElementById('editAvatarInput');
+window.saveProfile = async function(){
+ const name=document.getElementById('editNameInput').value.trim();
+ const bio=document.getElementById('editBioInput').value.trim();
+ if(!name)return;
+ await updateDoc(doc(db,'users',currentUser.uid),{name,bio});
+ currentUser.name=name; currentUser.bio=bio;
+ updateProfileUI();
+ closeEditProfile();
+ showToast('Profile updated');
+};
 
- if(newName) currentUser.name=newName;
- currentUser.bio=newBio;
+function listenRealtime(){
+ if(unsubUsers) unsubUsers();
+ if(unsubPosts) unsubPosts();
+ if(unsubStatuses) unsubStatuses();
 
- const finalize=()=>{
-  users=users.map(u=>u.id===currentUser.id?currentUser:u);
-  saveData();
+ unsubUsers=onSnapshot(collection(db,'users'),(snap)=>{
+  allUsers=snap.docs.map(d=>d.data());
+  renderPeople();
+  renderChatsList();
   updateProfileUI();
-  renderPosts();
-  closeEditProfile();
-  showToast('Profile updated!');
- };
+ });
 
- if(fileInput.files && fileInput.files[0]){
-  const reader=new FileReader();
-  reader.onload=e=>{
-   currentUser.avatar=e.target.result;
-   finalize();
-  };
-  reader.readAsDataURL(fileInput.files[0]);
- } else {
-  finalize();
- }
+ const qPosts=query(collection(db,'posts'),orderBy('createdAt','desc'));
+ unsubPosts=onSnapshot(qPosts,(snap)=>{
+  allPosts=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPosts();
+  updateProfileUI();
+ });
+
+ const qStatuses=query(collection(db,'statuses'),orderBy('createdAt','desc'));
+ unsubStatuses=onSnapshot(qStatuses,(snap)=>{
+  const dayMs=24*60*60*1000;
+  allStatuses=snap.docs
+   .map(d=>({id:d.id,...d.data()}))
+   .filter(s=>(Date.now()-s.createdAt)<dayMs);
+  renderStatuses();
+ });
 }
 
 // 24-Hour Status
 function renderStatuses(){
- const now=Date.now();
- const dayMs=24*60*60*1000;
- statuses=statuses.filter(s=>(now - s.timestamp) < dayMs);
- saveData();
-
  const list=document.getElementById('statusList');
  list.innerHTML=`
-  <div class="status-item" onclick="openAddStatus()">
-   <div class="status-ring">
-    <div class="avatar add-status">+</div>
-   </div>
+  <div class="status-item" onclick="openStatusCreate()">
+   <div class="status-ring"><div class="avatar add-status">+</div></div>
    <small>Your Status</small>
   </div>
  `;
-
- statuses.forEach((st, idx)=>{
+ allStatuses.forEach(st=>{
   const item=document.createElement('div');
   item.className='status-item';
-  item.onclick=()=>viewStatus(idx);
+  item.onclick=()=>openStatusView(st);
   item.innerHTML=`
-   <div class="status-ring">
-    <div class="avatar">${st.userName[0].toUpperCase()}</div>
-   </div>
+   <div class="status-ring"><div class="avatar">${(st.userName||'U')[0].toUpperCase()}</div></div>
    <small>${st.userName}</small>
   `;
   list.appendChild(item);
  });
 }
 
-function openAddStatus(){
+window.openStatusCreate = function(){
  document.getElementById('statusModalTitle').textContent='Post 24-Hour Status';
  document.getElementById('statusCreateBox').classList.remove('hidden');
  document.getElementById('statusViewBox').classList.add('hidden');
  document.getElementById('statusText').value='';
- document.getElementById('statusImgInput').value='';
  document.getElementById('statusModal').classList.remove('hidden');
-}
+};
 
-function saveStatus(){
+window.saveStatus = async function(){
  const text=document.getElementById('statusText').value.trim();
- const fileInput=document.getElementById('statusImgInput');
- if(!text && (!fileInput.files || !fileInput.files[0])){
-  showToast('Write text or choose a photo');
-  return;
- }
+ if(!text){showToast('Write a status first');return;}
+ await addDoc(collection(db,'statuses'),{
+  uid:currentUser.uid,
+  userName:currentUser.name,
+  text,
+  createdAt:Date.now()
+ });
+ closeStatusModal();
+ showToast('24-hour status posted!');
+};
 
- const pushStatus=(imgData)=>{
-  statuses.unshift({
-   userName:currentUser.name,
-   text,
-   image:imgData,
-   timestamp:Date.now()
-  });
-  saveData();
-  renderStatuses();
-  closeStatusModal();
-  showToast('24-hour status posted!');
- };
-
- if(fileInput.files && fileInput.files[0]){
-  const reader=new FileReader();
-  reader.onload=e=>pushStatus(e.target.result);
-  reader.readAsDataURL(fileInput.files[0]);
- } else {
-  pushStatus(null);
- }
-}
-
-function viewStatus(idx){
- const st=statuses[idx];
- if(!st)return;
+function openStatusView(st){
  document.getElementById('statusModalTitle').textContent=st.userName+"'s Status";
  document.getElementById('statusCreateBox').classList.add('hidden');
  document.getElementById('statusViewBox').classList.remove('hidden');
- document.getElementById('statusViewContent').textContent=st.text || '';
- const imgEl=document.getElementById('statusViewImg');
- if(st.image){
-  imgEl.src=st.image;
-  imgEl.classList.remove('hidden');
- } else {
-  imgEl.classList.add('hidden');
- }
- document.getElementById('statusViewTime').textContent='Posted: '+new Date(st.timestamp).toLocaleTimeString();
+ document.getElementById('statusViewContent').textContent=st.text;
+ document.getElementById('statusViewTime').textContent='Posted: '+new Date(st.createdAt).toLocaleTimeString();
  document.getElementById('statusModal').classList.remove('hidden');
 }
 
-function closeStatusModal(){
+window.closeStatusModal = function(){
  document.getElementById('statusModal').classList.add('hidden');
-}
+};
 
-// Media & Posts
-function triggerMedia(acceptType){
- const input=document.getElementById('mediaFile');
- input.accept=acceptType;
- input.click();
-}
-
-function handleMediaSelect(e){
- const file=e.target.files[0];
- if(!file)return;
- if(file.size > 4 * 1024 * 1024){
-  showToast('File too large for local demo (keep under 4MB)');
-  return;
- }
- const reader=new FileReader();
- reader.onload=ev=>{
-  selectedMedia={
-   name:file.name,
-   type:file.type,
-   data:ev.target.result
-  };
-  document.getElementById('mediaName').textContent='📎 '+file.name;
-  document.getElementById('mediaPreview').classList.remove('hidden');
- };
- reader.readAsDataURL(file);
-}
-
-function clearMedia(){
- selectedMedia=null;
- document.getElementById('mediaFile').value='';
- document.getElementById('mediaPreview').classList.add('hidden');
-}
-
-function addPost(){
+// Posts, Likes & Comments
+window.addPost = async function(){
  const input=document.getElementById('postInput');
  const text=input.value.trim();
- if(!text && !selectedMedia){
-  showToast('Write something or attach media first');
-  return;
- }
-
- posts.unshift({
-  id:'p_'+Date.now(),
-  userId:currentUser.id,
-  name:currentUser.name,
-  avatar:currentUser.avatar,
+ if(!text){showToast('Write something first');return;}
+ await addDoc(collection(db,'posts'),{
+  uid:currentUser.uid,
+  userName:currentUser.name,
   text,
-  media:selectedMedia,
-  date:new Date().toLocaleString(),
+  createdAt:Date.now(),
   likes:[],
   comments:[]
  });
  input.value='';
- clearMedia();
- saveData();
- updateProfileUI();
- renderPosts();
- showToast('Post shared!');
-}
+ showToast('Post published!');
+};
 
-function toggleLike(postId){
- const post=posts.find(p=>p.id===postId);
- if(!post)return;
- const idx=post.likes.indexOf(currentUser.id);
- if(idx===-1) post.likes.push(currentUser.id);
- else post.likes.splice(idx,1);
- saveData();
- renderPosts();
-}
+window.toggleLike = async function(postId, likes){
+ const ref=doc(db,'posts',postId);
+ if(likes.includes(currentUser.uid)){
+  await updateDoc(ref,{likes:arrayRemove(currentUser.uid)});
+ }else{
+  await updateDoc(ref,{likes:arrayUnion(currentUser.uid)});
+ }
+};
 
-function addComment(postId){
+window.addComment = async function(postId){
  const input=document.getElementById('cInput_'+postId);
  const text=input.value.trim();
  if(!text)return;
- const post=posts.find(p=>p.id===postId);
- if(!post)return;
- post.comments.push({name:currentUser.name,text});
- saveData();
- renderPosts();
-}
+ await updateDoc(doc(db,'posts',postId),{
+  comments:arrayUnion({name:currentUser.name,text})
+ });
+ input.value='';
+};
 
-function sharePost(text){
- if(navigator.clipboard){
-  navigator.clipboard.writeText(text || 'Check out ADAM MK CHAT!');
- }
- showToast('Post link/text copied to clipboard!');
-}
+window.sharePost = function(text){
+ if(navigator.clipboard) navigator.clipboard.writeText(text);
+ showToast('Post copied to clipboard!');
+};
 
 function renderPosts(){
  const feed=document.getElementById('feed');
- if(posts.length===0){
-  feed.innerHTML=`
-   <div class="card empty">
-    Welcome to ADAM MK CHAT!<br>
-    Share your first post, photo, video, or music above.
-   </div>`;
+ if(!allPosts.length){
+  feed.innerHTML='<div class="card empty">No posts yet. Be the first to post on ADAM MK CHAT!</div>';
   return;
  }
-
  feed.innerHTML='';
- posts.forEach(post=>{
-  const isLiked=post.likes.includes(currentUser.id);
+ allPosts.forEach(p=>{
+  const likes=p.likes || [];
+  const comments=p.comments || [];
+  const liked=currentUser && likes.includes(currentUser.uid);
   const card=document.createElement('div');
   card.className='card';
-
-  let mediaHtml='';
-  if(post.media){
-   if(post.media.type.startsWith('image/')){
-    mediaHtml=`<img src="${post.media.data}" class="post-media">`;
-   } else if(post.media.type.startsWith('video/')){
-    mediaHtml=`<video src="${post.media.data}" controls class="post-media"></video>`;
-   } else if(post.media.type.startsWith('audio/')){
-    mediaHtml=`<div style="margin-top:8px"><small>🎵 ${post.media.name}</small><audio src="${post.media.data}" controls class="post-audio"></audio></div>`;
-   }
-  }
-
-  const commentsHtml=post.comments.map(c=>
-   `<div class="comment-item"><strong>${c.name}:</strong> ${c.text}</div>`
-  ).join('');
-
   card.innerHTML=`
    <div class="post-header">
-    <div class="avatar">${post.avatar ? `<img src="${post.avatar}">` : post.name[0].toUpperCase()}</div>
+    <div class="avatar">${(p.userName||'U')[0].toUpperCase()}</div>
     <div class="details">
-     <strong>${post.name}</strong><br>
-     <small>${post.date}</small>
+     <strong>${p.userName}</strong><br>
+     <small>${new Date(p.createdAt).toLocaleString()}</small>
     </div>
    </div>
-   ${post.text ? `<p class="post-text">${post.text}</p>` : ''}
-   ${mediaHtml}
+   <p class="post-text">${p.text}</p>
    <div class="post-actions">
-    <button class="${isLiked?'liked':''}" onclick="toggleLike('${post.id}')">
-     <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-     Like (${post.likes.length})
+    <button class="${liked?'liked':''}" onclick="toggleLike('${p.id}', ${JSON.stringify(likes).replace(/"/g,'&quot;')})">
+     ♡ Like (${likes.length})
     </button>
-    <button onclick="document.getElementById('cBox_${post.id}').classList.toggle('hidden')">
-     <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-     Comment (${post.comments.length})
+    <button onclick="document.getElementById('cBox_${p.id}').classList.toggle('hidden')">
+     💬 Comment (${comments.length})
     </button>
-    <button onclick="sharePost(\`${post.text.replace(/`/g,'')}\`)">
-     <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-     Share
+    <button onclick="sharePost(\`${(p.text||'').replace(/`/g,'')}\`)">
+     ↗ Share
     </button>
    </div>
-   <div class="comments-box ${post.comments.length===0?'hidden':''}" id="cBox_${post.id}">
-    ${commentsHtml}
+   <div class="comments-box ${comments.length===0?'hidden':''}" id="cBox_${p.id}">
+    ${comments.map(c=>`<div class="comment-item"><strong>${c.name}:</strong> ${c.text}</div>`).join('')}
     <div class="comment-form">
-     <input id="cInput_${post.id}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addComment('${post.id}')">
-     <button class="link" onclick="addComment('${post.id}')">Send</button>
+     <input id="cInput_${p.id}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addComment('${p.id}')">
+     <button class="link" onclick="addComment('${p.id}')">Send</button>
     </div>
    </div>
   `;
@@ -1090,141 +807,119 @@ function renderPosts(){
  });
 }
 
-// Messaging & Friends
-function getAllContacts(){
- const otherUsers=users.filter(u=>currentUser && u.id!==currentUser.id);
- return [...sampleContacts, ...otherUsers];
-}
-
-function renderChats(){
- const query=(document.getElementById('chatSearch').value || '').toLowerCase();
- const list=document.getElementById('chatList');
- const contacts=getAllContacts().filter(c=>c.name.toLowerCase().includes(query));
-
+// People & Direct Chat
+function renderPeople(){
+ const list=document.getElementById('peopleList');
+ const others=allUsers.filter(u=>currentUser && u.uid!==currentUser.uid);
+ if(!others.length){
+  list.innerHTML='<div class="empty">No other members registered yet.</div>';
+  return;
+ }
  list.innerHTML='';
- contacts.forEach(c=>{
-  const history=chats[c.id] || [];
-  const lastMsg=history.length ? history[history.length-1].text : 'Tap to start chatting';
+ others.forEach(u=>{
   const row=document.createElement('div');
   row.className='chat-row';
-  row.onclick=()=>openChatRoom(c);
   row.innerHTML=`
-   <div class="avatar">${c.name[0].toUpperCase()}</div>
+   <div class="avatar">${u.name[0].toUpperCase()}</div>
    <div class="details">
-    <strong>${c.name}</strong><br>
-    <small>${lastMsg}</small>
+    <strong>${u.name}</strong><br>
+    <small>@${u.username}</small>
+   </div>
+   <button class="primary" style="width:auto;padding:7px 14px;font-size:12px"
+    onclick="showPage('messages');openChatWith('${u.uid}','${u.name}')">Chat</button>
+  `;
+  list.appendChild(row);
+ });
+}
+
+function renderChatsList(){
+ const list=document.getElementById('chatList');
+ const others=allUsers.filter(u=>currentUser && u.uid!==currentUser.uid);
+ if(!others.length){
+  list.innerHTML='<div class="empty">Invite friends to register so you can chat!</div>';
+  return;
+ }
+ list.innerHTML='';
+ others.forEach(u=>{
+  const row=document.createElement('div');
+  row.className='chat-row';
+  row.onclick=()=>window.openChatWith(u.uid, u.name);
+  row.innerHTML=`
+   <div class="avatar">${u.name[0].toUpperCase()}</div>
+   <div class="details">
+    <strong>${u.name}</strong><br>
+    <small>@${u.username} • Tap to message</small>
    </div>
   `;
   list.appendChild(row);
  });
 }
 
-function openChatRoom(peer){
- activeChatPeer=peer;
+function getChatId(uid1, uid2){
+ return [uid1, uid2].sort().join('_');
+}
+
+window.openChatWith = function(peerUid, peerName){
+ activePeer={uid:peerUid, name:peerName};
  document.getElementById('chatListCard').classList.add('hidden');
  document.getElementById('chatRoomCard').classList.remove('hidden');
- document.getElementById('chatPeerName').textContent=peer.name;
- document.getElementById('chatPeerAvatar').textContent=peer.name[0].toUpperCase();
- renderChatMessages();
-}
+ document.getElementById('chatPeerName').textContent=peerName;
+ document.getElementById('chatPeerAvatar').textContent=peerName[0].toUpperCase();
 
-function closeChatRoom(){
- activeChatPeer=null;
+ if(unsubMessages) unsubMessages();
+ const chatId=getChatId(currentUser.uid, peerUid);
+ const qMsg=query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'));
+ unsubMessages=onSnapshot(qMsg,(snap)=>{
+  const box=document.getElementById('chatMessages');
+  box.innerHTML='';
+  snap.forEach(docSnap=>{
+   const m=docSnap.data();
+   const div=document.createElement('div');
+   div.className='msg-bubble '+(m.senderId===currentUser.uid?'msg-sent':'msg-recv');
+   div.textContent=m.text;
+   box.appendChild(div);
+  });
+  box.scrollTop=box.scrollHeight;
+ });
+};
+
+window.closeChatRoom = function(){
+ activePeer=null;
+ if(unsubMessages) unsubMessages();
  document.getElementById('chatRoomCard').classList.add('hidden');
  document.getElementById('chatListCard').classList.remove('hidden');
- renderChats();
-}
+};
 
-function renderChatMessages(){
- if(!activeChatPeer)return;
- const box=document.getElementById('chatMessages');
- const history=chats[activeChatPeer.id] || [
-  {sender:'peer', text:`Hello! Welcome to ADAM MK CHAT. Feel free to send a message!`}
- ];
- box.innerHTML='';
- history.forEach(m=>{
-  const div=document.createElement('div');
-  div.className='msg-bubble '+(m.sender==='me'?'msg-sent':'msg-recv');
-  div.textContent=m.text;
-  box.appendChild(div);
- });
- box.scrollTop=box.scrollHeight;
-}
-
-function sendMessage(){
+window.sendMessage = async function(){
  const input=document.getElementById('chatMsgInput');
  const text=input.value.trim();
- if(!text || !activeChatPeer)return;
-
- if(!chats[activeChatPeer.id]){
-  chats[activeChatPeer.id]=[
-   {sender:'peer', text:`Hello! Welcome to ADAM MK CHAT.`}
-  ];
- }
- chats[activeChatPeer.id].push({sender:'me', text});
+ if(!text || !activePeer)return;
+ const chatId=getChatId(currentUser.uid, activePeer.uid);
  input.value='';
- saveData();
- renderChatMessages();
-
- // Auto-reply simulation for demo
- setTimeout(()=>{
-  if(!activeChatPeer)return;
-  chats[activeChatPeer.id].push({
-   sender:'peer',
-   text:`Thanks for reaching out on ADAM MK CHAT! 👍`
-  });
-  saveData();
-  renderChatMessages();
- }, 900);
-}
-
-function renderPeople(){
- const list=document.getElementById('peopleList');
- list.innerHTML='';
- getAllContacts().forEach(c=>{
-  const item=document.createElement('div');
-  item.className='chat-row';
-  item.innerHTML=`
-   <div class="avatar">${c.name[0].toUpperCase()}</div>
-   <div class="details">
-    <strong>${c.name}</strong><br>
-    <small>@${c.username} • ${c.bio || ''}</small>
-   </div>
-   <button class="primary" style="width:auto;padding:7px 14px;font-size:12px"
-    onclick="showPage('messages');openChatRoom({id:'${c.id}',name:'${c.name}'})">Message</button>
-  `;
-  list.appendChild(item);
+ await addDoc(collection(db,'chats',chatId,'messages'),{
+  senderId:currentUser.uid,
+  text,
+  createdAt:Date.now()
  });
-}
+};
 
-function renderNotifications(){
- const list=document.getElementById('notifList');
- list.innerHTML=notifications.map(n=>`<div class="menu-item">🔔 ${n}</div>`).join('');
-}
-
-// Dark Mode
-function toggleDarkMode(){
+window.toggleDarkMode = function(){
  document.body.classList.toggle('dark-mode');
  const isDark=document.body.classList.contains('dark-mode');
  document.getElementById('darkModeStatus').textContent=isDark?'On':'Off';
  localStorage.setItem('amk_dark', isDark?'1':'0');
-}
+};
 
-// Initialize App
 if(localStorage.getItem('amk_dark')==='1'){
  document.body.classList.add('dark-mode');
  document.getElementById('darkModeStatus').textContent='On';
 }
-if(currentUser){
- showApp();
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('ADAM MK CHAT SW registered:', reg.scope))
-      .catch(err => console.log('SW registration failed:', err));
-  });
-}
 
+if('serviceWorker' in navigator){
+ window.addEventListener('load',()=>{
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+ });
+}
 </script>
 </body>
 </html>
