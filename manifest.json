@@ -2,7 +2,7 @@
   "name": "ADAM MK CHAT",
   "short_name": "ADAM MK",
   "description": "Global social networking and messaging platform where people can connect, chat, share photos, videos, music, and 24-hour status updates.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -13,7 +13,13 @@
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
