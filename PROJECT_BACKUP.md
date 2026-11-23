@@ -4,46 +4,53 @@
 ADAM MK CHAT
 
 ## Description
-Global social networking and messaging platform.
+Global social networking and messaging platform where users can connect, chat, share media, and stay updated.
 
-## Design
-Blue and White.
+## Design & Theme
+- Primary Theme: Blue and White (with optional Dark Mode support)
+- Responsive Mobile-First Layout
 
 ## Platforms
-- Web App (PWA)
-- Android App (APK)
+- Web App (Progressive Web App - PWA)
+- Android App (APK via Capacitor)
 
-## Registration
-- Email Registration
-- Phone Number Registration
-- Email Verification
-- Phone OTP
+## Authentication & Registration
+- Email Registration & Verification
+- Phone Number Registration & OTP Verification
+- Secure Login & Logout
 
-## Features
-- User Profiles
-- 24-Hour Status
-- Private Chat
-- Group Chat
+## Core Features
+- User Profiles (Name, Username, Bio, Avatar, Stats)
+- 24-Hour Status & Stories (Auto-expire after 24 hours)
+- Private Chat & Group Chat
 - Voice Messages
-- Audio Calls
-- Video Calls
-- Friends and Followers
-- Posts, Photos and Videos
-- Music Sharing
-- Likes, Comments and Sharing
-- Notifications
-- Block and Report
-- Privacy Settings
+- Audio Calls & Video Calls
+- Friends, Followers & Following
+- Posts (Text, Photos, Videos, and Music Sharing)
+- Likes, Comments, and Sharing
+- Real-Time Notifications
+- Block Users & Report Content/Users
+- Privacy & Security Settings
 
-## Languages
-English, Hausa, French, Arabic.
+## Supported Languages
+- English
+- Hausa
+- French
+- Arabic
 
-## Technology
-GitHub, Firebase, Cloudinary, Capacitor.
+## Technology Stack
+- **Version Control & Hosting:** GitHub & GitHub Pages
+- **Backend & Database:** Firebase (Authentication, Firestore/Realtime Database)
+- **Media Storage:** Cloudinary (Images, Videos, Audio/Music, Voice Notes)
+- **Mobile Packaging:** Capacitor (Web to Android APK)
 
-## Current Progress
-GitHub repository created.
-PROJECT_BACKUP.md being created.
-
-## Next Step
-Create the project files and folders.
+## Recommended Project Structure
+```text
+adam-mk-chat/
+├── index.html            # Main application UI & logic
+├── manifest.json         # PWA configuration (icons, name, display mode)
+├── sw.js                 # Service Worker for offline support & PWA install
+├── firebase-config.js    # Firebase & Cloudinary configuration
+├── capacitor.config.json # Capacitor config for Android APK build
+├── README.md             # Project overview & setup guide
+└── PROJECT_BACKUP.md     # Project backup & roadmap
