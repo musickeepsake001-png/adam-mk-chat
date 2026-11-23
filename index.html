@@ -445,6 +445,22 @@ main{padding-bottom:85px}
  </div>
 </main>
 
+<!-- INVITE LINK MODAL -->
+<div id="inviteModal" class="modal hidden">
+ <div class="modal-content">
+  <h3 style="margin-bottom:10px;color:var(--blue)">Invite Friends to ADAM MK CHAT</h3>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Copy or share this link with your friends:</p>
+  <div class="form-group">
+   <input id="inviteLinkInput" readonly value="https://musickeepsake001-png.github.io/adam-mk-chat/">
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+   <button class="primary" style="flex:1" onclick="copyInviteLink(true)">Copy Link</button>
+   <button class="primary" style="flex:1;background:#16a34a" onclick="shareWhatsApp()">WhatsApp</button>
+  </div>
+  <button class="primary" style="background:#64748b;margin-top:10px" onclick="closeInviteModal()">Close</button>
+ </div>
+</div>
+
 <!-- EDIT PROFILE MODAL -->
 <div id="editModal" class="modal hidden">
  <div class="modal-content">
@@ -547,7 +563,9 @@ const firebaseConfig = {
 
 const CLOUDINARY_CLOUD_NAME = "enznhdmj";
 const CLOUDINARY_UPLOAD_PRESET = "Adam_mk_preset";
-const SHARE_URL = window.location.origin + window.location.pathname;
+const SHARE_URL = (window.location.href && window.location.href.startsWith("http"))
+ ? window.location.href.split("#")[0].split("?")[0]
+ : "https://musickeepsake001-png.github.io/adam-mk-chat/";
 
 const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch (e) {}
@@ -602,11 +620,62 @@ function setAvatarContent(el, name, photoUrl){
  }
 }
 
-window.copyInviteLink = function(){
- if(navigator.clipboard && navigator.clipboard.writeText){
-  navigator.clipboard.writeText(SHARE_URL).then(()=>showToast('Invite link copied!')).catch(()=>showToast(SHARE_URL));
+window.openInviteModal = function(){
+ const inp = document.getElementById('inviteLinkInput');
+ if(inp) inp.value = SHARE_URL;
+ document.getElementById('inviteModal').classList.remove('hidden');
+};
+
+window.closeInviteModal = function(){
+ document.getElementById('inviteModal').classList.add('hidden');
+};
+
+window.shareWhatsApp = function(){
+ const inviteText = `Join me on ADAM MK CHAT! Create your account and chat here: ${SHARE_URL}`;
+ window.open(`https://wa.me/?text=${encodeURIComponent(inviteText)}`, '_blank', 'noopener');
+};
+
+function fallbackCopyText(text){
+ try{
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.top = '0';
+  ta.style.left = '0';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  const ok = document.execCommand('copy');
+  document.body.removeChild(ta);
+  return Boolean(ok);
+ }catch(e){
+  return false;
+ }
+}
+
+window.copyInviteLink = async function(fromModal){
+ const textToCopy = SHARE_URL;
+ let copied = false;
+
+ if(navigator.clipboard && typeof navigator.clipboard.writeText === 'function'){
+  try{
+   await navigator.clipboard.writeText(textToCopy);
+   copied = true;
+  }catch(e){
+   copied = fallbackCopyText(textToCopy);
+  }
  }else{
-  showToast(SHARE_URL);
+  copied = fallbackCopyText(textToCopy);
+ }
+
+ if(copied){
+  showToast('Invite link copied!');
+ }else{
+  window.openInviteModal();
+  if(!fromModal) showToast('Tap & hold link to copy');
  }
 };
 
@@ -617,9 +686,11 @@ window.inviteFriends = function(){
    title: 'ADAM MK CHAT',
    text: inviteText,
    url: SHARE_URL
-  }).catch(()=>{});
+  }).catch(()=>{
+   window.openInviteModal();
+  });
  }else{
-  window.open(`https://wa.me/?text=${encodeURIComponent(inviteText)}`, '_blank', 'noopener');
+  window.openInviteModal();
  }
 };
 
@@ -1051,8 +1122,12 @@ window.addComment = async function(postId){
 };
 
 window.sharePost = function(text){
- if(navigator.clipboard) navigator.clipboard.writeText(text);
- showToast('Post copied to clipboard!');
+ if(navigator.clipboard && navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).catch(()=>fallbackCopyText(text));
+ }else{
+  fallbackCopyText(text);
+ }
+ showToast('Post copied!');
 };
 
 function renderPosts(){
