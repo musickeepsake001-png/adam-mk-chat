@@ -223,4 +223,1035 @@ main{padding-bottom:85px}
  </div>
  <div class="header-actions hidden" id="headerActions">
   <button onclick="showPage('notifications')" title="Notifications">
-   <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-
+   <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </button>
+  <button onclick="showPage('messages')" title="Messages">
+   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+ </div>
+</header>
+
+<!-- REGISTER -->
+<section id="register" class="container auth">
+ <div class="card">
+  <h2>Create Account</h2>
+  <p>Join ADAM MK CHAT and connect with the world.</p>
+
+  <div class="form-group">
+   <label>Full Name</label>
+   <input id="regName" placeholder="Enter your full name">
+  </div>
+
+  <div class="form-group">
+   <label>Username</label>
+   <input id="regUsername" placeholder="e.g. adammk">
+  </div>
+
+  <div class="form-group">
+   <label>Email Address</label>
+   <input id="regEmail" type="email" placeholder="Enter your email">
+  </div>
+
+  <div class="form-group">
+   <label>Password</label>
+   <input id="regPassword" type="password" placeholder="At least 6 characters">
+  </div>
+
+  <button class="primary" onclick="registerUser()">Create Account</button>
+
+  <div class="auth-footer">
+   Already have an account?
+   <span class="link" onclick="showAuth('login')">Login</span>
+  </div>
+ </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="container auth hidden">
+ <div class="card">
+  <h2>Welcome Back!</h2>
+  <p>Login to your ADAM MK CHAT account.</p>
+
+  <div class="form-group">
+   <label>Email Address</label>
+   <input id="loginEmail" type="email" placeholder="Enter your email">
+  </div>
+
+  <div class="form-group">
+   <label>Password</label>
+   <input id="loginPassword" type="password" placeholder="Password">
+  </div>
+
+  <button class="primary" onclick="loginUser()">Login</button>
+
+  <div class="auth-footer">
+   New here?
+   <span class="link" onclick="showAuth('register')">Create Account</span>
+  </div>
+ </div>
+</section>
+
+<!-- MAIN APP -->
+<main id="app" class="hidden">
+ <div class="container">
+
+  <!-- HOME -->
+  <section id="homePage">
+   <div class="home-layout">
+    <div>
+     <div class="card">
+      <div class="section-title">24-Hour Status & Stories</div>
+      <div class="status-area" id="statusList"></div>
+     </div>
+
+     <div class="card">
+      <div class="create-post">
+       <div class="avatar" id="homeAvatar">MK</div>
+       <input id="postInput" placeholder="What's on your mind?">
+      </div>
+      <div id="mediaPreview" class="media-preview hidden">
+       <span id="mediaName">File selected</span>
+       <button class="link" onclick="clearMedia()" style="color:#ef4444">Remove</button>
+      </div>
+      <input type="file" id="mediaFile" accept="image/*,video/*,audio/*" class="hidden" onchange="handleMediaSelect(event)">
+      <div class="post-tools">
+       <div style="display:flex;gap:12px">
+        <button class="link" onclick="triggerMedia('image/*,video/*')">
+         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+         Photo/Video
+        </button>
+        <button class="link" onclick="triggerMedia('audio/*')">
+         <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+         Music
+        </button>
+       </div>
+       <button class="primary" id="postBtn" style="width:auto;padding:8px 20px" onclick="addPost()">Post</button>
+      </div>
+     </div>
+
+     <div id="feed"></div>
+    </div>
+
+    <div>
+     <div class="card">
+      <div class="section-title">Your Account</div>
+      <div class="top-profile">
+       <div class="avatar" id="sideAvatar">MK</div>
+       <div>
+        <strong id="sideName">Welcome</strong><br>
+        <small id="sideUsername" style="color:var(--muted)">@username</small>
+       </div>
+      </div>
+      <button class="primary" style="margin-top:15px" onclick="showPage('profile')">View Profile</button>
+      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="inviteFriends()">➕ Invite Friends</button>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <!-- MESSAGES -->
+  <section id="messagesPage" class="hidden">
+   <div class="page-header-row">
+    <h2 class="page-title">Messages</h2>
+    <div class="invite-actions">
+     <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
+     <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
+    </div>
+   </div>
+   <div class="card" id="chatListCard">
+    <div id="chatList"></div>
+   </div>
+
+   <div class="card hidden" id="chatRoomCard">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+     <button class="link" onclick="closeChatRoom()">← Back</button>
+     <div class="avatar" id="chatPeerAvatar" style="width:36px;height:36px">A</div>
+     <strong id="chatPeerName">User</strong>
+    </div>
+    <div class="chat-window">
+     <div class="chat-messages" id="chatMessages"></div>
+     <div class="chat-input-bar">
+      <input id="chatMsgInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()">
+      <button class="primary" style="width:auto;padding:10px 18px" onclick="sendMessage()">Send</button>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <!-- FRIENDS -->
+  <section id="friendsPage" class="hidden">
+   <div class="page-header-row">
+    <h2 class="page-title">People on ADAM MK CHAT</h2>
+    <div class="invite-actions">
+     <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
+     <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
+    </div>
+   </div>
+   <div class="card" id="peopleList"></div>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <section id="notificationsPage" class="hidden">
+   <h2 class="page-title">Notifications</h2>
+   <div class="card empty">All notifications are up to date.</div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profilePage" class="hidden">
+   <div class="page-header-row">
+    <h2 class="page-title">My Profile</h2>
+    <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
+   </div>
+   <div class="card">
+    <div class="profile-cover"></div>
+    <div class="profile-info">
+     <div class="avatar" id="profileAvatar">MK</div>
+     <h2 id="profileName" style="margin-top:8px">Your Name</h2>
+     <p id="profileUsername" style="color:var(--muted)">@username</p>
+     <p id="profileBio" style="margin-top:8px;font-size:14px">Welcome to ADAM MK CHAT!</p>
+    </div>
+    <div class="stats">
+     <div><strong id="statPosts">0</strong><small>Posts</small></div>
+     <div><strong>0</strong><small>Followers</small></div>
+     <div><strong>0</strong><small>Following</small></div>
+     <div><strong id="statUsers">0</strong><small>Members</small></div>
+    </div>
+    <button class="primary" onclick="openEditProfile()">Edit Profile</button>
+   </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settingsPage" class="hidden">
+   <h2 class="page-title">Settings</h2>
+   <div class="card">
+    <div class="menu-item" onclick="toggleDarkMode()">
+     <span>🌙 Dark Mode</span>
+     <strong id="darkModeStatus">Off</strong>
+    </div>
+    <div class="menu-item" onclick="inviteFriends()">
+     <span>➕ Invite Friends</span>
+     <small style="color:var(--muted)">Share Link</small>
+    </div>
+    <div class="menu-item" onclick="showToast('Connected to Firebase & Cloudinary')">
+     <span>☁️ Cloud Status</span>
+     <small style="color:var(--muted)">Active</small>
+    </div>
+    <div class="menu-item" onclick="logoutUser()" style="color:#ef4444;font-weight:bold">
+     <span>↪ Logout</span>
+    </div>
+   </div>
+  </section>
+
+ </div>
+</main>
+
+<!-- EDIT PROFILE MODAL -->
+<div id="editModal" class="modal hidden">
+ <div class="modal-content">
+  <h3 style="margin-bottom:12px;color:var(--blue)">Edit Profile</h3>
+  <div class="form-group">
+   <label>Profile Photo (DP)</label>
+   <div class="dp-preview-wrap">
+    <div class="avatar dp-preview-box" id="editDpPreview">MK</div>
+    <input type="file" id="editDpInput" accept="image/*" onchange="handleDpPreview(event)">
+   </div>
+  </div>
+  <div class="form-group">
+   <label>Full Name</label>
+   <input id="editNameInput">
+  </div>
+  <div class="form-group">
+   <label>Bio</label>
+   <textarea id="editBioInput" rows="3"></textarea>
+  </div>
+  <div style="display:flex;gap:10px">
+   <button class="primary" id="saveProfileBtn" onclick="saveProfile()">Save</button>
+   <button class="primary" style="background:#64748b" onclick="closeEditProfile()">Cancel</button>
+  </div>
+ </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div id="statusModal" class="modal hidden">
+ <div class="modal-content">
+  <h3 id="statusModalTitle" style="margin-bottom:10px;color:var(--blue)">24-Hour Status</h3>
+  <div id="statusCreateBox">
+   <div class="form-group">
+    <textarea id="statusText" rows="3" placeholder="Share a status update (expires in 24 hours)..."></textarea>
+   </div>
+   <div class="form-group">
+    <label>Optional Photo</label>
+    <input type="file" id="statusImgInput" accept="image/*">
+   </div>
+   <div style="display:flex;gap:10px">
+    <button class="primary" id="statusSubmitBtn" onclick="saveStatus()">Post Status</button>
+    <button class="primary" style="background:#64748b" onclick="closeStatusModal()">Cancel</button>
+   </div>
+  </div>
+  <div id="statusViewBox" class="hidden">
+   <p id="statusViewContent" style="margin:15px 0;font-size:16px;line-height:1.5"></p>
+   <img id="statusViewImg" class="post-media hidden" style="margin-bottom:12px">
+   <small id="statusViewTime" style="color:var(--muted);display:block;margin-bottom:12px"></small>
+   <button class="primary" onclick="closeStatusModal()">Close</button>
+  </div>
+ </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="navbar hidden" id="navbar">
+ <button class="active" onclick="showPage('home')">
+  <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  Home
+ </button>
+ <button onclick="showPage('friends')">
+  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+  People
+ </button>
+ <button onclick="showPage('messages')">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  Messages
+ </button>
+ <button onclick="showPage('profile')">
+  <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  Profile
+ </button>
+ <button onclick="showPage('settings')">
+  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  More
+ </button>
+</nav>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
+import {
+ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+ signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+import {
+ getFirestore, collection, doc, setDoc, getDoc,
+ addDoc, updateDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+const firebaseConfig = {
+ apiKey: "AIzaSyDaJPCz84-E4p-eSUQNNjp7T8mMyQ-Kqlo",
+ authDomain: "adam-mk-chat-a5074.firebaseapp.com",
+ projectId: "adam-mk-chat-a5074",
+ storageBucket: "adam-mk-chat-a5074.firebasestorage.app",
+ messagingSenderId: "332376253838",
+ appId: "1:332376253838:web:1988971be6f942c0b7f0df",
+ measurementId: "G-H18B4DPJ3Y"
+};
+
+const CLOUDINARY_CLOUD_NAME = "enznhdmj";
+const CLOUDINARY_UPLOAD_PRESET = "Adam_mk_preset";
+const SHARE_URL = window.location.origin + window.location.pathname;
+
+const app = initializeApp(firebaseConfig);
+try { getAnalytics(app); } catch (e) {}
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let allUsers = [];
+let allPosts = [];
+let allStatuses = [];
+let activePeer = null;
+let selectedFile = null;
+let unsubPosts = null;
+let unsubStatuses = null;
+let unsubUsers = null;
+let unsubMessages = null;
+
+function getSavedPhoto(uid){
+ try{
+  const map = JSON.parse(localStorage.getItem('amk_dp_map') || '{}');
+  return (uid && map[uid]) ? map[uid] : '';
+ }catch(e){ return ''; }
+}
+
+function savePhotoLocal(uid, url){
+ try{
+  const map = JSON.parse(localStorage.getItem('amk_dp_map') || '{}');
+  if(uid && url) map[uid] = url;
+  localStorage.setItem('amk_dp_map', JSON.stringify(map));
+ }catch(e){}
+}
+
+function fallbackUserFromAuth(user){
+ const base = (user && user.email) ? user.email.split('@')[0] : 'member';
+ const uid = user ? user.uid : 'guest';
+ return {
+  uid,
+  name: base,
+  username: base,
+  email: user ? (user.email || '') : '',
+  bio: 'Welcome to ADAM MK CHAT!',
+  photoUrl: getSavedPhoto(uid)
+ };
+}
+
+function setAvatarContent(el, name, photoUrl){
+ if(!el)return;
+ if(photoUrl){
+  el.innerHTML = `<img src="${photoUrl}" alt="${name || 'DP'}">`;
+ }else{
+  el.textContent = (name || 'M')[0].toUpperCase();
+ }
+}
+
+window.copyInviteLink = function(){
+ if(navigator.clipboard && navigator.clipboard.writeText){
+  navigator.clipboard.writeText(SHARE_URL).then(()=>showToast('Invite link copied!')).catch(()=>showToast(SHARE_URL));
+ }else{
+  showToast(SHARE_URL);
+ }
+};
+
+window.inviteFriends = function(){
+ const inviteText = `Join me on ADAM MK CHAT! Create your account and chat here: ${SHARE_URL}`;
+ if(navigator.share){
+  navigator.share({
+   title: 'ADAM MK CHAT',
+   text: inviteText,
+   url: SHARE_URL
+  }).catch(()=>{});
+ }else{
+  window.open(`https://wa.me/?text=${encodeURIComponent(inviteText)}`, '_blank', 'noopener');
+ }
+};
+
+window.showToast = function(msg){
+ const t=document.getElementById('toast');
+ t.textContent=msg; t.style.display='block';
+ setTimeout(()=>t.style.display='none',2600);
+};
+
+window.showAuth = function(type){
+ document.getElementById('register').classList.toggle('hidden',type!=='register');
+ document.getElementById('login').classList.toggle('hidden',type!=='login');
+ document.getElementById('app').classList.add('hidden');
+ document.getElementById('navbar').classList.add('hidden');
+ document.getElementById('headerActions').classList.add('hidden');
+};
+
+function showAppUI(){
+ if(!currentUser && auth.currentUser){
+  currentUser = fallbackUserFromAuth(auth.currentUser);
+ }
+ document.getElementById('register').classList.add('hidden');
+ document.getElementById('login').classList.add('hidden');
+ document.getElementById('app').classList.remove('hidden');
+ document.getElementById('navbar').classList.remove('hidden');
+ document.getElementById('headerActions').classList.remove('hidden');
+ updateProfileUI();
+ renderPeople();
+ renderChatsList();
+ try { listenRealtime(); } catch(e) {}
+ window.showPage('home');
+}
+
+async function uploadToCloudinary(file){
+ const formData = new FormData();
+ formData.append("file", file);
+ formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+ const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+  method: "POST",
+  body: formData
+ });
+ if(!res.ok) throw new Error("Cloudinary upload failed");
+ const data = await res.json();
+ return data.secure_url;
+}
+
+window.registerUser = async function(){
+ const name=document.getElementById('regName').value.trim();
+ const username=document.getElementById('regUsername').value.trim().replace(/^@/,'').toLowerCase();
+ const email=document.getElementById('regEmail').value.trim();
+ const password=document.getElementById('regPassword').value;
+
+ if(!name||!username||!email||!password){
+  showToast('Please complete all fields'); return;
+ }
+ if(password.length<6){
+  showToast('Password must be at least 6 characters'); return;
+ }
+
+ try{
+  const cred=await createUserWithEmailAndPassword(auth, email, password);
+  const profile={
+   uid:cred.user.uid,
+   name,
+   username,
+   email,
+   bio:'Welcome to ADAM MK CHAT!',
+   photoUrl:getSavedPhoto(cred.user.uid)
+  };
+  currentUser = profile;
+  showAppUI();
+  try { await setDoc(doc(db,'users',cred.user.uid), profile); } catch(e) {}
+  showToast('Account created on ADAM MK CHAT!');
+ }catch(err){
+  showToast(err.message);
+ }
+};
+
+window.loginUser = async function(){
+ const email=document.getElementById('loginEmail').value.trim();
+ const password=document.getElementById('loginPassword').value;
+ if(!email||!password){
+  showToast('Enter email and password'); return;
+ }
+ try{
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  currentUser = fallbackUserFromAuth(cred.user);
+  showToast('Welcome back!');
+
+  document.getElementById('register').classList.add('hidden');
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('navbar').classList.remove('hidden');
+  document.getElementById('headerActions').classList.remove('hidden');
+
+  try { updateProfileUI(); } catch(e) {}
+  try { listenRealtime(); } catch(e) {}
+  try { window.showPage('home'); } catch(e) {}
+ }catch(err){
+  showToast(err.message);
+ }
+};
+
+window.logoutUser = async function(){
+ if(unsubPosts) unsubPosts();
+ if(unsubStatuses) unsubStatuses();
+ if(unsubUsers) unsubUsers();
+ if(unsubMessages) unsubMessages();
+ try { await signOut(auth); } catch(e) {}
+ currentUser=null;
+ showAuth('login');
+ showToast('Logged out');
+};
+
+onAuthStateChanged(auth, async (user)=>{
+ if(user){
+  currentUser = fallbackUserFromAuth(user);
+  showAppUI();
+  try {
+   const docPromise = getDoc(doc(db,'users',user.uid));
+   const timeoutPromise = new Promise((_, reject)=>setTimeout(()=>reject(new Error('timeout')), 2000));
+   const snap = await Promise.race([docPromise, timeoutPromise]);
+   if(snap && snap.exists()){
+    const data = snap.data();
+    currentUser = {
+     ...currentUser,
+     ...data,
+     photoUrl: data.photoUrl || currentUser.photoUrl || ''
+    };
+    if(currentUser.photoUrl) savePhotoLocal(currentUser.uid, currentUser.photoUrl);
+    updateProfileUI();
+   }
+  } catch(e) {}
+ }else{
+  currentUser=null;
+  showAuth('login');
+ }
+});
+
+window.showPage = function(page){
+ const pages=['home','messages','friends','notifications','profile','settings'];
+ pages.forEach(p=>{
+  document.getElementById(p+'Page').classList.toggle('hidden',p!==page);
+ });
+ document.querySelectorAll('.navbar button').forEach((btn,i)=>{
+  btn.classList.toggle('active',pages[i]===page);
+ });
+ if(page==='friends') renderPeople();
+ if(page==='messages') renderChatsList();
+ window.scrollTo(0,0);
+};
+
+function updateProfileUI(){
+ if(!currentUser)return;
+ const photo = currentUser.photoUrl || getSavedPhoto(currentUser.uid);
+ setAvatarContent(document.getElementById('homeAvatar'), currentUser.name, photo);
+ setAvatarContent(document.getElementById('sideAvatar'), currentUser.name, photo);
+ setAvatarContent(document.getElementById('profileAvatar'), currentUser.name, photo);
+ document.getElementById('sideName').textContent=currentUser.name;
+ document.getElementById('sideUsername').textContent='@'+currentUser.username;
+ document.getElementById('profileName').textContent=currentUser.name;
+ document.getElementById('profileUsername').textContent='@'+currentUser.username;
+ document.getElementById('profileBio').textContent=currentUser.bio || '';
+ const myPosts=allPosts.filter(p=>p.uid===currentUser.uid).length;
+ document.getElementById('statPosts').textContent=myPosts;
+ document.getElementById('statUsers').textContent=allUsers.length;
+}
+
+window.handleDpPreview = function(e){
+ const file = e.target.files && e.target.files[0];
+ if(!file)return;
+ const url = URL.createObjectURL(file);
+ setAvatarContent(document.getElementById('editDpPreview'), currentUser ? currentUser.name : 'MK', url);
+};
+
+window.openEditProfile = function(){
+ document.getElementById('editNameInput').value=currentUser.name;
+ document.getElementById('editBioInput').value=currentUser.bio || '';
+ document.getElementById('editDpInput').value='';
+ const currentPhoto = currentUser.photoUrl || getSavedPhoto(currentUser.uid);
+ setAvatarContent(document.getElementById('editDpPreview'), currentUser.name, currentPhoto);
+ document.getElementById('editModal').classList.remove('hidden');
+};
+
+window.closeEditProfile = function(){
+ document.getElementById('editModal').classList.add('hidden');
+};
+
+window.saveProfile = async function(){
+ const name=document.getElementById('editNameInput').value.trim();
+ const bio=document.getElementById('editBioInput').value.trim();
+ const dpInput=document.getElementById('editDpInput');
+ const dpFile=dpInput.files && dpInput.files[0];
+ if(!name)return;
+
+ const btn=document.getElementById('saveProfileBtn');
+ btn.disabled=true; btn.textContent='Saving...';
+ try{
+  let photoUrl = currentUser.photoUrl || getSavedPhoto(currentUser.uid) || '';
+  if(dpFile){
+   photoUrl = await uploadToCloudinary(dpFile);
+   savePhotoLocal(currentUser.uid, photoUrl);
+  }
+  await setDoc(doc(db,'users',currentUser.uid),{
+   uid:currentUser.uid,
+   name,
+   username:currentUser.username || name.toLowerCase().replace(/\s+/g,''),
+   email:currentUser.email || '',
+   bio,
+   photoUrl
+  }, { merge:true });
+  currentUser.name=name;
+  currentUser.bio=bio;
+  currentUser.photoUrl=photoUrl;
+  updateProfileUI();
+  renderPosts();
+  renderStatuses();
+  closeEditProfile();
+  showToast('Profile updated!');
+ }catch(err){
+  showToast(err.message);
+ }finally{
+  btn.disabled=false; btn.textContent='Save';
+ }
+};
+
+function listenRealtime(){
+ if(unsubUsers) unsubUsers();
+ if(unsubPosts) unsubPosts();
+ if(unsubStatuses) unsubStatuses();
+
+ unsubUsers=onSnapshot(collection(db,'users'),(snap)=>{
+  allUsers=snap.docs.map(d=>d.data());
+  if(currentUser){
+   const me = allUsers.find(u=>u.uid===currentUser.uid);
+   if(me){
+    currentUser = {
+     ...currentUser,
+     ...me,
+     photoUrl: me.photoUrl || currentUser.photoUrl || getSavedPhoto(currentUser.uid)
+    };
+   }
+  }
+  renderPeople();
+  renderChatsList();
+  renderPosts();
+  renderStatuses();
+  updateProfileUI();
+ }, ()=>{});
+
+ const qPosts=query(collection(db,'posts'),orderBy('createdAt','desc'));
+ unsubPosts=onSnapshot(qPosts,(snap)=>{
+  allPosts=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPosts();
+  updateProfileUI();
+ }, ()=>{});
+
+ const qStatuses=query(collection(db,'statuses'),orderBy('createdAt','desc'));
+ unsubStatuses=onSnapshot(qStatuses,(snap)=>{
+  const dayMs=24*60*60*1000;
+  allStatuses=snap.docs
+   .map(d=>({id:d.id,...d.data()}))
+   .filter(s=>(Date.now()-s.createdAt)<dayMs);
+  renderStatuses();
+ }, ()=>{});
+}
+
+function getUserPhoto(uid){
+ if(currentUser && uid===currentUser.uid) return currentUser.photoUrl || getSavedPhoto(uid) || '';
+ const found = allUsers.find(u=>u.uid===uid);
+ return (found && found.photoUrl) ? found.photoUrl : getSavedPhoto(uid);
+}
+
+// 24-Hour Status
+function renderStatuses(){
+ const list=document.getElementById('statusList');
+ list.innerHTML=`
+  <div class="status-item" onclick="openStatusCreate()">
+   <div class="status-ring"><div class="avatar add-status">+</div></div>
+   <small>Your Status</small>
+  </div>
+ `;
+ allStatuses.forEach(st=>{
+  const photo = getUserPhoto(st.uid);
+  const avatarInner = photo
+   ? `<img src="${photo}" alt="${st.userName || 'U'}">`
+   : (st.userName||'U')[0].toUpperCase();
+  const item=document.createElement('div');
+  item.className='status-item';
+  item.onclick=()=>openStatusView(st);
+  item.innerHTML=`
+   <div class="status-ring"><div class="avatar">${avatarInner}</div></div>
+   <small>${st.userName}</small>
+  `;
+  list.appendChild(item);
+ });
+}
+
+window.openStatusCreate = function(){
+ document.getElementById('statusModalTitle').textContent='Post 24-Hour Status';
+ document.getElementById('statusCreateBox').classList.remove('hidden');
+ document.getElementById('statusViewBox').classList.add('hidden');
+ document.getElementById('statusText').value='';
+ document.getElementById('statusImgInput').value='';
+ document.getElementById('statusModal').classList.remove('hidden');
+};
+
+window.saveStatus = async function(){
+ const text=document.getElementById('statusText').value.trim();
+ const fileInput=document.getElementById('statusImgInput');
+ const file=fileInput.files && fileInput.files[0];
+ if(!text && !file){showToast('Write text or choose a photo');return;}
+
+ const btn=document.getElementById('statusSubmitBtn');
+ btn.disabled=true; btn.textContent='Posting...';
+ try{
+  let imageUrl=null;
+  if(file) imageUrl=await uploadToCloudinary(file);
+  await addDoc(collection(db,'statuses'),{
+   uid:currentUser.uid,
+   userName:currentUser.name,
+   text,
+   imageUrl,
+   createdAt:Date.now()
+  });
+  closeStatusModal();
+  showToast('24-hour status posted!');
+ }catch(err){
+  showToast(err.message);
+ }finally{
+  btn.disabled=false; btn.textContent='Post Status';
+ }
+};
+
+function openStatusView(st){
+ document.getElementById('statusModalTitle').textContent=st.userName+"'s Status";
+ document.getElementById('statusCreateBox').classList.add('hidden');
+ document.getElementById('statusViewBox').classList.remove('hidden');
+ document.getElementById('statusViewContent').textContent=st.text || '';
+ const imgEl=document.getElementById('statusViewImg');
+ if(st.imageUrl){
+  imgEl.src=st.imageUrl;
+  imgEl.classList.remove('hidden');
+ }else{
+  imgEl.classList.add('hidden');
+ }
+ document.getElementById('statusViewTime').textContent='Posted: '+new Date(st.createdAt).toLocaleTimeString();
+ document.getElementById('statusModal').classList.remove('hidden');
+}
+
+window.closeStatusModal = function(){
+ document.getElementById('statusModal').classList.add('hidden');
+};
+
+// Media & Posts
+window.triggerMedia = function(accept){
+ const input=document.getElementById('mediaFile');
+ input.accept=accept;
+ input.click();
+};
+
+window.handleMediaSelect = function(e){
+ const file=e.target.files[0];
+ if(!file)return;
+ selectedFile=file;
+ document.getElementById('mediaName').textContent='📎 '+file.name;
+ document.getElementById('mediaPreview').classList.remove('hidden');
+};
+
+window.clearMedia = function(){
+ selectedFile=null;
+ document.getElementById('mediaFile').value='';
+ document.getElementById('mediaPreview').classList.add('hidden');
+};
+
+window.addPost = async function(){
+ const input=document.getElementById('postInput');
+ const text=input.value.trim();
+ if(!text && !selectedFile){showToast('Write something or select media');return;}
+
+ const btn=document.getElementById('postBtn');
+ btn.disabled=true; btn.textContent='Uploading...';
+ try{
+  let mediaUrl=null, mediaType=null, mediaName=null;
+  if(selectedFile){
+   mediaUrl=await uploadToCloudinary(selectedFile);
+   mediaType=selectedFile.type;
+   mediaName=selectedFile.name;
+  }
+  await addDoc(collection(db,'posts'),{
+   uid:currentUser.uid,
+   userName:currentUser.name,
+   text,
+   mediaUrl,
+   mediaType,
+   mediaName,
+   createdAt:Date.now(),
+   likes:[],
+   comments:[]
+  });
+  input.value='';
+  clearMedia();
+  showToast('Post published!');
+ }catch(err){
+  showToast(err.message);
+ }finally{
+  btn.disabled=false; btn.textContent='Post';
+ }
+};
+
+window.toggleLike = async function(postId, likes){
+ const ref=doc(db,'posts',postId);
+ if(likes.includes(currentUser.uid)){
+  await updateDoc(ref,{likes:arrayRemove(currentUser.uid)});
+ }else{
+  await updateDoc(ref,{likes:arrayUnion(currentUser.uid)});
+ }
+};
+
+window.addComment = async function(postId){
+ const input=document.getElementById('cInput_'+postId);
+ const text=input.value.trim();
+ if(!text)return;
+ await updateDoc(doc(db,'posts',postId),{
+  comments:arrayUnion({name:currentUser.name,text})
+ });
+ input.value='';
+};
+
+window.sharePost = function(text){
+ if(navigator.clipboard) navigator.clipboard.writeText(text);
+ showToast('Post copied to clipboard!');
+};
+
+function renderPosts(){
+ const feed=document.getElementById('feed');
+ if(!allPosts.length){
+  feed.innerHTML='<div class="card empty">No posts yet. Be the first to post on ADAM MK CHAT!</div>';
+  return;
+ }
+ feed.innerHTML='';
+ allPosts.forEach(p=>{
+  const likes=p.likes || [];
+  const comments=p.comments || [];
+  const liked=currentUser && likes.includes(currentUser.uid);
+  const photo = getUserPhoto(p.uid);
+  const avatarInner = photo
+   ? `<img src="${photo}" alt="${p.userName || 'U'}">`
+   : (p.userName||'U')[0].toUpperCase();
+
+  let mediaHtml='';
+  if(p.mediaUrl && p.mediaType){
+   if(p.mediaType.startsWith('image/')){
+    mediaHtml=`<img src="${p.mediaUrl}" class="post-media" loading="lazy">`;
+   }else if(p.mediaType.startsWith('video/')){
+    mediaHtml=`<video src="${p.mediaUrl}" controls class="post-media"></video>`;
+   }else if(p.mediaType.startsWith('audio/')){
+    mediaHtml=`<div style="margin-top:8px"><small>🎵 ${p.mediaName || 'Audio Track'}</small><audio src="${p.mediaUrl}" controls class="post-audio"></audio></div>`;
+   }
+  }
+
+  const card=document.createElement('div');
+  card.className='card';
+  card.innerHTML=`
+   <div class="post-header">
+    <div class="avatar">${avatarInner}</div>
+    <div class="details">
+     <strong>${p.userName}</strong><br>
+     <small>${new Date(p.createdAt).toLocaleString()}</small>
+    </div>
+   </div>
+   ${p.text ? `<p class="post-text">${p.text}</p>` : ''}
+   ${mediaHtml}
+   <div class="post-actions">
+    <button class="${liked?'liked':''}" onclick="toggleLike('${p.id}', ${JSON.stringify(likes).replace(/"/g,'&quot;')})">
+     ♡ Like (${likes.length})
+    </button>
+    <button onclick="document.getElementById('cBox_${p.id}').classList.toggle('hidden')">
+     💬 Comment (${comments.length})
+    </button>
+    <button onclick="sharePost(\`${(p.text || p.mediaUrl || '').replace(/`/g,'')}\`)">
+     ↗ Share
+    </button>
+   </div>
+   <div class="comments-box ${comments.length===0?'hidden':''}" id="cBox_${p.id}">
+    ${comments.map(c=>`<div class="comment-item"><strong>${c.name}:</strong> ${c.text}</div>`).join('')}
+    <div class="comment-form">
+     <input id="cInput_${p.id}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addComment('${p.id}')">
+     <button class="link" onclick="addComment('${p.id}')">Send</button>
+    </div>
+   </div>
+  `;
+  feed.appendChild(card);
+ });
+}
+
+function emptyFriendsMarkup(msg){
+ return `
+  <div class="empty">
+   <p>${msg}</p>
+   <div class="invite-box">
+    <button class="primary" style="width:auto;padding:9px 16px" onclick="inviteFriends()">➕ Invite Friends</button>
+    <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Invite Link</button>
+   </div>
+  </div>
+ `;
+}
+
+// People & Direct Chat
+function renderPeople(){
+ const list=document.getElementById('peopleList');
+ if(!list)return;
+ const others=allUsers.filter(u=>!currentUser || u.uid!==currentUser.uid);
+ if(!others.length){
+  list.innerHTML=emptyFriendsMarkup('No other members registered yet. Invite friends to join ADAM MK CHAT!');
+  return;
+ }
+ list.innerHTML='';
+ others.forEach(u=>{
+  const photo = u.photoUrl || getSavedPhoto(u.uid);
+  const avatarInner = photo
+   ? `<img src="${photo}" alt="${u.name}">`
+   : u.name[0].toUpperCase();
+  const row=document.createElement('div');
+  row.className='chat-row';
+  row.innerHTML=`
+   <div class="avatar">${avatarInner}</div>
+   <div class="details">
+    <strong>${u.name}</strong><br>
+    <small>@${u.username}</small>
+   </div>
+   <button class="primary" style="width:auto;padding:7px 14px;font-size:12px"
+    onclick="showPage('messages');openChatWith('${u.uid}','${u.name}')">Chat</button>
+  `;
+  list.appendChild(row);
+ });
+}
+
+function renderChatsList(){
+ const list=document.getElementById('chatList');
+ if(!list)return;
+ const others=allUsers.filter(u=>!currentUser || u.uid!==currentUser.uid);
+ if(!others.length){
+  list.innerHTML=emptyFriendsMarkup('Invite friends to register so you can chat!');
+  return;
+ }
+ list.innerHTML='';
+ others.forEach(u=>{
+  const photo = u.photoUrl || getSavedPhoto(u.uid);
+  const avatarInner = photo
+   ? `<img src="${photo}" alt="${u.name}">`
+   : u.name[0].toUpperCase();
+  const row=document.createElement('div');
+  row.className='chat-row';
+  row.onclick=()=>window.openChatWith(u.uid, u.name);
+  row.innerHTML=`
+   <div class="avatar">${avatarInner}</div>
+   <div class="details">
+    <strong>${u.name}</strong><br>
+    <small>@${u.username} • Tap to message</small>
+   </div>
+  `;
+  list.appendChild(row);
+ });
+}
+
+function getChatId(uid1, uid2){
+ return [uid1, uid2].sort().join('_');
+}
+
+window.openChatWith = function(peerUid, peerName){
+ activePeer={uid:peerUid, name:peerName};
+ document.getElementById('chatListCard').classList.add('hidden');
+ document.getElementById('chatRoomCard').classList.remove('hidden');
+ document.getElementById('chatPeerName').textContent=peerName;
+ setAvatarContent(document.getElementById('chatPeerAvatar'), peerName, getUserPhoto(peerUid));
+
+ if(unsubMessages) unsubMessages();
+ const chatId=getChatId(currentUser.uid, peerUid);
+ const qMsg=query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'));
+ unsubMessages=onSnapshot(qMsg,(snap)=>{
+  const box=document.getElementById('chatMessages');
+  box.innerHTML='';
+  snap.forEach(docSnap=>{
+   const m=docSnap.data();
+   const div=document.createElement('div');
+   div.className='msg-bubble '+(m.senderId===currentUser.uid?'msg-sent':'msg-recv');
+   div.textContent=m.text;
+   box.appendChild(div);
+  });
+  box.scrollTop=box.scrollHeight;
+ }, ()=>{});
+};
+
+window.closeChatRoom = function(){
+ activePeer=null;
+ if(unsubMessages) unsubMessages();
+ document.getElementById('chatRoomCard').classList.add('hidden');
+ document.getElementById('chatListCard').classList.remove('hidden');
+};
+
+window.sendMessage = async function(){
+ const input=document.getElementById('chatMsgInput');
+ const text=input.value.trim();
+ if(!text || !activePeer)return;
+ const chatId=getChatId(currentUser.uid, activePeer.uid);
+ input.value='';
+ await addDoc(collection(db,'chats',chatId,'messages'),{
+  senderId:currentUser.uid,
+  text,
+  createdAt:Date.now()
+ });
+};
+
+window.toggleDarkMode = function(){
+ document.body.classList.toggle('dark-mode');
+ const isDark=document.body.classList.contains('dark-mode');
+ document.getElementById('darkModeStatus').textContent=isDark?'On':'Off';
+ localStorage.setItem('amk_dark', isDark?'1':'0');
+};
+
+if(localStorage.getItem('amk_dark')==='1'){
+ document.body.classList.add('dark-mode');
+ document.getElementById('darkModeStatus').textContent='On';
+}
+
+if('serviceWorker' in navigator){
+ window.addEventListener('load',()=>{
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+ });
+}
+</script>
+</body>
+</html>
