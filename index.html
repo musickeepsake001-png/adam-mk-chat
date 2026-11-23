@@ -102,7 +102,9 @@ header{
  width:44px;height:44px;border-radius:50%;
  background:#d9eaff;color:var(--blue);
  display:grid;place-items:center;font-weight:bold;flex-shrink:0;
+ overflow:hidden;
 }
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .status-area{display:flex;gap:12px;overflow-x:auto;padding:4px 0 8px}
 .status-item{min-width:72px;max-width:72px;text-align:center;cursor:pointer}
 .status-ring{
@@ -420,6 +422,10 @@ main{padding-bottom:85px}
  <div class="modal-content">
   <h3 style="margin-bottom:12px;color:var(--blue)">Edit Profile</h3>
   <div class="form-group">
+   <label>Profile Photo (DP)</label>
+   <input type="file" id="editDpInput" accept="image/*">
+  </div>
+  <div class="form-group">
    <label>Full Name</label>
    <input id="editNameInput">
   </div>
@@ -428,7 +434,7 @@ main{padding-bottom:85px}
    <textarea id="editBioInput" rows="3"></textarea>
   </div>
   <div style="display:flex;gap:10px">
-   <button class="primary" onclick="saveProfile()">Save</button>
+   <button class="primary" id="saveProfileBtn" onclick="saveProfile()">Save</button>
    <button class="primary" style="background:#64748b" onclick="closeEditProfile()">Cancel</button>
   </div>
  </div>
@@ -534,8 +540,18 @@ function fallbackUserFromAuth(user){
   name: base,
   username: base,
   email: user ? (user.email || '') : '',
-  bio: 'Welcome to ADAM MK CHAT!'
+  bio: 'Welcome to ADAM MK CHAT!',
+  photoUrl: ''
  };
+}
+
+function setAvatarContent(el, name, photoUrl){
+ if(!el)return;
+ if(photoUrl){
+  el.innerHTML = `<img src="${photoUrl}" alt="${name || 'DP'}">`;
+ }else{
+  el.textContent = (name || 'M')[0].toUpperCase();
+ }
 }
 
 window.showToast = function(msg){
@@ -600,7 +616,8 @@ window.registerUser = async function(){
    name,
    username,
    email,
-   bio:'Welcome to ADAM MK CHAT!'
+   bio:'Welcome to ADAM MK CHAT!',
+   photoUrl:''
   };
   currentUser = profile;
   showAppUI();
@@ -621,7 +638,16 @@ window.loginUser = async function(){
   const cred = await signInWithEmailAndPassword(auth, email, password);
   currentUser = fallbackUserFromAuth(cred.user);
   showToast('Welcome back!');
-  showAppUI();
+
+  document.getElementById('register').classList.add('hidden');
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('navbar').classList.remove('hidden');
+  document.getElementById('headerActions').classList.remove('hidden');
+
+  try { updateProfileUI(); } catch(e) {}
+  try { listenRealtime(); } catch(e) {}
+  try { window.showPage('home'); } catch(e) {}
  }catch(err){
   showToast(err.message);
  }
@@ -670,10 +696,9 @@ window.showPage = function(page){
 
 function updateProfileUI(){
  if(!currentUser)return;
- const initial=(currentUser.name || 'M')[0].toUpperCase();
- document.getElementById('homeAvatar').textContent=initial;
- document.getElementById('sideAvatar').textContent=initial;
- document.getElementById('profileAvatar').textContent=initial;
+ setAvatarContent(document.getElementById('homeAvatar'), currentUser.name, currentUser.photoUrl);
+ setAvatarContent(document.getElementById('sideAvatar'), currentUser.name, currentUser.photoUrl);
+ setAvatarContent(document.getElementById('profileAvatar'), currentUser.name, currentUser.photoUrl);
  document.getElementById('sideName').textContent=currentUser.name;
  document.getElementById('sideUsername').textContent='@'+currentUser.username;
  document.getElementById('profileName').textContent=currentUser.name;
@@ -687,6 +712,7 @@ function updateProfileUI(){
 window.openEditProfile = function(){
  document.getElementById('editNameInput').value=currentUser.name;
  document.getElementById('editBioInput').value=currentUser.bio || '';
+ document.getElementById('editDpInput').value='';
  document.getElementById('editModal').classList.remove('hidden');
 };
 
@@ -697,12 +723,38 @@ window.closeEditProfile = function(){
 window.saveProfile = async function(){
  const name=document.getElementById('editNameInput').value.trim();
  const bio=document.getElementById('editBioInput').value.trim();
+ const dpInput=document.getElementById('editDpInput');
+ const dpFile=dpInput.files && dpInput.files[0];
  if(!name)return;
- try { await updateDoc(doc(db,'users',currentUser.uid),{name,bio}); } catch(e) {}
- currentUser.name=name; currentUser.bio=bio;
- updateProfileUI();
- closeEditProfile();
- showToast('Profile updated');
+
+ const btn=document.getElementById('saveProfileBtn');
+ btn.disabled=true; btn.textContent='Saving...';
+ try{
+  let photoUrl = currentUser.photoUrl || '';
+  if(dpFile){
+   photoUrl = await uploadToCloudinary(dpFile);
+  }
+  await setDoc(doc(db,'users',currentUser.uid),{
+   uid:currentUser.uid,
+   name,
+   username:currentUser.username || name.toLowerCase().replace(/\s+/g,''),
+   email:currentUser.email || '',
+   bio,
+   photoUrl
+  }, { merge:true });
+  currentUser.name=name;
+  currentUser.bio=bio;
+  currentUser.photoUrl=photoUrl;
+  updateProfileUI();
+  renderPosts();
+  renderStatuses();
+  closeEditProfile();
+  showToast('Profile updated!');
+ }catch(err){
+  showToast(err.message);
+ }finally{
+  btn.disabled=false; btn.textContent='Save';
+ }
 };
 
 function listenRealtime(){
@@ -712,8 +764,14 @@ function listenRealtime(){
 
  unsubUsers=onSnapshot(collection(db,'users'),(snap)=>{
   allUsers=snap.docs.map(d=>d.data());
+  if(currentUser){
+   const me = allUsers.find(u=>u.uid===currentUser.uid);
+   if(me) currentUser = { ...currentUser, ...me };
+  }
   renderPeople();
   renderChatsList();
+  renderPosts();
+  renderStatuses();
   updateProfileUI();
  }, ()=>{});
 
@@ -734,6 +792,12 @@ function listenRealtime(){
  }, ()=>{});
 }
 
+function getUserPhoto(uid){
+ if(currentUser && uid===currentUser.uid && currentUser.photoUrl) return currentUser.photoUrl;
+ const found = allUsers.find(u=>u.uid===uid);
+ return (found && found.photoUrl) ? found.photoUrl : '';
+}
+
 // 24-Hour Status
 function renderStatuses(){
  const list=document.getElementById('statusList');
@@ -744,11 +808,15 @@ function renderStatuses(){
   </div>
  `;
  allStatuses.forEach(st=>{
+  const photo = getUserPhoto(st.uid);
+  const avatarInner = photo
+   ? `<img src="${photo}" alt="${st.userName || 'U'}">`
+   : (st.userName||'U')[0].toUpperCase();
   const item=document.createElement('div');
   item.className='status-item';
   item.onclick=()=>openStatusView(st);
   item.innerHTML=`
-   <div class="status-ring"><div class="avatar">${(st.userName||'U')[0].toUpperCase()}</div></div>
+   <div class="status-ring"><div class="avatar">${avatarInner}</div></div>
    <small>${st.userName}</small>
   `;
   list.appendChild(item);
@@ -902,6 +970,10 @@ function renderPosts(){
   const likes=p.likes || [];
   const comments=p.comments || [];
   const liked=currentUser && likes.includes(currentUser.uid);
+  const photo = getUserPhoto(p.uid);
+  const avatarInner = photo
+   ? `<img src="${photo}" alt="${p.userName || 'U'}">`
+   : (p.userName||'U')[0].toUpperCase();
 
   let mediaHtml='';
   if(p.mediaUrl && p.mediaType){
@@ -918,7 +990,7 @@ function renderPosts(){
   card.className='card';
   card.innerHTML=`
    <div class="post-header">
-    <div class="avatar">${(p.userName||'U')[0].toUpperCase()}</div>
+    <div class="avatar">${avatarInner}</div>
     <div class="details">
      <strong>${p.userName}</strong><br>
      <small>${new Date(p.createdAt).toLocaleString()}</small>
@@ -959,10 +1031,13 @@ function renderPeople(){
  }
  list.innerHTML='';
  others.forEach(u=>{
+  const avatarInner = u.photoUrl
+   ? `<img src="${u.photoUrl}" alt="${u.name}">`
+   : u.name[0].toUpperCase();
   const row=document.createElement('div');
   row.className='chat-row';
   row.innerHTML=`
-   <div class="avatar">${u.name[0].toUpperCase()}</div>
+   <div class="avatar">${avatarInner}</div>
    <div class="details">
     <strong>${u.name}</strong><br>
     <small>@${u.username}</small>
@@ -983,11 +1058,14 @@ function renderChatsList(){
  }
  list.innerHTML='';
  others.forEach(u=>{
+  const avatarInner = u.photoUrl
+   ? `<img src="${u.photoUrl}" alt="${u.name}">`
+   : u.name[0].toUpperCase();
   const row=document.createElement('div');
   row.className='chat-row';
   row.onclick=()=>window.openChatWith(u.uid, u.name);
   row.innerHTML=`
-   <div class="avatar">${u.name[0].toUpperCase()}</div>
+   <div class="avatar">${avatarInner}</div>
    <div class="details">
     <strong>${u.name}</strong><br>
     <small>@${u.username} • Tap to message</small>
@@ -1006,7 +1084,7 @@ window.openChatWith = function(peerUid, peerName){
  document.getElementById('chatListCard').classList.add('hidden');
  document.getElementById('chatRoomCard').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
- document.getElementById('chatPeerAvatar').textContent=peerName[0].toUpperCase();
+ setAvatarContent(document.getElementById('chatPeerAvatar'), peerName, getUserPhoto(peerUid));
 
  if(unsubMessages) unsubMessages();
  const chatId=getChatId(currentUser.uid, peerUid);
