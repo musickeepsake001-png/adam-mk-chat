@@ -118,10 +118,20 @@ header{
  flex:1;min-width:0;padding:12px 16px;
  border:1px solid var(--border);border-radius:25px;background:var(--bg);outline:none;
 }
+.media-preview{
+ margin-top:10px;padding:8px 12px;background:var(--bg);
+ border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-size:13px;
+}
+.post-tools{
+ margin-top:12px;padding-top:10px;border-top:1px solid var(--border);
+ display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+}
 .post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .post-header .details{flex:1}
 .post-header small{color:var(--muted);font-size:12px}
 .post-text{line-height:1.5;margin:10px 0;white-space:pre-wrap}
+.post-media{width:100%;max-height:420px;object-fit:cover;border-radius:10px;margin-top:8px}
+audio.post-audio{width:100%;margin-top:8px}
 .post-actions{
  display:flex;justify-content:space-around;
  border-top:1px solid var(--border);padding-top:10px;margin-top:12px;
@@ -289,8 +299,23 @@ main{padding-bottom:85px}
        <div class="avatar" id="homeAvatar">MK</div>
        <input id="postInput" placeholder="What's on your mind?">
       </div>
-      <div style="margin-top:12px;display:flex;justify-content:flex-end">
-       <button class="primary" style="width:auto;padding:8px 20px" onclick="addPost()">Post</button>
+      <div id="mediaPreview" class="media-preview hidden">
+       <span id="mediaName">File selected</span>
+       <button class="link" onclick="clearMedia()" style="color:#ef4444">Remove</button>
+      </div>
+      <input type="file" id="mediaFile" accept="image/*,video/*,audio/*" class="hidden" onchange="handleMediaSelect(event)">
+      <div class="post-tools">
+       <div style="display:flex;gap:12px">
+        <button class="link" onclick="triggerMedia('image/*,video/*')">
+         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+         Photo/Video
+        </button>
+        <button class="link" onclick="triggerMedia('audio/*')">
+         <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+         Music
+        </button>
+       </div>
+       <button class="primary" id="postBtn" style="width:auto;padding:8px 20px" onclick="addPost()">Post</button>
       </div>
      </div>
 
@@ -377,7 +402,7 @@ main{padding-bottom:85px}
      <span>🌙 Dark Mode</span>
      <strong id="darkModeStatus">Off</strong>
     </div>
-    <div class="menu-item" onclick="showToast('Connected to Firebase (adam-mk-chat-a5074)')">
+    <div class="menu-item" onclick="showToast('Connected to Firebase & Cloudinary')">
      <span>☁️ Cloud Status</span>
      <small style="color:var(--muted)">Active</small>
     </div>
@@ -417,13 +442,18 @@ main{padding-bottom:85px}
    <div class="form-group">
     <textarea id="statusText" rows="3" placeholder="Share a status update (expires in 24 hours)..."></textarea>
    </div>
+   <div class="form-group">
+    <label>Optional Photo</label>
+    <input type="file" id="statusImgInput" accept="image/*">
+   </div>
    <div style="display:flex;gap:10px">
-    <button class="primary" onclick="saveStatus()">Post Status</button>
+    <button class="primary" id="statusSubmitBtn" onclick="saveStatus()">Post Status</button>
     <button class="primary" style="background:#64748b" onclick="closeStatusModal()">Cancel</button>
    </div>
   </div>
   <div id="statusViewBox" class="hidden">
    <p id="statusViewContent" style="margin:15px 0;font-size:16px;line-height:1.5"></p>
+   <img id="statusViewImg" class="post-media hidden" style="margin-bottom:12px">
    <small id="statusViewTime" style="color:var(--muted);display:block;margin-bottom:12px"></small>
    <button class="primary" onclick="closeStatusModal()">Close</button>
   </div>
@@ -464,7 +494,7 @@ import {
  signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import {
- getFirestore, collection, doc, setDoc, getDoc, getDocs,
+ getFirestore, collection, doc, setDoc, getDoc,
  addDoc, updateDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
@@ -478,6 +508,9 @@ const firebaseConfig = {
  measurementId: "G-H18B4DPJ3Y"
 };
 
+const CLOUDINARY_CLOUD_NAME = "enznhdmj";
+const CLOUDINARY_UPLOAD_PRESET = "Adam_mk_preset";
+
 const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch (e) {}
 const auth = getAuth(app);
@@ -488,6 +521,7 @@ let allUsers = [];
 let allPosts = [];
 let allStatuses = [];
 let activePeer = null;
+let selectedFile = null;
 let unsubPosts = null;
 let unsubStatuses = null;
 let unsubUsers = null;
@@ -516,6 +550,20 @@ function showAppUI(){
  updateProfileUI();
  listenRealtime();
  window.showPage('home');
+}
+
+async function uploadToCloudinary(file){
+ const formData = new FormData();
+ formData.append("file", file);
+ formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+ const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+  method: "POST",
+  body: formData
+ });
+ if(!res.ok) throw new Error("Cloudinary upload failed");
+ const data = await res.json();
+ return data.secure_url;
 }
 
 window.registerUser = async function(){
@@ -692,27 +740,49 @@ window.openStatusCreate = function(){
  document.getElementById('statusCreateBox').classList.remove('hidden');
  document.getElementById('statusViewBox').classList.add('hidden');
  document.getElementById('statusText').value='';
+ document.getElementById('statusImgInput').value='';
  document.getElementById('statusModal').classList.remove('hidden');
 };
 
 window.saveStatus = async function(){
  const text=document.getElementById('statusText').value.trim();
- if(!text){showToast('Write a status first');return;}
- await addDoc(collection(db,'statuses'),{
-  uid:currentUser.uid,
-  userName:currentUser.name,
-  text,
-  createdAt:Date.now()
- });
- closeStatusModal();
- showToast('24-hour status posted!');
+ const fileInput=document.getElementById('statusImgInput');
+ const file=fileInput.files && fileInput.files[0];
+ if(!text && !file){showToast('Write text or choose a photo');return;}
+
+ const btn=document.getElementById('statusSubmitBtn');
+ btn.disabled=true; btn.textContent='Posting...';
+ try{
+  let imageUrl=null;
+  if(file) imageUrl=await uploadToCloudinary(file);
+  await addDoc(collection(db,'statuses'),{
+   uid:currentUser.uid,
+   userName:currentUser.name,
+   text,
+   imageUrl,
+   createdAt:Date.now()
+  });
+  closeStatusModal();
+  showToast('24-hour status posted!');
+ }catch(err){
+  showToast(err.message);
+ }finally{
+  btn.disabled=false; btn.textContent='Post Status';
+ }
 };
 
 function openStatusView(st){
  document.getElementById('statusModalTitle').textContent=st.userName+"'s Status";
  document.getElementById('statusCreateBox').classList.add('hidden');
  document.getElementById('statusViewBox').classList.remove('hidden');
- document.getElementById('statusViewContent').textContent=st.text;
+ document.getElementById('statusViewContent').textContent=st.text || '';
+ const imgEl=document.getElementById('statusViewImg');
+ if(st.imageUrl){
+  imgEl.src=st.imageUrl;
+  imgEl.classList.remove('hidden');
+ }else{
+  imgEl.classList.add('hidden');
+ }
  document.getElementById('statusViewTime').textContent='Posted: '+new Date(st.createdAt).toLocaleTimeString();
  document.getElementById('statusModal').classList.remove('hidden');
 }
@@ -721,21 +791,60 @@ window.closeStatusModal = function(){
  document.getElementById('statusModal').classList.add('hidden');
 };
 
-// Posts, Likes & Comments
+// Media & Posts
+window.triggerMedia = function(accept){
+ const input=document.getElementById('mediaFile');
+ input.accept=accept;
+ input.click();
+};
+
+window.handleMediaSelect = function(e){
+ const file=e.target.files[0];
+ if(!file)return;
+ selectedFile=file;
+ document.getElementById('mediaName').textContent='📎 '+file.name;
+ document.getElementById('mediaPreview').classList.remove('hidden');
+};
+
+window.clearMedia = function(){
+ selectedFile=null;
+ document.getElementById('mediaFile').value='';
+ document.getElementById('mediaPreview').classList.add('hidden');
+};
+
 window.addPost = async function(){
  const input=document.getElementById('postInput');
  const text=input.value.trim();
- if(!text){showToast('Write something first');return;}
- await addDoc(collection(db,'posts'),{
-  uid:currentUser.uid,
-  userName:currentUser.name,
-  text,
-  createdAt:Date.now(),
-  likes:[],
-  comments:[]
- });
- input.value='';
- showToast('Post published!');
+ if(!text && !selectedFile){showToast('Write something or select media');return;}
+
+ const btn=document.getElementById('postBtn');
+ btn.disabled=true; btn.textContent='Uploading...';
+ try{
+  let mediaUrl=null, mediaType=null, mediaName=null;
+  if(selectedFile){
+   mediaUrl=await uploadToCloudinary(selectedFile);
+   mediaType=selectedFile.type;
+   mediaName=selectedFile.name;
+  }
+  await addDoc(collection(db,'posts'),{
+   uid:currentUser.uid,
+   userName:currentUser.name,
+   text,
+   mediaUrl,
+   mediaType,
+   mediaName,
+   createdAt:Date.now(),
+   likes:[],
+   comments:[]
+  });
+  input.value='';
+  clearMedia();
+  showToast('Post published!');
+ }catch(err){
+  showToast(err.message);
+ }finally{
+  btn.disabled=false; btn.textContent='Post';
+ }
 };
 
 window.toggleLike = async function(postId, likes){
@@ -773,6 +882,18 @@ function renderPosts(){
   const likes=p.likes || [];
   const comments=p.comments || [];
   const liked=currentUser && likes.includes(currentUser.uid);
+
+  let mediaHtml='';
+  if(p.mediaUrl && p.mediaType){
+   if(p.mediaType.startsWith('image/')){
+    mediaHtml=`<img src="${p.mediaUrl}" class="post-media" loading="lazy">`;
+   }else if(p.mediaType.startsWith('video/')){
+    mediaHtml=`<video src="${p.mediaUrl}" controls class="post-media"></video>`;
+   }else if(p.mediaType.startsWith('audio/')){
+    mediaHtml=`<div style="margin-top:8px"><small>🎵 ${p.mediaName || 'Audio Track'}</small><audio src="${p.mediaUrl}" controls class="post-audio"></audio></div>`;
+   }
+  }
+
   const card=document.createElement('div');
   card.className='card';
   card.innerHTML=`
@@ -783,7 +904,8 @@ function renderPosts(){
      <small>${new Date(p.createdAt).toLocaleString()}</small>
     </div>
    </div>
-   <p class="post-text">${p.text}</p>
+   ${p.text ? `<p class="post-text">${p.text}</p>` : ''}
+   ${mediaHtml}
    <div class="post-actions">
     <button class="${liked?'liked':''}" onclick="toggleLike('${p.id}', ${JSON.stringify(likes).replace(/"/g,'&quot;')})">
      ♡ Like (${likes.length})
@@ -791,7 +913,7 @@ function renderPosts(){
     <button onclick="document.getElementById('cBox_${p.id}').classList.toggle('hidden')">
      💬 Comment (${comments.length})
     </button>
-    <button onclick="sharePost(\`${(p.text||'').replace(/`/g,'')}\`)">
+    <button onclick="sharePost(\`${(p.text || p.mediaUrl || '').replace(/`/g,'')}\`)">
      ↗ Share
     </button>
    </div>
