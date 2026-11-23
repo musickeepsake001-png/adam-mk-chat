@@ -7,6 +7,10 @@
 <meta name="description" content="ADAM MK CHAT - Connect, chat, share photos, videos, music, and 24-hour status updates.">
 <title>ADAM MK CHAT</title>
 
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1213,7 +1217,14 @@ if(localStorage.getItem('amk_dark')==='1'){
 }
 if(currentUser){
  showApp();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('ADAM MK CHAT SW registered:', reg.scope))
+      .catch(err => console.log('SW registration failed:', err));
+  });
 }
+
 </script>
 </body>
 </html>
