@@ -1,0 +1,618 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1877f2">
+<meta name="description" content="ADAM MK CHAT - Connect, Share and Communicate with the World">
+<title>ADAM MK CHAT</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Arial,sans-serif;
+ background:#f1f5fb;
+ color:#172b4d;
+ min-height:100vh;
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+:root{
+ --blue:#1877f2;
+ --dark:#0756bd;
+ --white:#fff;
+ --light:#eaf3ff;
+ --border:#dce5f0;
+}
+header{
+ background:var(--blue);
+ color:white;
+ padding:15px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ position:sticky;
+ top:0;
+ z-index:10;
+ box-shadow:0 2px 8px #0002;
+}
+.brand{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ font-size:19px;
+ font-weight:bold;
+}
+.logo{
+ width:40px;height:40px;
+ background:white;
+ color:var(--blue);
+ border-radius:12px;
+ display:grid;
+ place-items:center;
+ font-size:17px;
+ font-weight:bold;
+ position:relative;
+}
+.logo:after{
+ content:"";
+ position:absolute;
+ bottom:-4px;
+ right:5px;
+ border-width:6px 6px 0 0;
+ border-style:solid;
+ border-color:white transparent transparent transparent;
+}
+.header-actions{display:flex;gap:15px}
+.header-actions button{
+ background:none;border:0;color:white;font-size:22px;
+}
+.container{
+ max-width:1050px;
+ margin:auto;
+ padding:15px;
+}
+.hidden{display:none!important}
+.card{
+ background:white;
+ border:1px solid var(--border);
+ border-radius:13px;
+ padding:15px;
+ margin-bottom:14px;
+}
+.auth{
+ max-width:420px;
+ margin:35px auto;
+}
+.auth h2{text-align:center;color:var(--blue);margin-bottom:8px}
+.auth p{text-align:center;color:#65758b;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group label{
+ display:block;margin-bottom:6px;font-weight:bold;font-size:13px;
+}
+.form-group input,.form-group textarea{
+ width:100%;padding:13px;
+ border:1px solid var(--border);
+ border-radius:9px;
+ outline:none;
+ background:#fff;
+}
+.form-group input:focus,.form-group textarea:focus{
+ border-color:var(--blue);
+}
+.primary{
+ width:100%;
+ background:var(--blue);
+ color:white;
+ border:0;
+ padding:13px;
+ border-radius:9px;
+ font-weight:bold;
+}
+.primary:hover{background:var(--dark)}
+.link{
+ color:var(--blue);
+ cursor:pointer;
+ font-weight:bold;
+}
+.auth-footer{text-align:center;margin-top:17px;font-size:14px}
+.top-profile{
+ display:flex;align-items:center;gap:10px;
+}
+.avatar{
+ width:43px;height:43px;border-radius:50%;
+ background:#d9eaff;color:var(--blue);
+ display:grid;place-items:center;
+ font-weight:bold;flex-shrink:0;
+ overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.status-area{
+ display:flex;gap:13px;overflow-x:auto;
+ padding:5px 0 12px;
+}
+.status-item{
+ min-width:68px;text-align:center;
+ cursor:pointer;
+}
+.status-ring{
+ width:59px;height:59px;
+ border:3px solid var(--blue);
+ padding:3px;border-radius:50%;
+ margin:auto auto 6px;
+}
+.status-ring .avatar{width:100%;height:100%}
+.status-item small{font-size:11px}
+.add-status{
+ background:var(--light);
+ color:var(--blue);
+ font-size:25px;
+}
+.section-title{
+ font-size:17px;
+ font-weight:bold;
+ margin-bottom:12px;
+}
+.create-post{
+ display:flex;gap:10px;align-items:center;
+}
+.create-post input{
+ flex:1;min-width:0;
+ padding:13px;
+ border:1px solid var(--border);
+ border-radius:25px;
+}
+.post-header{
+ display:flex;align-items:center;gap:10px;
+ margin-bottom:12px;
+}
+.post-header .details{flex:1}
+.post-header small{color:#8090a5}
+.post-text{line-height:1.6;margin:12px 0}
+.post-media{
+ width:100%;
+ max-height:400px;
+ object-fit:cover;
+ border-radius:10px;
+}
+.post-actions{
+ display:flex;justify-content:space-around;
+ border-top:1px solid var(--border);
+ padding-top:12px;margin-top:12px;
+}
+.post-actions button{
+ background:none;border:0;color:#526782;
+ font-size:13px;
+}
+.navbar{
+ position:fixed;bottom:0;left:0;right:0;
+ background:white;
+ border-top:1px solid var(--border);
+ display:flex;justify-content:space-around;
+ padding:10px 3px;
+ z-index:20;
+}
+.navbar button{
+ border:0;background:none;
+ color:#728198;font-size:11px;
+ display:flex;flex-direction:column;
+ align-items:center;gap:4px;
+}
+.navbar button span{font-size:21px}
+.navbar button.active{color:var(--blue);font-weight:bold}
+main{padding-bottom:85px}
+.page-title{
+ font-size:21px;color:var(--blue);
+ margin:8px 0 18px;
+}
+.profile-cover{
+ height:135px;background:linear-gradient(120deg,#1877f2,#79b4ff);
+ border-radius:12px;
+}
+.profile-info{text-align:center;margin-top:-40px}
+.profile-info .avatar{
+ width:85px;height:85px;
+ margin:auto;border:4px solid white;
+ font-size:23px;
+}
+.stats{
+ display:flex;justify-content:space-around;
+ text-align:center;margin:20px 0;
+}
+.stats strong{display:block;color:var(--blue);font-size:19px}
+.stats small{color:#74849a}
+.menu-item{
+ padding:15px 5px;
+ border-bottom:1px solid var(--border);
+ cursor:pointer;
+}
+.menu-item:last-child{border:0}
+.chat-row{
+ display:flex;align-items:center;gap:12px;
+ padding:13px 0;border-bottom:1px solid var(--border);
+}
+.chat-row .details{flex:1}
+.chat-row small{color:#8090a5}
+.empty{
+ text-align:center;color:#8190a5;padding:35px 10px;
+}
+#toast{
+ position:fixed;bottom:80px;left:50%;
+ transform:translateX(-50%);
+ background:#172b4d;color:white;
+ padding:12px 20px;border-radius:10px;
+ z-index:50;display:none;font-size:13px;
+}
+@media(min-width:700px){
+ .container{padding:22px}
+ .home-layout{
+ display:grid;grid-template-columns:1fr 300px;
+ gap:18px;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="brand">
+  <div class="logo">MK</div>
+  ADAM MK CHAT
+ </div>
+ <div class="header-actions">
+  <button onclick="showPage('notifications')">♧</button>
+  <button onclick="showPage('messages')">✉</button>
+ </div>
+</header>
+
+<!-- REGISTER -->
+<section id="register" class="container auth">
+ <div class="card">
+  <h2>Create Account</h2>
+  <p>Join ADAM MK CHAT and connect with the world.</p>
+
+  <div class="form-group">
+   <label>Full Name</label>
+   <input id="regName" placeholder="Enter your full name">
+  </div>
+
+  <div class="form-group">
+   <label>Username</label>
+   <input id="regUsername" placeholder="@username">
+  </div>
+
+  <div class="form-group">
+   <label>Email or Phone Number</label>
+   <input id="regContact" placeholder="Email or phone number">
+  </div>
+
+  <div class="form-group">
+   <label>Password</label>
+   <input id="regPassword" type="password" placeholder="Create password">
+  </div>
+
+  <button class="primary" onclick="registerUser()">Create Account</button>
+
+  <div class="auth-footer">
+   Already have an account?
+   <span class="link" onclick="showAuth('login')">Login</span>
+  </div>
+ </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="container auth hidden">
+ <div class="card">
+  <h2>Welcome Back!</h2>
+  <p>Login to your ADAM MK CHAT account.</p>
+
+  <div class="form-group">
+   <label>Email or Phone Number</label>
+   <input id="loginContact" placeholder="Email or phone number">
+  </div>
+
+  <div class="form-group">
+   <label>Password</label>
+   <input id="loginPassword" type="password" placeholder="Password">
+  </div>
+
+  <button class="primary" onclick="loginUser()">Login</button>
+
+  <div class="auth-footer">
+   New here?
+   <span class="link" onclick="showAuth('register')">Create Account</span>
+  </div>
+ </div>
+</section>
+
+<!-- MAIN APP -->
+<main id="app" class="hidden">
+ <div class="container">
+
+  <!-- HOME -->
+  <section id="homePage">
+   <div class="home-layout">
+    <div>
+     <div class="card">
+      <div class="section-title">Stories & Status</div>
+      <div class="status-area" id="statusList">
+       <div class="status-item" onclick="addStatus()">
+        <div class="status-ring">
+         <div class="avatar add-status">+</div>
+        </div>
+        <small>Your Status</small>
+       </div>
+      </div>
+     </div>
+
+     <div class="card">
+      <div class="create-post">
+       <div class="avatar" id="homeAvatar">MK</div>
+       <input id="postInput" placeholder="What's on your mind?">
+      </div>
+      <div style="margin-top:13px;display:flex;justify-content:space-between">
+       <button class="link" onclick="addPost()">＋ Create Post</button>
+       <button class="link" onclick="showToast('Media upload will be connected')">▣ Photo / Video</button>
+      </div>
+     </div>
+
+     <div id="feed">
+      <div class="card empty">
+       Welcome to ADAM MK CHAT!<br>
+       Your social feed will appear here.
+      </div>
+     </div>
+    </div>
+
+    <div>
+     <div class="card">
+      <div class="section-title">Your Account</div>
+      <div class="top-profile">
+       <div class="avatar" id="sideAvatar">MK</div>
+       <div>
+        <strong id="sideName">Welcome</strong><br>
+        <small id="sideUsername">@username</small>
+       </div>
+      </div>
+      <button class="primary" style="margin-top:15px"
+       onclick="showPage('profile')">View Profile</button>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <!-- MESSAGES -->
+  <section id="messagesPage" class="hidden">
+   <h2 class="page-title">Messages</h2>
+   <div class="card">
+    <input id="chatSearch" placeholder="Search conversations..."
+     style="width:100%;padding:12px;border:1px solid var(--border);border-radius:9px">
+    <div class="empty">
+     <span style="font-size:35px">✉</span>
+     <p>Your conversations will appear here.</p>
+     <p style="margin-top:8px;font-size:12px">Private and Group Chat</p>
+    </div>
+   </div>
+  </section>
+
+  <!-- FRIENDS -->
+  <section id="friendsPage" class="hidden">
+   <h2 class="page-title">Friends & Followers</h2>
+   <div class="card">
+    <div class="menu-item">♙ Find People</div>
+    <div class="menu-item">♧ Friend Requests</div>
+    <div class="menu-item">♡ Followers</div>
+    <div class="menu-item">♧ Following</div>
+    <div class="menu-item">☻ My Friends</div>
+   </div>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <section id="notificationsPage" class="hidden">
+   <h2 class="page-title">Notifications</h2>
+   <div class="card empty">No notifications yet.</div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profilePage" class="hidden">
+   <h2 class="page-title">My Profile</h2>
+   <div class="card">
+    <div class="profile-cover"></div>
+    <div class="profile-info">
+     <div class="avatar" id="profileAvatar">MK</div>
+     <h2 id="profileName" style="margin-top:8px">Your Name</h2>
+     <p id="profileUsername" style="color:#71839b">@username</p>
+     <p id="profileBio" style="margin-top:10px">Welcome to my profile.</p>
+    </div>
+    <div class="stats">
+     <div><strong>0</strong><small>Posts</small></div>
+     <div><strong>0</strong><small>Followers</small></div>
+     <div><strong>0</strong><small>Following</small></div>
+     <div><strong>0</strong><small>Friends</small></div>
+    </div>
+    <button class="primary" onclick="editProfile()">Edit Profile</button>
+   </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settingsPage" class="hidden">
+   <h2 class="page-title">Settings</h2>
+   <div class="card">
+    <div class="menu-item">🌐 Language: English</div>
+    <div class="menu-item">🔒 Privacy & Security</div>
+    <div class="menu-item">🚫 Blocked Users</div>
+    <div class="menu-item">⚠ Report a Problem</div>
+    <div class="menu-item">ℹ About ADAM MK CHAT</div>
+    <div class="menu-item" onclick="logoutUser()">↪ Logout</div>
+   </div>
+  </section>
+
+ </div>
+</main>
+
+<!-- NAVIGATION -->
+<nav class="navbar hidden" id="navbar">
+ <button class="active" onclick="showPage('home')">
+  <span>⌂</span>Home
+ </button>
+ <button onclick="showPage('friends')">
+  <span>♧</span>Friends
+ </button>
+ <button onclick="showPage('messages')">
+  <span>✉</span>Messages
+ </button>
+ <button onclick="showPage('notifications')">
+  <span>♧</span>Alerts
+ </button>
+ <button onclick="showPage('profile')">
+  <span>☻</span>Profile
+ </button>
+ <button onclick="showPage('settings')">
+  <span>⚙</span>More
+ </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+let currentUser = null;
+let posts = [];
+let statuses = [];
+
+function showToast(message){
+ const toast=document.getElementById('toast');
+ toast.textContent=message;
+ toast.style.display='block';
+ setTimeout(()=>toast.style.display='none',2500);
+}
+
+function showAuth(type){
+ document.getElementById('register').classList.toggle('hidden',type!=='register');
+ document.getElementById('login').classList.toggle('hidden',type!=='login');
+ document.getElementById('app').classList.add('hidden');
+ document.getElementById('navbar').classList.add('hidden');
+}
+
+function showApp(){
+ document.getElementById('register').classList.add('hidden');
+ document.getElementById('login').classList.add('hidden');
+ document.getElementById('app').classList.remove('hidden');
+ document.getElementById('navbar').classList.remove('hidden');
+ updateProfile();
+ showPage('home');
+}
+
+function registerUser(){
+ const name=document.getElementById('regName').value.trim();
+ const username=document.getElementById('regUsername').value.trim();
+ const contact=document.getElementById('regContact').value.trim();
+ const password=document.getElementById('regPassword').value;
+
+ if(!name||!username||!contact||!password){
+  showToast('Please complete all fields');
+  return;
+ }
+ if(password.length<8){
+  showToast('Password must be at least 8 characters');
+  return;
+ }
+ showToast('Account registration will be activated with Firebase');
+}
+
+function loginUser(){
+ const contact=document.getElementById('loginContact').value.trim();
+ const password=document.getElementById('loginPassword').value;
+ if(!contact||!password){
+  showToast('Enter your login details');
+  return;
+ }
+ showToast('Login will be activated with Firebase');
+}
+
+function updateProfile(){
+ if(!currentUser)return;
+ document.getElementById('profileName').textContent=currentUser.name;
+ document.getElementById('profileUsername').textContent='@'+currentUser.username;
+ document.getElementById('sideName').textContent=currentUser.name;
+ document.getElementById('sideUsername').textContent='@'+currentUser.username;
+ document.getElementById('homeAvatar').textContent=currentUser.name[0].toUpperCase();
+ document.getElementById('sideAvatar').textContent=currentUser.name[0].toUpperCase();
+ document.getElementById('profileAvatar').textContent=currentUser.name[0].toUpperCase();
+}
+
+function showPage(page){
+ const pages=['home','messages','friends','notifications','profile','settings'];
+ pages.forEach(p=>{
+  document.getElementById(p+'Page').classList.toggle('hidden',p!==page);
+ });
+ document.querySelectorAll('.navbar button').forEach((btn,i)=>{
+  btn.classList.toggle('active',pages[i]===page);
+ });
+ window.scrollTo(0,0);
+}
+
+function addPost(){
+ const input=document.getElementById('postInput');
+ const text=input.value.trim();
+ if(!text){
+  showToast('Write something first');
+  return;
+ }
+ posts.unshift({
+  text:text,
+  name:currentUser?currentUser.name:'Guest',
+  date:new Date().toLocaleString()
+ });
+ input.value='';
+ renderPosts();
+}
+
+function renderPosts(){
+ const feed=document.getElementById('feed');
+ feed.innerHTML='';
+ posts.forEach((post,index)=>{
+  const card=document.createElement('div');
+  card.className='card';
+  const header=document.createElement('div');
+  header.className='post-header';
+  const avatar=document.createElement('div');
+  avatar.className='avatar';
+  avatar.textContent=post.name[0].toUpperCase();
+  const details=document.createElement('div');
+  details.className='details';
+  const name=document.createElement('strong');
+  name.textContent=post.name;
+  const date=document.createElement('small');
+  date.textContent=post.date;
+  details.append(name,document.createElement('br'),date);
+  header.append(avatar,details);
+  const content=document.createElement('p');
+  content.className='post-text';
+  content.textContent=post.text;
+  const actions=document.createElement('div');
+  actions.className='post-actions';
+  actions.innerHTML='<button>♡ Like</button><button>Comment</button><button>Share</button>';
+  card.append(header,content,actions);
+  feed.append(card);
+ });
+}
+
+function addStatus(){
+ showToast('Status upload will be connected to Firebase');
+}
+
+function editProfile(){
+ showToast('Profile editing will be connected soon');
+}
+
+function logoutUser(){
+ currentUser=null;
+ showAuth('login');
+ showToast('You have logged out');
+}
+
+</script>
+</body>
+</html>
