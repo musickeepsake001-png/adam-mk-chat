@@ -21,6 +21,9 @@
  --muted:#65758b;
  --light:#eaf3ff;
  --border:#dce5f0;
+ --wa-bg:#efeae2;
+ --wa-sent:#d9fdd3;
+ --wa-recv:#ffffff;
 }
 body.dark-mode{
  --bg:#0f172a;
@@ -29,6 +32,9 @@ body.dark-mode{
  --muted:#94a3b8;
  --light:#334155;
  --border:#334155;
+ --wa-bg:#0b141a;
+ --wa-sent:#005c4b;
+ --wa-recv:#202c33;
 }
 body{
  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -37,7 +43,7 @@ body{
  min-height:100vh;
  transition:background 0.2s,color 0.2s;
 }
-button,input,textarea{font:inherit;color:inherit}
+button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 svg{width:20px;height:20px;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
@@ -82,11 +88,11 @@ header{
 .auth p{text-align:center;color:var(--muted);margin-bottom:20px;font-size:14px}
 .form-group{margin-bottom:14px}
 .form-group label{display:block;margin-bottom:6px;font-weight:600;font-size:13px}
-.form-group input,.form-group textarea{
+.form-group input,.form-group textarea,.form-group select{
  width:100%;padding:12px;border:1px solid var(--border);
  border-radius:9px;outline:none;background:var(--bg);
 }
-.form-group input:focus,.form-group textarea:focus{border-color:var(--blue)}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--blue)}
 .primary{
  width:100%;background:var(--blue);color:white;
  border:0;padding:12px;border-radius:9px;font-weight:bold;
@@ -96,6 +102,14 @@ header{
  background:var(--light);color:var(--blue);border:1px solid var(--border);
  padding:8px 14px;border-radius:9px;font-weight:600;font-size:13px;
  display:inline-flex;align-items:center;gap:6px;
+}
+.danger-btn{
+ background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;
+ padding:7px 11px;border-radius:8px;font-weight:600;font-size:12px;
+ display:inline-flex;align-items:center;gap:4px;
+}
+body.dark-mode .danger-btn{
+ background:rgba(239,68,68,0.18);color:#fca5a5;border-color:rgba(239,68,68,0.35);
 }
 .link{
  color:var(--blue);cursor:pointer;font-weight:600;
@@ -210,17 +224,27 @@ main{padding-bottom:85px}
 .menu-item:last-child{border:0}
 .chat-row{
  display:flex;align-items:center;gap:12px;padding:12px 4px;
- border-bottom:1px solid var(--border);cursor:pointer;
+ border-bottom:1px solid var(--border);cursor:pointer;flex-wrap:wrap;
 }
 .chat-row:last-child{border:0}
-.chat-row .details{flex:1}
+.chat-row .details{flex:1;min-width:140px}
 .chat-row small{color:var(--muted)}
-.row-actions{display:flex;gap:6px;align-items:center}
+.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.wa-strip{
+ display:flex;gap:12px;overflow-x:auto;padding:6px 2px 10px;
+}
+.wa-person-chip{
+ min-width:74px;max-width:78px;text-align:center;cursor:pointer;
+ display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.wa-person-chip small{
+ font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:76px;
+}
 .chat-header{
  display:flex;align-items:center;justify-content:space-between;gap:10px;
  padding-bottom:10px;border-bottom:1px solid var(--border);flex-wrap:wrap;
 }
-.chat-call-actions{display:flex;gap:8px;align-items:center}
+.chat-call-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .icon-action-btn{
  background:var(--light);color:var(--blue);border:1px solid var(--border);
  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
@@ -232,14 +256,36 @@ main{padding-bottom:85px}
  0%,100%{transform:scale(1)}
  50%{transform:scale(1.08)}
 }
-.chat-window{display:flex;flex-direction:column;height:62vh}
-.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px}
-.msg-bubble{max-width:75%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.4}
-.msg-sent{background:var(--blue);color:white;align-self:flex-end;border-bottom-right-radius:3px}
-.msg-recv{background:var(--light);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px}
+.chat-window{
+ display:flex;flex-direction:column;height:62vh;
+ background:var(--wa-bg);border-radius:12px;margin-top:10px;padding:8px;
+}
+.chat-messages{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
+.msg-bubble{
+ max-width:78%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.4;
+ box-shadow:0 1px 2px rgba(0,0,0,0.08);
+}
+.msg-sent{
+ background:var(--wa-sent);
+ color:inherit;
+ align-self:flex-end;border-top-right-radius:3px;
+}
+body:not(.dark-mode) .msg-sent{color:#111b21}
+.msg-recv{
+ background:var(--wa-recv);
+ color:inherit;
+ align-self:flex-start;border-top-left-radius:3px;
+}
+body:not(.dark-mode) .msg-recv{color:#111b21}
+.msg-time{
+ display:block;font-size:10px;color:var(--muted);margin-top:4px;text-align:right;
+}
 .msg-bubble audio{width:210px;max-width:100%;margin-top:4px;display:block}
-.chat-input-bar{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border);align-items:center}
-.chat-input-bar input{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--border);border-radius:22px;background:var(--bg)}
+.chat-input-bar{
+ display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border);
+ align-items:center;background:var(--card);border-radius:12px;padding:8px;
+}
+.chat-input-bar input{flex:1;min-width:0;padding:10px 14px;border:1px solid var(--border);border-radius:22px;background:var(--bg)}
 .modal{
  position:fixed;inset:0;background:rgba(0,0,0,0.65);
  display:grid;place-items:center;z-index:40;padding:15px;overflow-y:auto;
@@ -427,17 +473,35 @@ main{padding-bottom:85px}
    </div>
   </section>
 
-  <!-- MESSAGES -->
+  <!-- MESSAGES (WHATSAPP STYLE + STATUS TOP + PROFILES FIRST) -->
   <section id="messagesPage" class="hidden">
    <div class="page-header-row">
-    <h2 class="page-title">Messages</h2>
+    <h2 class="page-title">Chats</h2>
     <div class="invite-actions">
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
     </div>
    </div>
-   <div class="card" id="chatListCard">
-    <div id="chatList"></div>
+
+   <div id="chatOverviewWrap">
+    <!-- Status on top of chat -->
+    <div class="card">
+     <div class="section-title">Status</div>
+     <div class="status-area" id="chatStatusList"></div>
+    </div>
+
+    <!-- People profiles appearing first before chat threads -->
+    <div class="card">
+     <div class="section-title">People & Profiles</div>
+     <div class="wa-strip" id="chatTopProfiles"></div>
+     <div id="chatPeopleProfiles"></div>
+    </div>
+
+    <!-- Active / Recent Conversations -->
+    <div class="card" id="chatListCard">
+     <div class="section-title">Recent Chats</div>
+     <div id="chatList"></div>
+    </div>
    </div>
 
    <div class="card hidden" id="chatRoomCard">
@@ -445,7 +509,10 @@ main{padding-bottom:85px}
      <div style="display:flex;align-items:center;gap:10px">
       <button class="link" onclick="closeChatRoom()">← Back</button>
       <div class="avatar" id="chatPeerAvatar" style="width:36px;height:36px" title="View Profile Pic">A</div>
-      <strong id="chatPeerName">User</strong>
+      <div>
+       <strong id="chatPeerName">User</strong><br>
+       <small id="chatPeerSub" style="color:var(--muted);font-size:11px">Tap DP for profile</small>
+      </div>
      </div>
      <div class="chat-call-actions">
       <button class="icon-action-btn" onclick="startCall('audio')" title="Normal Voice Call">
@@ -454,6 +521,8 @@ main{padding-bottom:85px}
       <button class="icon-action-btn" onclick="startCall('video')" title="Video Call">
        <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
       </button>
+      <button class="danger-btn" id="roomBlockBtn" onclick="toggleBlockUser(activePeer && activePeer.uid)">Block</button>
+      <button class="danger-btn" onclick="openReportModal(activePeer && activePeer.uid, activePeer && activePeer.name)">Report</button>
      </div>
     </div>
     <div class="chat-window">
@@ -465,14 +534,14 @@ main{padding-bottom:85px}
       <button class="icon-action-btn" id="voiceNoteBtn" onclick="toggleVoiceNote()" title="Record Voice Note">
        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       </button>
-      <input id="chatMsgInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendMessage()">
-      <button class="primary" style="width:auto;padding:10px 18px" onclick="sendMessage()">Send</button>
+      <input id="chatMsgInput" placeholder="Message" onkeypress="if(event.key==='Enter')sendMessage()">
+      <button class="primary" style="width:auto;padding:10px 18px;border-radius:22px" onclick="sendMessage()">Send</button>
      </div>
     </div>
    </div>
   </section>
 
-  <!-- FRIENDS -->
+  <!-- FRIENDS / PEOPLE -->
   <section id="friendsPage" class="hidden">
    <div class="page-header-row">
     <h2 class="page-title">People on ADAM MK CHAT</h2>
@@ -506,8 +575,8 @@ main{padding-bottom:85px}
     </div>
     <div class="stats">
      <div><strong id="statPosts">0</strong><small>Posts</small></div>
-     <div><strong>0</strong><small>Followers</small></div>
-     <div><strong>0</strong><small>Following</small></div>
+     <div><strong id="statFollowers">0</strong><small>Followers</small></div>
+     <div><strong id="statFollowing">0</strong><small>Following</small></div>
      <div><strong id="statUsers">0</strong><small>Members</small></div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -552,10 +621,41 @@ main{padding-bottom:85px}
    <small id="viewDpUsername" style="color:var(--muted);margin-top:2px">@username</small>
    <p id="viewDpBio" style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.4"></p>
   </div>
-  <div id="viewDpChatWrap" style="margin-bottom:10px">
+  <div id="viewDpActionsWrap" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
    <button class="primary" id="viewDpChatBtn">Send Message</button>
+   <div style="display:flex;gap:8px">
+    <button class="secondary-btn" style="flex:1;justify-content:center" id="viewDpFollowBtn">Follow</button>
+    <button class="danger-btn" style="flex:1;justify-content:center" id="viewDpBlockBtn">Block</button>
+    <button class="danger-btn" style="flex:1;justify-content:center" id="viewDpReportBtn">Report</button>
+   </div>
   </div>
   <button class="primary" style="background:#64748b" onclick="closeViewDpModal()">Close</button>
+ </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div id="reportModal" class="modal hidden">
+ <div class="modal-content">
+  <h3 style="margin-bottom:10px;color:#dc2626">Report User</h3>
+  <p id="reportTargetLabel" style="font-size:13px;color:var(--muted);margin-bottom:12px"></p>
+  <div class="form-group">
+   <label>Reason</label>
+   <select id="reportReason">
+    <option value="Harassment or abuse">Harassment or abuse</option>
+    <option value="Spam or scam">Spam or scam</option>
+    <option value="Inappropriate content">Inappropriate content</option>
+    <option value="Fake account">Fake account</option>
+    <option value="Other">Other</option>
+   </select>
+  </div>
+  <div class="form-group">
+   <label>Additional details (optional)</label>
+   <textarea id="reportDetails" rows="3" placeholder="Describe what happened..."></textarea>
+  </div>
+  <div style="display:flex;gap:10px">
+   <button class="primary" style="background:#dc2626" id="submitReportBtn" onclick="submitUserReport()">Submit Report</button>
+   <button class="primary" style="background:#64748b" onclick="closeReportModal()">Cancel</button>
+  </div>
  </div>
 </div>
 
@@ -691,7 +791,7 @@ main{padding-bottom:85px}
  </button>
  <button onclick="showPage('messages')">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  Messages
+  Chats
  </button>
  <button onclick="showPage('profile')">
   <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -714,7 +814,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import {
  getFirestore, collection, doc, setDoc, getDoc,
- addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove
+ addDoc, updateDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -743,6 +843,7 @@ let allUsers = [];
 let allPosts = [];
 let allStatuses = [];
 let activePeer = null;
+let reportTarget = null;
 let selectedFile = null;
 let unsubPosts = null;
 let unsubStatuses = null;
@@ -796,8 +897,30 @@ function fallbackUserFromAuth(user){
   username: base,
   email: user ? (user.email || '') : '',
   bio: 'Welcome to ADAM MK CHAT!',
-  photoUrl: getSavedPhoto(uid)
+  photoUrl: getSavedPhoto(uid),
+  following: [],
+  followers: [],
+  blockedUsers: []
  };
+}
+
+function isFollowing(targetUid){
+ if(!currentUser || !targetUid) return false;
+ const list = Array.isArray(currentUser.following) ? currentUser.following : [];
+ return list.includes(targetUid);
+}
+
+function isBlockedByMe(targetUid){
+ if(!currentUser || !targetUid) return false;
+ const list = Array.isArray(currentUser.blockedUsers) ? currentUser.blockedUsers : [];
+ return list.includes(targetUid);
+}
+
+function isBlockedByPeer(targetUid){
+ if(!currentUser || !targetUid) return false;
+ const peer = allUsers.find(u => u.uid === targetUid);
+ if(!peer || !Array.isArray(peer.blockedUsers)) return false;
+ return peer.blockedUsers.includes(currentUser.uid);
 }
 
 function setAvatarContent(el, name, photoUrl){
@@ -808,6 +931,99 @@ function setAvatarContent(el, name, photoUrl){
   el.textContent = (name || 'M')[0].toUpperCase();
  }
 }
+
+window.toggleFollowUser = async function(targetUid){
+ if(!currentUser || !targetUid || targetUid === currentUser.uid) return;
+ const followingNow = isFollowing(targetUid);
+ const myRef = doc(db,'users',currentUser.uid);
+ const peerRef = doc(db,'users',targetUid);
+
+ try{
+  if(followingNow){
+   currentUser.following = (currentUser.following || []).filter(id => id !== targetUid);
+   await updateDoc(myRef, { following: arrayRemove(targetUid) });
+   await updateDoc(peerRef, { followers: arrayRemove(currentUser.uid) }).catch(()=>{});
+   showToast('Unfollowed');
+  }else{
+   currentUser.following = Array.from(new Set([...(currentUser.following || []), targetUid]));
+   await setDoc(myRef, { following: arrayUnion(targetUid) }, { merge:true });
+   await setDoc(peerRef, { followers: arrayUnion(currentUser.uid) }, { merge:true }).catch(()=>{});
+   showToast('Following!');
+  }
+  updateProfileUI();
+  renderPeople();
+  renderChatsList();
+ }catch(e){
+  showToast('Failed to update follow status');
+ }
+};
+
+window.toggleBlockUser = async function(targetUid){
+ if(!currentUser || !targetUid || targetUid === currentUser.uid) return;
+ const blockedNow = isBlockedByMe(targetUid);
+ const myRef = doc(db,'users',currentUser.uid);
+
+ try{
+  if(blockedNow){
+   currentUser.blockedUsers = (currentUser.blockedUsers || []).filter(id => id !== targetUid);
+   await updateDoc(myRef, { blockedUsers: arrayRemove(targetUid) });
+   showToast('User unblocked');
+  }else{
+   currentUser.blockedUsers = Array.from(new Set([...(currentUser.blockedUsers || []), targetUid]));
+   await setDoc(myRef, { blockedUsers: arrayUnion(targetUid) }, { merge:true });
+   showToast('User blocked');
+  }
+  updateBlockRoomUI();
+  renderPeople();
+  renderChatsList();
+ }catch(e){
+  showToast('Failed to update block status');
+ }
+};
+
+function updateBlockRoomUI(){
+ const btn = document.getElementById('roomBlockBtn');
+ if(!btn || !activePeer) return;
+ btn.textContent = isBlockedByMe(activePeer.uid) ? 'Unblock' : 'Block';
+}
+
+window.openReportModal = function(targetUid, targetName){
+ if(!targetUid) return;
+ reportTarget = { uid: targetUid, name: targetName || 'Member' };
+ document.getElementById('reportTargetLabel').textContent = `Reporting: ${reportTarget.name}`;
+ document.getElementById('reportDetails').value = '';
+ document.getElementById('reportModal').classList.remove('hidden');
+};
+
+window.closeReportModal = function(){
+ reportTarget = null;
+ document.getElementById('reportModal').classList.add('hidden');
+};
+
+window.submitUserReport = async function(){
+ if(!currentUser || !reportTarget) return;
+ const reason = document.getElementById('reportReason').value;
+ const details = document.getElementById('reportDetails').value.trim();
+ const btn = document.getElementById('submitReportBtn');
+ btn.disabled = true; btn.textContent = 'Sending...';
+ try{
+  await addDoc(collection(db,'reports'),{
+   reporterId: currentUser.uid,
+   reporterName: currentUser.name,
+   reportedUid: reportTarget.uid,
+   reportedName: reportTarget.name,
+   reason,
+   details,
+   createdAt: Date.now()
+  });
+  closeReportModal();
+  showToast('Report submitted');
+ }catch(e){
+  showToast('Could not submit report');
+ }finally{
+  btn.disabled = false; btn.textContent = 'Submit Report';
+ }
+};
 
 window.viewProfilePic = function(uid, fallbackName){
  const userObj = allUsers.find(u => u.uid === uid) || ((currentUser && currentUser.uid === uid) ? currentUser : null);
@@ -821,17 +1037,35 @@ window.viewProfilePic = function(uid, fallbackName){
  document.getElementById('viewDpUsername').textContent = username;
  document.getElementById('viewDpBio').textContent = bio;
 
- const chatWrap = document.getElementById('viewDpChatWrap');
+ const actionsWrap = document.getElementById('viewDpActionsWrap');
  const chatBtn = document.getElementById('viewDpChatBtn');
+ const followBtn = document.getElementById('viewDpFollowBtn');
+ const blockBtn = document.getElementById('viewDpBlockBtn');
+ const reportBtn = document.getElementById('viewDpReportBtn');
+
  if(currentUser && uid && uid !== currentUser.uid){
-  chatWrap.classList.remove('hidden');
+  actionsWrap.classList.remove('hidden');
   chatBtn.onclick = () => {
    closeViewDpModal();
    window.showPage('messages');
    window.openChatWith(uid, name);
   };
+  followBtn.textContent = isFollowing(uid) ? 'Unfollow' : 'Follow';
+  followBtn.onclick = async () => {
+   await window.toggleFollowUser(uid);
+   followBtn.textContent = isFollowing(uid) ? 'Unfollow' : 'Follow';
+  };
+  blockBtn.textContent = isBlockedByMe(uid) ? 'Unblock' : 'Block';
+  blockBtn.onclick = async () => {
+   await window.toggleBlockUser(uid);
+   blockBtn.textContent = isBlockedByMe(uid) ? 'Unblock' : 'Block';
+  };
+  reportBtn.onclick = () => {
+   closeViewDpModal();
+   window.openReportModal(uid, name);
+  };
  }else{
-  chatWrap.classList.add('hidden');
+  actionsWrap.classList.add('hidden');
  }
  document.getElementById('viewDpModal').classList.remove('hidden');
 };
@@ -984,7 +1218,10 @@ window.registerUser = async function(){
    username,
    email,
    bio:'Welcome to ADAM MK CHAT!',
-   photoUrl:getSavedPhoto(cred.user.uid)
+   photoUrl:getSavedPhoto(cred.user.uid),
+   following:[],
+   followers:[],
+   blockedUsers:[]
   };
   currentUser = profile;
   showAppUI();
@@ -1047,7 +1284,10 @@ onAuthStateChanged(auth, async (user)=>{
     currentUser = {
      ...currentUser,
      ...data,
-     photoUrl: data.photoUrl || currentUser.photoUrl || ''
+     photoUrl: data.photoUrl || currentUser.photoUrl || '',
+     following: Array.isArray(data.following) ? data.following : (currentUser.following || []),
+     followers: Array.isArray(data.followers) ? data.followers : (currentUser.followers || []),
+     blockedUsers: Array.isArray(data.blockedUsers) ? data.blockedUsers : (currentUser.blockedUsers || [])
     };
     if(currentUser.photoUrl) savePhotoLocal(currentUser.uid, currentUser.photoUrl);
     updateProfileUI();
@@ -1085,6 +1325,8 @@ function updateProfileUI(){
  document.getElementById('profileBio').textContent=currentUser.bio || '';
  const myPosts=allPosts.filter(p=>p.uid===currentUser.uid).length;
  document.getElementById('statPosts').textContent=myPosts;
+ document.getElementById('statFollowers').textContent=(currentUser.followers || []).length;
+ document.getElementById('statFollowing').textContent=(currentUser.following || []).length;
  document.getElementById('statUsers').textContent=allUsers.length;
 }
 
@@ -1160,7 +1402,10 @@ function listenRealtime(){
     currentUser = {
      ...currentUser,
      ...me,
-     photoUrl: me.photoUrl || currentUser.photoUrl || getSavedPhoto(currentUser.uid)
+     photoUrl: me.photoUrl || currentUser.photoUrl || getSavedPhoto(currentUser.uid),
+     following: Array.isArray(me.following) ? me.following : (currentUser.following || []),
+     followers: Array.isArray(me.followers) ? me.followers : (currentUser.followers || []),
+     blockedUsers: Array.isArray(me.blockedUsers) ? me.blockedUsers : (currentUser.blockedUsers || [])
     };
    }
   }
@@ -1169,6 +1414,7 @@ function listenRealtime(){
   renderPosts();
   renderStatuses();
   updateProfileUI();
+  updateBlockRoomUI();
  }, ()=>{});
 
  const qPosts=query(collection(db,'posts'),orderBy('createdAt','desc'));
@@ -1198,6 +1444,7 @@ function listenRealtime(){
     const data = change.doc.data();
     if(!data) continue;
     if(change.type === 'added' && data.calleeId === currentUser.uid && data.status === 'ringing' && !activeCallDocId){
+     if(isBlockedByMe(data.callerId)) continue;
      incomingCallDoc = { id: change.doc.id, ...data };
      callKind = data.callType || 'audio';
      openCallModalUI(data.callerName || 'Caller', data.callerId, 'Incoming ' + (callKind === 'video' ? 'Video Call' : 'Voice Call'), true);
@@ -1225,9 +1472,9 @@ function getUserPhoto(uid){
 }
 
 // 24-Hour Status + Fullscreen Viewer + Viewers List
-function renderStatuses(){
- const list=document.getElementById('statusList');
- list.innerHTML=`
+function populateStatusContainer(container){
+ if(!container) return;
+ container.innerHTML=`
   <div class="status-item" onclick="openStatusCreate()">
    <div class="status-ring"><div class="avatar add-status">+</div></div>
    <small>Your Status</small>
@@ -1235,6 +1482,7 @@ function renderStatuses(){
   </div>
  `;
  allStatuses.forEach(st=>{
+  if(isBlockedByMe(st.uid)) return;
   const photo = getUserPhoto(st.uid);
   const avatarInner = photo
    ? `<img src="${photo}" alt="${st.userName || 'U'}">`
@@ -1249,8 +1497,13 @@ function renderStatuses(){
   `;
   item.querySelector('.st-avatar').onclick=(e)=>{e.stopPropagation();window.viewProfilePic(st.uid, st.userName);};
   item.onclick=()=>openStatusFullscreen(st);
-  list.appendChild(item);
+  container.appendChild(item);
  });
+}
+
+function renderStatuses(){
+ populateStatusContainer(document.getElementById('statusList'));
+ populateStatusContainer(document.getElementById('chatStatusList'));
 }
 
 window.openStatusCreate = function(){
@@ -1431,12 +1684,13 @@ window.sharePost = function(text){
 
 function renderPosts(){
  const feed=document.getElementById('feed');
- if(!allPosts.length){
+ const visiblePosts = allPosts.filter(p => !isBlockedByMe(p.uid));
+ if(!visiblePosts.length){
   feed.innerHTML='<div class="card empty">No posts yet. Be the first to post on ADAM MK CHAT!</div>';
   return;
  }
  feed.innerHTML='';
- allPosts.forEach(p=>{
+ visiblePosts.forEach(p=>{
   const likes=p.likes || [];
   const comments=p.comments || [];
   const liked=currentUser && likes.includes(currentUser.uid);
@@ -1503,7 +1757,7 @@ function emptyFriendsMarkup(msg){
  `;
 }
 
-// People & Direct Chat
+// People, Follow/Unfollow, Block & Report
 function renderPeople(){
  const list=document.getElementById('peopleList');
  if(!list)return;
@@ -1519,19 +1773,23 @@ function renderPeople(){
    ? `<img src="${photo}" alt="${u.name}">`
    : u.name[0].toUpperCase();
   const safeName = u.name.replace(/'/g,"\\'");
+  const following = isFollowing(u.uid);
+  const blocked = isBlockedByMe(u.uid);
   const row=document.createElement('div');
   row.className='chat-row';
   row.innerHTML=`
    <div class="avatar" onclick="viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
    <div class="details" onclick="viewProfilePic('${u.uid}','${safeName}')">
     <strong>${u.name}</strong><br>
-    <small>@${u.username}</small>
+    <small>@${u.username}${blocked ? ' • Blocked' : ''}</small>
    </div>
    <div class="row-actions">
     <button class="secondary-btn" style="padding:7px 10px;font-size:12px"
-     onclick="viewProfilePic('${u.uid}','${safeName}')">DP</button>
-    <button class="primary" style="width:auto;padding:7px 14px;font-size:12px"
+     onclick="toggleFollowUser('${u.uid}')">${following ? 'Unfollow' : 'Follow'}</button>
+    <button class="primary" style="width:auto;padding:7px 12px;font-size:12px"
      onclick="showPage('messages');openChatWith('${u.uid}','${safeName}')">Chat</button>
+    <button class="danger-btn" onclick="toggleBlockUser('${u.uid}')">${blocked ? 'Unblock' : 'Block'}</button>
+    <button class="danger-btn" onclick="openReportModal('${u.uid}','${safeName}')">Report</button>
    </div>
   `;
   list.appendChild(row);
@@ -1539,27 +1797,77 @@ function renderPeople(){
 }
 
 function renderChatsList(){
- const list=document.getElementById('chatList');
- if(!list)return;
- const others=allUsers.filter(u=>!currentUser || u.uid!==currentUser.uid);
+ const topStrip = document.getElementById('chatTopProfiles');
+ const profilesList = document.getElementById('chatPeopleProfiles');
+ const list = document.getElementById('chatList');
+ if(!list) return;
+
+ const others = allUsers.filter(u => !currentUser || u.uid !== currentUser.uid);
+
+ if(topStrip){
+  topStrip.innerHTML = '';
+  others.forEach(u => {
+   const photo = u.photoUrl || getSavedPhoto(u.uid);
+   const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
+   const safeName = u.name.replace(/'/g,"\\'");
+   const chip = document.createElement('div');
+   chip.className = 'wa-person-chip';
+   chip.innerHTML = `
+    <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')">${avatarInner}</div>
+    <small onclick="window.openChatWith('${u.uid}','${safeName}')">${u.name}</small>
+   `;
+   topStrip.appendChild(chip);
+  });
+ }
+
+ if(profilesList){
+  if(!others.length){
+   profilesList.innerHTML = emptyFriendsMarkup('Invite friends to see their profiles first and chat!');
+  }else{
+   profilesList.innerHTML = '';
+   others.forEach(u => {
+    const photo = u.photoUrl || getSavedPhoto(u.uid);
+    const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
+    const safeName = u.name.replace(/'/g,"\\'");
+    const following = isFollowing(u.uid);
+    const blocked = isBlockedByMe(u.uid);
+    const row = document.createElement('div');
+    row.className = 'chat-row';
+    row.innerHTML = `
+     <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
+     <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
+      <strong>${u.name}</strong><br>
+      <small>@${u.username}${blocked ? ' • Blocked' : ' • Tap to chat'}</small>
+     </div>
+     <div class="row-actions" onclick="event.stopPropagation()">
+      <button class="secondary-btn" style="padding:6px 10px;font-size:12px" onclick="toggleFollowUser('${u.uid}')">${following ? 'Unfollow' : 'Follow'}</button>
+      <button class="danger-btn" onclick="toggleBlockUser('${u.uid}')">${blocked ? 'Unblock' : 'Block'}</button>
+      <button class="danger-btn" onclick="openReportModal('${u.uid}','${safeName}')">Report</button>
+     </div>
+    `;
+    profilesList.appendChild(row);
+   });
+  }
+ }
+
  if(!others.length){
-  list.innerHTML=emptyFriendsMarkup('Invite friends to register so you can chat!');
+  list.innerHTML = emptyFriendsMarkup('No recent chats yet.');
   return;
  }
- list.innerHTML='';
- others.forEach(u=>{
+
+ list.innerHTML = '';
+ others.forEach(u => {
   const photo = u.photoUrl || getSavedPhoto(u.uid);
-  const avatarInner = photo
-   ? `<img src="${photo}" alt="${u.name}">`
-   : u.name[0].toUpperCase();
+  const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
   const safeName = u.name.replace(/'/g,"\\'");
-  const row=document.createElement('div');
-  row.className='chat-row';
-  row.innerHTML=`
+  const blocked = isBlockedByMe(u.uid);
+  const row = document.createElement('div');
+  row.className = 'chat-row';
+  row.innerHTML = `
    <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong><br>
-    <small>@${u.username} • Tap to message</small>
+    <small>${blocked ? 'Blocked • Tap to open chat' : 'Open conversation'}</small>
    </div>
   `;
   list.appendChild(row);
@@ -1572,9 +1880,10 @@ function getChatId(uid1, uid2){
 
 window.openChatWith = function(peerUid, peerName){
  activePeer={uid:peerUid, name:peerName};
- document.getElementById('chatListCard').classList.add('hidden');
+ document.getElementById('chatOverviewWrap').classList.add('hidden');
  document.getElementById('chatRoomCard').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
+ updateBlockRoomUI();
  const peerAv = document.getElementById('chatPeerAvatar');
  setAvatarContent(peerAv, peerName, getUserPhoto(peerUid));
  peerAv.onclick = () => window.viewProfilePic(peerUid, peerName);
@@ -1589,10 +1898,11 @@ window.openChatWith = function(peerUid, peerName){
    const m=docSnap.data();
    const div=document.createElement('div');
    div.className='msg-bubble '+(m.senderId===currentUser.uid?'msg-sent':'msg-recv');
+   const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
    if(m.audioUrl){
-    div.innerHTML=`<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio>`;
+    div.innerHTML=`<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio><span class="msg-time">${timeStr}</span>`;
    }else{
-    div.textContent=m.text || '';
+    div.innerHTML=`<span>${m.text || ''}</span><span class="msg-time">${timeStr}</span>`;
    }
    box.appendChild(div);
   });
@@ -1604,13 +1914,21 @@ window.closeChatRoom = function(){
  activePeer=null;
  if(unsubMessages) unsubMessages();
  document.getElementById('chatRoomCard').classList.add('hidden');
- document.getElementById('chatListCard').classList.remove('hidden');
+ document.getElementById('chatOverviewWrap').classList.remove('hidden');
 };
 
 window.sendMessage = async function(){
  const input=document.getElementById('chatMsgInput');
  const text=input.value.trim();
  if(!text || !activePeer)return;
+ if(isBlockedByMe(activePeer.uid)){
+  showToast('Unblock this user first to send messages');
+  return;
+ }
+ if(isBlockedByPeer(activePeer.uid)){
+  showToast('You cannot send messages to this user');
+  return;
+ }
  const chatId=getChatId(currentUser.uid, activePeer.uid);
  input.value='';
  await addDoc(collection(db,'chats',chatId,'messages'),{
@@ -1623,6 +1941,10 @@ window.sendMessage = async function(){
 // Voice Note Recording & Sending
 window.toggleVoiceNote = async function(){
  if(!activePeer){ showToast('Open a chat first'); return; }
+ if(isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid)){
+  showToast('Messaging is unavailable for this contact');
+  return;
+ }
  const btn = document.getElementById('voiceNoteBtn');
  const statusEl = document.getElementById('voiceRecStatus');
 
@@ -1736,7 +2058,11 @@ function createPeerConnection(callDocRef, isCaller){
 }
 
 window.startCall = async function(kind){
- if(!activePeer){ showToast('Select a user in Messages first'); return; }
+ if(!activePeer){ showToast('Select a user in Chats first'); return; }
+ if(isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid)){
+  showToast('Cannot call this contact');
+  return;
+ }
  callKind = kind;
  isMicMuted = false;
  isCamOff = false;
