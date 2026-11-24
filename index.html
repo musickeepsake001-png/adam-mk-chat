@@ -276,6 +276,31 @@ main{padding-bottom:85px}
  0%,100%{transform:scale(1)}
  50%{transform:scale(1.08)}
 }
+
+/* FULL-SCREEN CHAT VIEW */
+#chatRoomCard.fullscreen-chat{
+ position:fixed;
+ inset:0;
+ width:100vw;
+ height:100dvh;
+ max-width:none;
+ margin:0;
+ border:0;
+ border-radius:0;
+ z-index:45;
+ display:flex;
+ flex-direction:column;
+ padding:12px;
+ background:var(--card);
+}
+#chatRoomCard.fullscreen-chat .chat-window{
+ flex:1;
+ height:auto;
+ min-height:0;
+ margin-top:8px;
+ padding:8px;
+}
+
 .chat-window{
  display:flex;flex-direction:column;height:62vh;
  background:var(--wa-bg);border-radius:12px;margin-top:10px;padding:8px;
@@ -311,7 +336,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 .chat-input-bar input{flex:1;min-width:0;padding:10px 14px;border:1px solid var(--border);border-radius:22px;background:var(--bg)}
 .modal{
  position:fixed;inset:0;background:rgba(0,0,0,0.65);
- display:grid;place-items:center;z-index:40;padding:15px;overflow-y:auto;
+ display:grid;place-items:center;z-index:50;padding:15px;overflow-y:auto;
 }
 .modal-content{background:var(--card);width:100%;max-width:420px;border-radius:14px;padding:18px;max-height:90vh;overflow-y:auto}
 .fullscreen-modal{
@@ -442,7 +467,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 <main id="app" class="hidden">
  <div class="container">
 
-  <!-- HOME (ASALIN TSARI - BA A SAKA ABIN CHAT A NAN BA) -->
+  <!-- HOME (DA CREATE GROUP CHAT DA CREATE ROOM) -->
   <section id="homePage">
    <div class="home-layout">
     <div>
@@ -485,19 +510,37 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
        </div>
       </div>
       <button class="primary" style="margin-top:15px" onclick="showPage('profile')">View Profile</button>
+      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="openCreateGroupModal()">👥 Create Group Chat</button>
+      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="openCreateRoomModal()"># Create Room</button>
       <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="inviteFriends()">➕ Invite Friends</button>
+     </div>
+
+     <!-- Chat Groups a Home -->
+     <div class="card">
+      <div class="section-title-row">
+       <div class="section-title">Chat Groups</div>
+       <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateGroupModal()">+ Group</button>
+      </div>
+      <div id="homeGroupsList"></div>
+     </div>
+
+     <!-- Chat Rooms a Home -->
+     <div class="card">
+      <div class="section-title-row">
+       <div class="section-title">Chat Rooms</div>
+       <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateRoomModal()">+ Room</button>
+      </div>
+      <div id="homeRoomsList"></div>
      </div>
     </div>
    </div>
   </section>
 
-  <!-- CHATS PAGE (DA ABIN DA AKA TURA A HOTO + CHAT GROUPS + 3 DOTS MENU) -->
+  <!-- CHATS PAGE -->
   <section id="messagesPage" class="hidden">
    <div class="page-header-row">
     <h2 class="page-title">Chats</h2>
     <div class="invite-actions">
-     <button class="primary" style="width:auto;padding:8px 14px;font-size:13px" onclick="openCreateRoomModal()">+ Create Room</button>
-     <button class="secondary-btn" onclick="openCreateGroupModal()">👥 Create Group</button>
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
     </div>
@@ -514,24 +557,6 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <div class="card">
      <div class="section-title" style="margin-bottom:10px">Contacts</div>
      <div class="wa-strip" id="chatTopProfiles"></div>
-    </div>
-
-    <!-- Chat Groups -->
-    <div class="card">
-     <div class="section-title-row">
-      <div class="section-title">Chat Groups</div>
-      <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateGroupModal()">+ New Group</button>
-     </div>
-     <div id="groupsList"></div>
-    </div>
-
-    <!-- Chat Rooms -->
-    <div class="card">
-     <div class="section-title-row">
-      <div class="section-title">Chat Rooms</div>
-      <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateRoomModal()">+ New Room</button>
-     </div>
-     <div id="roomsList"></div>
     </div>
 
     <!-- Recent Chats -->
@@ -680,7 +705,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 <!-- CREATE CHAT GROUP MODAL -->
 <div id="createGroupModal" class="modal hidden">
  <div class="modal-content">
-  <h3 style="margin-bottom:10px;color:var(--blue)">Create Chat Group</h3>
+  <h3 style="margin-bottom:10px;color:var(--blue)">Create Group Chat</h3>
   <div class="form-group">
    <label>Group Name</label>
    <input id="groupNameInput" placeholder="e.g. MK Family & Friends">
@@ -703,7 +728,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 <!-- CREATE CHAT ROOM MODAL -->
 <div id="createRoomModal" class="modal hidden">
  <div class="modal-content">
-  <h3 style="margin-bottom:10px;color:var(--blue)">Create Chat Room</h3>
+  <h3 style="margin-bottom:10px;color:var(--blue)">Create Room</h3>
   <div class="form-group">
    <label>Room Name</label>
    <input id="roomNameInput" placeholder="e.g. Hausa Music Lovers">
@@ -1041,6 +1066,12 @@ function setAvatarContent(el, name, photoUrl){
  }else{
   el.textContent = (name || 'M')[0].toUpperCase();
  }
+}
+
+function setFullScreenChatMode(enabled){
+ const card = document.getElementById('chatRoomCard');
+ if(!card) return;
+ card.classList.toggle('fullscreen-chat', Boolean(enabled));
 }
 
 window.toggleFollowUser = async function(targetUid){
@@ -1447,6 +1478,9 @@ onAuthStateChanged(auth, async (user)=>{
 });
 
 window.showPage = function(page){
+ if(page !== 'messages'){
+  window.closeChatRoom();
+ }
  const pages=['home','messages','friends','notifications','profile','settings'];
  pages.forEach(p=>{
   document.getElementById(p+'Page').classList.toggle('hidden',p!==page);
@@ -1456,6 +1490,7 @@ window.showPage = function(page){
  });
  if(page==='friends') renderPeople();
  if(page==='messages') renderChatsList();
+ if(page==='home') renderChatsList();
  window.scrollTo(0,0);
 };
 
@@ -1948,7 +1983,7 @@ function renderPeople(){
  });
 }
 
-// Chat Groups creation & rendering
+// Chat Groups creation & rendering (a Home)
 window.openCreateGroupModal = function(){
  document.getElementById('groupNameInput').value = '';
  document.getElementById('groupDescInput').value = '';
@@ -1985,15 +2020,15 @@ window.createChatGroup = async function(){
  try{
   const docRef = await addDoc(collection(db,'groups'),{
    name,
-   description: desc || 'Chat Group',
+   description: desc || 'Group Chat',
    members,
    createdBy: currentUser.uid,
    createdByName: currentUser.name,
    createdAt: Date.now()
   });
   closeCreateGroupModal();
-  showToast('Chat group created!');
-  window.openGroupChat(docRef.id, name, desc || 'Chat Group', members.length);
+  showToast('Group chat created!');
+  window.openGroupChat(docRef.id, name, desc || 'Group Chat', members.length);
  }catch(e){
   showToast('Failed to create group');
  }finally{
@@ -2001,7 +2036,7 @@ window.createChatGroup = async function(){
  }
 };
 
-// Chat Rooms creation & rendering
+// Chat Rooms creation & rendering (a Home)
 window.openCreateRoomModal = function(){
  document.getElementById('roomNameInput').value = '';
  document.getElementById('roomDescInput').value = '';
@@ -2040,10 +2075,9 @@ window.createChatRoom = async function(){
 
 function renderChatsList(){
  const topStrip = document.getElementById('chatTopProfiles');
- const groupsBox = document.getElementById('groupsList');
- const roomsBox = document.getElementById('roomsList');
+ const groupsBox = document.getElementById('homeGroupsList');
+ const roomsBox = document.getElementById('homeRoomsList');
  const list = document.getElementById('chatList');
- if(!list) return;
 
  const others = allUsers.filter(u => !currentUser || u.uid !== currentUser.uid);
 
@@ -2073,12 +2107,12 @@ function renderChatsList(){
    return currentUser && g.members.includes(currentUser.uid);
   });
   if(!myGroups.length){
-   groupsBox.innerHTML = '<div class="empty">No chat groups yet. Tap "+ Create Group" to start one!</div>';
+   groupsBox.innerHTML = '<div class="empty">No group chats yet. Tap "+ Group" to create one!</div>';
   }else{
    groupsBox.innerHTML = '';
    myGroups.forEach(g => {
     const safeName = (g.name || 'Group').replace(/'/g,"\\'");
-    const safeDesc = (g.description || 'Chat Group').replace(/'/g,"\\'");
+    const safeDesc = (g.description || 'Group Chat').replace(/'/g,"\\'");
     const count = Array.isArray(g.members) ? g.members.length : 1;
     const row = document.createElement('div');
     row.className = 'chat-row';
@@ -2087,7 +2121,7 @@ function renderChatsList(){
      <div class="avatar" style="background:var(--light);color:var(--blue)">👥</div>
      <div class="details">
       <strong>${g.name}</strong>
-      <small>${count} members • ${g.description || 'Chat Group'}</small>
+      <small>${count} members • ${g.description || 'Group Chat'}</small>
      </div>
      <button class="secondary-btn" style="padding:6px 12px;font-size:12px">Open</button>
     `;
@@ -2098,7 +2132,7 @@ function renderChatsList(){
 
  if(roomsBox){
   if(!allRooms.length){
-   roomsBox.innerHTML = '<div class="empty">No chat rooms yet. Tap "+ Create Room" to start one!</div>';
+   roomsBox.innerHTML = '<div class="empty">No rooms yet. Tap "+ Room" to create one!</div>';
   }else{
    roomsBox.innerHTML = '';
    allRooms.forEach(r => {
@@ -2119,6 +2153,8 @@ function renderChatsList(){
    });
   }
  }
+
+ if(!list) return;
 
  if(!others.length){
   list.innerHTML = emptyFriendsMarkup('Invite friends to start chatting!');
@@ -2169,12 +2205,23 @@ function renderMessagesSnapshot(snap, showSenderTag){
  box.scrollTop=box.scrollHeight;
 }
 
+function enterFullScreenChatUI(){
+ document.getElementById('app').classList.remove('hidden');
+ const pages=['home','messages','friends','notifications','profile','settings'];
+ pages.forEach(p=>{
+  document.getElementById(p+'Page').classList.toggle('hidden', p !== 'messages');
+ });
+ document.getElementById('chatOverviewWrap').classList.add('hidden');
+ document.getElementById('chatRoomCard').classList.remove('hidden');
+ setFullScreenChatMode(true);
+ window.scrollTo(0,0);
+}
+
 window.openChatWith = function(peerUid, peerName){
  activeRoom = null;
  activeGroup = null;
  activePeer={uid:peerUid, name:peerName};
- document.getElementById('chatOverviewWrap').classList.add('hidden');
- document.getElementById('chatRoomCard').classList.remove('hidden');
+ enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
  document.getElementById('chatPeerSub').textContent='Tap DP for profile';
@@ -2192,11 +2239,10 @@ window.openGroupChat = function(groupId, groupName, groupDesc, memberCount){
  activePeer = null;
  activeRoom = null;
  activeGroup = { id: groupId, name: groupName, description: groupDesc };
- document.getElementById('chatOverviewWrap').classList.add('hidden');
- document.getElementById('chatRoomCard').classList.remove('hidden');
+ enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.add('hidden');
  document.getElementById('chatPeerName').textContent = groupName;
- document.getElementById('chatPeerSub').textContent = `${memberCount || 1} members • ${groupDesc || 'Chat Group'}`;
+ document.getElementById('chatPeerSub').textContent = `${memberCount || 1} members • ${groupDesc || 'Group Chat'}`;
  const peerAv = document.getElementById('chatPeerAvatar');
  peerAv.textContent = '👥';
  peerAv.onclick = null;
@@ -2210,8 +2256,7 @@ window.openRoomChat = function(roomId, roomName, roomDesc){
  activePeer = null;
  activeGroup = null;
  activeRoom = { id: roomId, name: roomName, description: roomDesc };
- document.getElementById('chatOverviewWrap').classList.add('hidden');
- document.getElementById('chatRoomCard').classList.remove('hidden');
+ enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.add('hidden');
  document.getElementById('chatPeerName').textContent = roomName;
  document.getElementById('chatPeerSub').textContent = roomDesc || 'Chat Room';
@@ -2225,12 +2270,20 @@ window.openRoomChat = function(roomId, roomName, roomDesc){
 };
 
 window.closeChatRoom = function(){
+ const wasGroupOrRoom = Boolean(activeGroup || activeRoom);
  activePeer=null;
  activeRoom=null;
  activeGroup=null;
- if(unsubMessages) unsubMessages();
+ if(unsubMessages){ unsubMessages(); unsubMessages = null; }
+ setFullScreenChatMode(false);
  document.getElementById('chatRoomCard').classList.add('hidden');
  document.getElementById('chatOverviewWrap').classList.remove('hidden');
+ if(wasGroupOrRoom){
+  const homeSec = document.getElementById('homePage');
+  if(homeSec && !homeSec.classList.contains('hidden')){
+   renderChatsList();
+  }
+ }
 };
 
 window.sendMessage = async function(){
@@ -2673,8 +2726,17 @@ window.addEventListener('popstate', ()=>{
 
  const chatRoomCard = document.getElementById('chatRoomCard');
  if(chatRoomCard && !chatRoomCard.classList.contains('hidden')){
+  const fromGroupOrRoom = Boolean(activeGroup || activeRoom);
   window.closeChatRoom();
-  pushAppState('page_messages');
+  if(fromGroupOrRoom){
+   origShowPage('home');
+   document.querySelectorAll('.navbar button').forEach((btn, i)=>{
+    btn.classList.toggle('active', i === 0);
+   });
+   pushAppState('home');
+  }else{
+   pushAppState('page_messages');
+  }
   return;
  }
 
