@@ -2547,6 +2547,151 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js').catch(()=>{});
  });
 }
+
+// Handle Android / Browser Back button cleanly inside ADAM MK CHAT
+function pushAppState(tag){
+ try{
+  history.pushState({ amkTag: tag || Date.now() }, '', window.location.href);
+ }catch(e){}
+}
+
+const origOpenChatWith = window.openChatWith;
+window.openChatWith = function(peerUid, peerName){
+ pushAppState('chat_peer');
+ return origOpenChatWith(peerUid, peerName);
+};
+
+const origOpenGroupChat = window.openGroupChat;
+window.openGroupChat = function(groupId, groupName, groupDesc, memberCount){
+ pushAppState('chat_group');
+ return origOpenGroupChat(groupId, groupName, groupDesc, memberCount);
+};
+
+const origOpenRoomChat = window.openRoomChat;
+window.openRoomChat = function(roomId, roomName, roomDesc){
+ pushAppState('chat_room');
+ return origOpenRoomChat(roomId, roomName, roomDesc);
+};
+
+const origOpenUserActionMenu = window.openUserActionMenu;
+window.openUserActionMenu = function(targetUid, targetName){
+ pushAppState('menu_dots');
+ return origOpenUserActionMenu(targetUid, targetName);
+};
+
+const origViewProfilePic = window.viewProfilePic;
+window.viewProfilePic = function(uid, fallbackName){
+ pushAppState('view_dp');
+ return origViewProfilePic(uid, fallbackName);
+};
+
+const origOpenCreateGroupModal = window.openCreateGroupModal;
+window.openCreateGroupModal = function(){
+ pushAppState('create_group');
+ return origOpenCreateGroupModal();
+};
+
+const origOpenCreateRoomModal = window.openCreateRoomModal;
+window.openCreateRoomModal = function(){
+ pushAppState('create_room');
+ return origOpenCreateRoomModal();
+};
+
+const origOpenReportModal = window.openReportModal;
+window.openReportModal = function(targetUid, targetName){
+ pushAppState('report_user');
+ return origOpenReportModal(targetUid, targetName);
+};
+
+const origOpenInviteModal = window.openInviteModal;
+window.openInviteModal = function(){
+ pushAppState('invite_modal');
+ return origOpenInviteModal();
+};
+
+const origOpenEditProfile = window.openEditProfile;
+window.openEditProfile = function(){
+ pushAppState('edit_profile');
+ return origOpenEditProfile();
+};
+
+const origOpenStatusCreate = window.openStatusCreate;
+window.openStatusCreate = function(){
+ pushAppState('create_status');
+ return origOpenStatusCreate();
+};
+
+const origShowPage = window.showPage;
+window.showPage = function(page){
+ const currentActive = document.querySelector('.navbar button.active');
+ const currentPage = currentActive ? currentActive.textContent.trim().toLowerCase() : 'home';
+ const mapLabel = { people: 'friends', more: 'settings' };
+ const prevPage = mapLabel[currentPage] || currentPage;
+ if(page !== 'home' && prevPage !== page){
+  pushAppState('page_' + page);
+ }
+ return origShowPage(page);
+};
+
+window.addEventListener('popstate', ()=>{
+ const appEl = document.getElementById('app');
+ if(!appEl || appEl.classList.contains('hidden')) return;
+
+ const callModal = document.getElementById('callModal');
+ if(callModal && !callModal.classList.contains('hidden')){
+  window.endCall();
+  pushAppState('home');
+  return;
+ }
+
+ const fsStatus = document.getElementById('statusFullscreenModal');
+ if(fsStatus && !fsStatus.classList.contains('hidden')){
+  window.closeStatusFullscreen();
+  pushAppState('home');
+  return;
+ }
+
+ const modals = [
+  { id: 'threeDotsModal', fn: window.closeUserActionMenu },
+  { id: 'viewDpModal', fn: window.closeViewDpModal },
+  { id: 'createGroupModal', fn: window.closeCreateGroupModal },
+  { id: 'createRoomModal', fn: window.closeCreateRoomModal },
+  { id: 'reportModal', fn: window.closeReportModal },
+  { id: 'inviteModal', fn: window.closeInviteModal },
+  { id: 'editModal', fn: window.closeEditProfile },
+  { id: 'statusModal', fn: window.closeStatusModal }
+ ];
+
+ for(const m of modals){
+  const el = document.getElementById(m.id);
+  if(el && !el.classList.contains('hidden')){
+   if(typeof m.fn === 'function') m.fn();
+   pushAppState('home');
+   return;
+  }
+ }
+
+ const chatRoomCard = document.getElementById('chatRoomCard');
+ if(chatRoomCard && !chatRoomCard.classList.contains('hidden')){
+  window.closeChatRoom();
+  pushAppState('page_messages');
+  return;
+ }
+
+ const activePages = ['messagesPage', 'friendsPage', 'notificationsPage', 'profilePage', 'settingsPage'];
+ const onSubPage = activePages.some(id => {
+  const el = document.getElementById(id);
+  return el && !el.classList.contains('hidden');
+ });
+
+ if(onSubPage){
+  origShowPage('home');
+  document.querySelectorAll('.navbar button').forEach((btn, i)=>{
+   btn.classList.toggle('active', i === 0);
+  });
+  window.scrollTo(0,0);
+ }
+});
 </script>
 </body>
 </html>
