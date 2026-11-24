@@ -586,6 +586,10 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
     </div>
    </div>
+   <div class="card">
+    <div class="section-title" style="margin-bottom:12px">Status</div>
+    <div class="status-area" id="peopleStatusList"></div>
+   </div>
    <div class="card" id="peopleList"></div>
   </section>
 
@@ -1639,7 +1643,7 @@ function populateStatusContainer(container){
  `;
  allStatuses.forEach(st=>{
   if(isBlockedByMe(st.uid)) return;
-  const photo = getUserPhoto(st.uid);
+  const photo = st.imageUrl || getUserPhoto(st.uid);
   const avatarInner = photo
    ? `<img src="${photo}" alt="${st.userName || 'U'}">`
    : (st.userName||'U')[0].toUpperCase();
@@ -1659,6 +1663,7 @@ function populateStatusContainer(container){
 
 function renderStatuses(){
  populateStatusContainer(document.getElementById('chatStatusList'));
+ populateStatusContainer(document.getElementById('peopleStatusList'));
 }
 
 window.openStatusCreate = function(){
