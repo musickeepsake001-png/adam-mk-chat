@@ -1243,12 +1243,17 @@ let unsubUsers = null;
 let unsubRooms = null;
 let unsubGroups = null;
 let unsubMessages = null;
-let unsubCalls = null;
+let unsubActiveCall = null;
+let unsubIncomingCalls = null;
 let unsubCallCandidates = null;
 let presenceHeartbeatTimer = null;
 let typingResetTimer = null;
 let messageSoundInitialized = false;
 let lastRenderedMsgCount = 0;
+
+let appHistoryGuardReady = false;
+let backExitArmed = false;
+let backExitTimer = null;
 
 let chatMetaByPeer = {};
 
@@ -1294,6 +1299,84 @@ function getInitials(name){
  if(parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
+
+function pushAppHistoryState(tag){
+ if(!currentUser) return;
+ try{
+  window.history.pushState({ amkApp: true, tag: tag || 'nav', ts: Date.now() }, '', window.location.href);
+ }catch(e){}
+}
+
+function closeAnyOpenModalByBack(){
+ const modalsInOrder = [
+  { id: 'statusFullscreenModal', closeFn: ()=>window.closeStatusFullscreen && window.closeStatusFullscreen() },
+  { id: 'callModal', closeFn: ()=>window.endCall && window.endCall() },
+  { id: 'threeDotsModal', closeFn: ()=>window.closeUserActionMenu && window.closeUserActionMenu() },
+  { id: 'reportModal', closeFn: ()=>window.closeReportModal && window.closeReportModal() },
+  { id: 'createGroupModal', closeFn: ()=>window.closeCreateGroupModal && window.closeCreateGroupModal() },
+  { id: 'createRoomModal', closeFn: ()=>window.closeCreateRoomModal && window.closeCreateRoomModal() },
+  { id: 'viewDpModal', closeFn: ()=>window.closeViewDpModal && window.closeViewDpModal() },
+  { id: 'inviteModal', closeFn: ()=>window.closeInviteModal && window.closeInviteModal() },
+  { id: 'editModal', closeFn: ()=>window.closeEditProfile && window.closeEditProfile() },
+  { id: 'statusModal', closeFn: ()=>window.closeStatusModal && window.closeStatusModal() }
+ ];
+
+ for(const item of modalsInOrder){
+  const el = document.getElementById(item.id);
+  if(el && !el.classList.contains('hidden')){
+   item.closeFn();
+   return true;
+  }
+ }
+ return false;
+}
+
+function getActivePageName(){
+ const pages = ['home','friends','messages','notifications','profile','settings'];
+ for(const p of pages){
+  const el = document.getElementById(p + 'Page');
+  if(el && !el.classList.contains('hidden')) return p;
+ }
+ return 'home';
+}
+
+window.addEventListener('popstate', ()=>{
+ if(!currentUser) return;
+
+ if(closeAnyOpenModalByBack()){
+  backExitArmed = false;
+  pushAppHistoryState('modal-closed');
+  return;
+ }
+
+ const roomCard = document.getElementById('chatRoomCard');
+ if(roomCard && !roomCard.classList.contains('hidden')){
+  backExitArmed = false;
+  window.closeChatRoom();
+  pushAppHistoryState('chat-closed');
+  return;
+ }
+
+ const activePage = getActivePageName();
+ if(activePage !== 'home'){
+  backExitArmed = false;
+  window.showPage('home');
+  pushAppHistoryState('back-home');
+  return;
+ }
+
+ if(backExitArmed){
+  return;
+ }
+
+ backExitArmed = true;
+ showToast('Danna Back sake idan kana son fita');
+ pushAppHistoryState('home-guard');
+ clearTimeout(backExitTimer);
+ backExitTimer = setTimeout(()=>{
+  backExitArmed = false;
+ }, 3000);
+});
 
 function syncDarkModeLabels(){
  const isDark = document.body.classList.contains('dark-mode');
@@ -1898,6 +1981,7 @@ window.openUserActionMenu = function(targetUid, targetName){
  };
  refreshActionMenuButtons();
  document.getElementById('threeDotsModal').classList.remove('hidden');
+ pushAppHistoryState('three-dots');
 };
 
 window.closeUserActionMenu = function(){
@@ -1912,6 +1996,7 @@ window.openReportModal = function(targetUid, targetName){
  document.getElementById('reportReason').value = 'Harassment or abuse';
  document.getElementById('reportDetails').value = '';
  document.getElementById('reportModal').classList.remove('hidden');
+ pushAppHistoryState('report-modal');
 };
 
 window.closeReportModal = function(){
@@ -2028,6 +2113,7 @@ window.viewProfilePic = function(uid, fallbackName){
  }
 
  document.getElementById('viewDpModal').classList.remove('hidden');
+ pushAppHistoryState('view-dp');
 };
 
 window.viewMyProfilePic = function(){
@@ -2043,6 +2129,7 @@ window.inviteFriends = function(){
  const inp = document.getElementById('inviteLinkInput');
  if(inp) inp.value = SHARE_URL;
  document.getElementById('inviteModal').classList.remove('hidden');
+ pushAppHistoryState('invite-modal');
 };
 
 window.closeInviteModal = function(){
@@ -2099,6 +2186,9 @@ window.showPage = function(page){
  }
  if(page === 'profile') updateProfileUI();
  if(page === 'notifications') renderNotifications();
+ if(currentUser && page !== 'home'){
+  pushAppHistoryState('page-' + page);
+ }
 };
 
 async function uploadToCloudinary(file){
@@ -2172,6 +2262,8 @@ window.logoutUser = async function(){
  stopPresenceHeartbeat();
  stopAllListeners();
  cleanupCallResources();
+ appHistoryGuardReady = false;
+ backExitArmed = false;
  await signOut(auth);
  currentUser = null;
  document.getElementById('app').classList.add('hidden');
@@ -2187,7 +2279,8 @@ function stopAllListeners(){
  if(unsubRooms){ unsubRooms(); unsubRooms = null; }
  if(unsubGroups){ unsubGroups(); unsubGroups = null; }
  if(unsubMessages){ unsubMessages(); unsubMessages = null; }
- if(unsubCalls){ unsubCalls(); unsubCalls = null; }
+ if(unsubActiveCall){ unsubActiveCall(); unsubActiveCall = null; }
+ if(unsubIncomingCalls){ unsubIncomingCalls(); unsubIncomingCalls = null; }
  if(unsubCallCandidates){ unsubCallCandidates(); unsubCallCandidates = null; }
 }
 
@@ -2282,12 +2375,19 @@ onAuthStateChanged(auth, async (user)=>{
   document.getElementById('navbar').classList.remove('hidden');
   document.getElementById('headerActions').classList.remove('hidden');
 
+  if(!appHistoryGuardReady){
+   appHistoryGuardReady = true;
+   pushAppHistoryState('init');
+  }
+
   startPresenceHeartbeat();
   updateProfileUI();
   listenRealtime();
  }else{
   stopPresenceHeartbeat();
   stopAllListeners();
+  appHistoryGuardReady = false;
+  backExitArmed = false;
   currentUser = null;
   document.getElementById('app').classList.add('hidden');
   document.getElementById('navbar').classList.add('hidden');
@@ -2589,6 +2689,7 @@ window.openStatusCreate = function(){
  document.getElementById('statusText').value = '';
  document.getElementById('statusImgInput').value = '';
  document.getElementById('statusModal').classList.remove('hidden');
+ pushAppHistoryState('status-create');
 };
 
 window.closeStatusModal = function(){
@@ -2678,6 +2779,7 @@ async function openStatusFullscreen(st){
  document.getElementById('fsStatusText').textContent = st.text || '';
  renderStatusViewers(st);
  modal.classList.remove('hidden');
+ pushAppHistoryState('status-view');
 
  if(st.uid !== currentUser.uid){
   const viewers = Array.isArray(st.viewers) ? st.viewers : [];
@@ -3106,6 +3208,7 @@ window.openCreateGroupModal = function(){
   `).join('');
  }
  document.getElementById('createGroupModal').classList.remove('hidden');
+ pushAppHistoryState('create-group');
 };
 
 window.closeCreateGroupModal = function(){
@@ -3159,6 +3262,7 @@ window.openCreateRoomModal = function(){
  document.getElementById('roomNameInput').value = '';
  document.getElementById('roomDescInput').value = '';
  document.getElementById('createRoomModal').classList.remove('hidden');
+ pushAppHistoryState('create-room');
 };
 
 window.closeCreateRoomModal = function(){
@@ -3207,6 +3311,7 @@ function enterFullScreenChatUI(){
  const roomCard = document.getElementById('chatRoomCard');
  roomCard.classList.remove('hidden');
  roomCard.classList.add('fullscreen-chat');
+ pushAppHistoryState('chat-room');
 }
 
 function attachMessageStream(colRef, isDirect){
@@ -3661,6 +3766,7 @@ function setupCallModalUI(peerName, kind, isIncoming, statusText){
   localVid.classList.add('hidden');
  }
  document.getElementById('callModal').classList.remove('hidden');
+ pushAppHistoryState('call-modal');
 }
 
 async function initLocalMedia(kind){
@@ -3727,7 +3833,8 @@ window.startCall = async function(kind){
    createdAt: Date.now()
   });
 
-  unsubCalls = onSnapshot(callDocRef, async (snap)=>{
+  if(unsubActiveCall){ unsubActiveCall(); unsubActiveCall = null; }
+  unsubActiveCall = onSnapshot(callDocRef, async (snap)=>{
    if(!snap.exists()) return;
    const data = snap.data();
    if(data.answer && peerConnection && !peerConnection.currentRemoteDescription){
@@ -3740,6 +3847,7 @@ window.startCall = async function(kind){
    }
   });
 
+  if(unsubCallCandidates){ unsubCallCandidates(); unsubCallCandidates = null; }
   unsubCallCandidates = onSnapshot(collection(callDocRef,'calleeCandidates'), (snap)=>{
    snap.docChanges().forEach(async (chg)=>{
     if(chg.type === 'added' && peerConnection){
@@ -3756,9 +3864,10 @@ window.startCall = async function(kind){
 
 function listenForIncomingCalls(){
  if(!currentUser) return;
- unsubCalls = onSnapshot(collection(db,'calls'), (snap)=>{
+ if(unsubIncomingCalls){ unsubIncomingCalls(); unsubIncomingCalls = null; }
+ unsubIncomingCalls = onSnapshot(collection(db,'calls'), (snap)=>{
   snap.docChanges().forEach((chg)=>{
-   if(chg.type === 'added' || ch.type === 'modified'){
+   if(chg.type === 'added' || chg.type === 'modified'){
     const d = { id: chg.doc.id, ...chg.doc.data() };
     if(d.calleeId === currentUser.uid && d.status === 'ringing' && !activeCallDocId){
      if(isBlockedByMe(d.callerId) || isBlockedByPeer(d.callerId)) return;
@@ -3798,6 +3907,7 @@ window.acceptIncomingCall = async function(){
   });
   document.getElementById('callStatusLabel').textContent = 'Connected';
 
+  if(unsubCallCandidates){ unsubCallCandidates(); unsubCallCandidates = null; }
   unsubCallCandidates = onSnapshot(collection(callDocRef,'callerCandidates'), (snap)=>{
    snap.docChanges().forEach(async (chg)=>{
     if(chg.type === 'added' && peerConnection){
@@ -3827,6 +3937,7 @@ window.toggleCameraCall = function(){
 
 function cleanupCallResources(){
  stopCallRingtone();
+ if(unsubActiveCall){ unsubActiveCall(); unsubActiveCall = null; }
  if(unsubCallCandidates){ unsubCallCandidates(); unsubCallCandidates = null; }
  if(peerConnection){
   peerConnection.close();
@@ -3866,6 +3977,7 @@ window.openEditProfile = function(){
  document.getElementById('editUsernameInput').value = currentUser.username || '';
  document.getElementById('editBioInput').value = currentUser.bio || '';
  document.getElementById('editModal').classList.remove('hidden');
+ pushAppHistoryState('edit-profile');
 };
 
 window.handleDpPreview = function(e){
