@@ -111,6 +111,21 @@ header{
 body.dark-mode .danger-btn{
  background:rgba(239,68,68,0.18);color:#fca5a5;border-color:rgba(239,68,68,0.35);
 }
+.three-dots-btn{
+ background:none;border:0;color:var(--muted);
+ width:34px;height:34px;border-radius:50%;
+ display:grid;place-items:center;font-size:19px;font-weight:800;line-height:1;
+}
+.three-dots-btn:hover{background:var(--light);color:var(--text)}
+.wa-menu-list{display:flex;flex-direction:column;gap:6px}
+.wa-menu-item{
+ width:100%;background:var(--bg);border:1px solid var(--border);
+ border-radius:10px;padding:12px 14px;text-align:left;
+ font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between;
+}
+.wa-menu-item:hover{background:var(--light)}
+.wa-menu-item.danger{color:#dc2626}
+body.dark-mode .wa-menu-item.danger{color:#fca5a5}
 .link{
  color:var(--blue);cursor:pointer;font-weight:600;
  background:none;border:0;display:inline-flex;align-items:center;gap:5px;
@@ -227,12 +242,14 @@ main{padding-bottom:85px}
 .menu-item:last-child{border:0}
 .chat-row{
  display:flex;align-items:center;gap:12px;padding:12px 4px;
- border-bottom:1px solid var(--border);cursor:pointer;flex-wrap:wrap;
+ border-bottom:1px solid var(--border);cursor:pointer;
 }
 .chat-row:last-child{border:0}
-.chat-row .details{flex:1;min-width:140px}
+.chat-row .details{flex:1;min-width:0}
+.chat-row .details strong,.chat-row .details small{
+ display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .chat-row small{color:var(--muted)}
-.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .wa-strip{
  display:flex;gap:12px;overflow-x:auto;padding:6px 2px 6px;
 }
@@ -245,9 +262,9 @@ main{padding-bottom:85px}
 }
 .chat-header{
  display:flex;align-items:center;justify-content:space-between;gap:10px;
- padding-bottom:10px;border-bottom:1px solid var(--border);flex-wrap:wrap;
+ padding-bottom:10px;border-bottom:1px solid var(--border);
 }
-.chat-call-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chat-call-actions{display:flex;gap:6px;align-items:center}
 .icon-action-btn{
  background:var(--light);color:var(--blue);border:1px solid var(--border);
  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
@@ -479,7 +496,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    </div>
   </section>
 
-  <!-- MESSAGES (WHATSAPP STYLE + STATUS TOP + HIDDEN PROFILES UNTIL OPENED + ROOM CHAT) -->
+  <!-- MESSAGES (WHATSAPP STYLE + 3 DOTS MENU + ROOM CHAT) -->
   <section id="messagesPage" class="hidden">
    <div class="page-header-row">
     <h2 class="page-title">Chats</h2>
@@ -497,9 +514,9 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
      <div class="status-area" id="chatStatusList"></div>
     </div>
 
-    <!-- Quick DP strip (tap DP to view full profile; tap name to open chat) -->
+    <!-- Quick DP strip -->
     <div class="card">
-     <div class="section-title" style="margin-bottom:10px">Contacts (Tap DP for Profile)</div>
+     <div class="section-title" style="margin-bottom:10px">Contacts</div>
      <div class="wa-strip" id="chatTopProfiles"></div>
     </div>
 
@@ -521,11 +538,11 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 
    <div class="card hidden" id="chatRoomCard">
     <div class="chat-header">
-     <div style="display:flex;align-items:center;gap:10px">
+     <div style="display:flex;align-items:center;gap:10px;min-width:0">
       <button class="link" onclick="closeChatRoom()">← Back</button>
       <div class="avatar" id="chatPeerAvatar" style="width:36px;height:36px" title="View Profile Pic">A</div>
-      <div>
-       <strong id="chatPeerName">User</strong><br>
+      <div style="min-width:0">
+       <strong id="chatPeerName" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">User</strong>
        <small id="chatPeerSub" style="color:var(--muted);font-size:11px">Tap DP for profile</small>
       </div>
      </div>
@@ -536,8 +553,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
       <button class="icon-action-btn" onclick="startCall('video')" title="Video Call">
        <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
       </button>
-      <button class="danger-btn" id="roomBlockBtn" onclick="toggleBlockUser(activePeer && activePeer.uid)">Block</button>
-      <button class="danger-btn" onclick="openReportModal(activePeer && activePeer.uid, activePeer && activePeer.name)">Report</button>
+      <button type="button" class="three-dots-btn" onclick="openUserActionMenu(activePeer && activePeer.uid, activePeer && activePeer.name)" title="More options">⋮</button>
      </div>
     </div>
     <div class="chat-window">
@@ -626,6 +642,32 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </main>
 
+<!-- WHATSAPP-STYLE 3-DOTS ACTION MENU MODAL -->
+<div id="threeDotsModal" class="modal hidden" onclick="if(event.target===this)closeUserActionMenu()">
+ <div class="modal-content" style="max-width:340px">
+  <h3 id="dotsMenuTitle" style="margin-bottom:12px;font-size:16px">Options</h3>
+  <div class="wa-menu-list">
+   <button type="button" class="wa-menu-item" id="dotsViewProfileBtn">
+    <span>View Profile</span>
+    <span>›</span>
+   </button>
+   <button type="button" class="wa-menu-item" id="dotsFollowBtn">
+    <span>Follow</span>
+    <span>+</span>
+   </button>
+   <button type="button" class="wa-menu-item danger" id="dotsBlockBtn">
+    <span>Block</span>
+    <span>🚫</span>
+   </button>
+   <button type="button" class="wa-menu-item danger" id="dotsReportBtn">
+    <span>Report</span>
+    <span>⚠</span>
+   </button>
+  </div>
+  <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="closeUserActionMenu()">Cancel</button>
+ </div>
+</div>
+
 <!-- CREATE CHAT ROOM MODAL -->
 <div id="createRoomModal" class="modal hidden">
  <div class="modal-content">
@@ -657,11 +699,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div id="viewDpActionsWrap" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
    <button class="primary" id="viewDpChatBtn">Send Message</button>
-   <div style="display:flex;gap:8px">
-    <button class="secondary-btn" style="flex:1;justify-content:center" id="viewDpFollowBtn">Follow</button>
-    <button class="danger-btn" style="flex:1;justify-content:center" id="viewDpBlockBtn">Block</button>
-    <button class="danger-btn" style="flex:1;justify-content:center" id="viewDpReportBtn">Report</button>
-   </div>
+   <button class="secondary-btn" style="width:100%;justify-content:center;padding:10px" id="viewDpFollowBtn">Follow</button>
   </div>
   <button class="primary" style="background:#64748b" onclick="closeViewDpModal()">Close</button>
  </div>
@@ -879,6 +917,7 @@ let allStatuses = [];
 let allRooms = [];
 let activePeer = null;
 let activeRoom = null;
+let menuTargetUser = null;
 let reportTarget = null;
 let selectedFile = null;
 let unsubPosts = null;
@@ -1010,7 +1049,6 @@ window.toggleBlockUser = async function(targetUid){
    await setDoc(myRef, { blockedUsers: arrayUnion(targetUid) }, { merge:true });
    showToast('User blocked');
   }
-  updateBlockRoomUI();
   renderPeople();
   renderChatsList();
  }catch(e){
@@ -1018,11 +1056,57 @@ window.toggleBlockUser = async function(targetUid){
  }
 };
 
-function updateBlockRoomUI(){
- const btn = document.getElementById('roomBlockBtn');
- if(!btn || !activePeer) return;
- btn.textContent = isBlockedByMe(activePeer.uid) ? 'Unblock' : 'Block';
-}
+// WhatsApp-style 3-dots menu
+window.openUserActionMenu = function(targetUid, targetName){
+ if(!targetUid || !currentUser || targetUid === currentUser.uid) return;
+ const userObj = allUsers.find(u => u.uid === targetUid);
+ const name = (userObj && userObj.name) || targetName || 'Member';
+ menuTargetUser = { uid: targetUid, name };
+
+ document.getElementById('dotsMenuTitle').textContent = name;
+
+ const viewBtn = document.getElementById('dotsViewProfileBtn');
+ const followBtn = document.getElementById('dotsFollowBtn');
+ const blockBtn = document.getElementById('dotsBlockBtn');
+ const reportBtn = document.getElementById('dotsReportBtn');
+
+ const followingNow = isFollowing(targetUid);
+ const blockedNow = isBlockedByMe(targetUid);
+
+ followBtn.innerHTML = `<span>${followingNow ? 'Unfollow' : 'Follow'}</span><span>${followingNow ? '−' : '+'}</span>`;
+ blockBtn.innerHTML = `<span>${blockedNow ? 'Unblock' : 'Block'}</span><span>🚫</span>`;
+
+ viewBtn.onclick = () => {
+  const u = menuTargetUser;
+  closeUserActionMenu();
+  if(u) window.viewProfilePic(u.uid, u.name);
+ };
+
+ followBtn.onclick = async () => {
+  const u = menuTargetUser;
+  closeUserActionMenu();
+  if(u) await window.toggleFollowUser(u.uid);
+ };
+
+ blockBtn.onclick = async () => {
+  const u = menuTargetUser;
+  closeUserActionMenu();
+  if(u) await window.toggleBlockUser(u.uid);
+ };
+
+ reportBtn.onclick = () => {
+  const u = menuTargetUser;
+  closeUserActionMenu();
+  if(u) window.openReportModal(u.uid, u.name);
+ };
+
+ document.getElementById('threeDotsModal').classList.remove('hidden');
+};
+
+window.closeUserActionMenu = function(){
+ menuTargetUser = null;
+ document.getElementById('threeDotsModal').classList.add('hidden');
+};
 
 window.openReportModal = function(targetUid, targetName){
  if(!targetUid) return;
@@ -1077,8 +1161,6 @@ window.viewProfilePic = function(uid, fallbackName){
  const actionsWrap = document.getElementById('viewDpActionsWrap');
  const chatBtn = document.getElementById('viewDpChatBtn');
  const followBtn = document.getElementById('viewDpFollowBtn');
- const blockBtn = document.getElementById('viewDpBlockBtn');
- const reportBtn = document.getElementById('viewDpReportBtn');
 
  if(currentUser && uid && uid !== currentUser.uid){
   actionsWrap.classList.remove('hidden');
@@ -1091,15 +1173,6 @@ window.viewProfilePic = function(uid, fallbackName){
   followBtn.onclick = async () => {
    await window.toggleFollowUser(uid);
    followBtn.textContent = isFollowing(uid) ? 'Unfollow' : 'Follow';
-  };
-  blockBtn.textContent = isBlockedByMe(uid) ? 'Unblock' : 'Block';
-  blockBtn.onclick = async () => {
-   await window.toggleBlockUser(uid);
-   blockBtn.textContent = isBlockedByMe(uid) ? 'Unblock' : 'Block';
-  };
-  reportBtn.onclick = () => {
-   closeViewDpModal();
-   window.openReportModal(uid, name);
   };
  }else{
   actionsWrap.classList.add('hidden');
@@ -1453,7 +1526,6 @@ function listenRealtime(){
   renderPosts();
   renderStatuses();
   updateProfileUI();
-  updateBlockRoomUI();
  }, ()=>{});
 
  const qRooms=query(collection(db,'rooms'),orderBy('createdAt','desc'));
@@ -1802,7 +1874,7 @@ function emptyFriendsMarkup(msg){
  `;
 }
 
-// People, Follow/Unfollow, Block & Report
+// People list with 3-dots WhatsApp menu
 function renderPeople(){
  const list=document.getElementById('peopleList');
  if(!list)return;
@@ -1818,24 +1890,16 @@ function renderPeople(){
    ? `<img src="${photo}" alt="${u.name}">`
    : u.name[0].toUpperCase();
   const safeName = u.name.replace(/'/g,"\\'");
-  const following = isFollowing(u.uid);
   const blocked = isBlockedByMe(u.uid);
   const row=document.createElement('div');
   row.className='chat-row';
   row.innerHTML=`
-   <div class="avatar" onclick="viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
-   <div class="details" onclick="viewProfilePic('${u.uid}','${safeName}')">
-    <strong>${u.name}</strong><br>
+   <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
+   <div class="details" onclick="showPage('messages');openChatWith('${u.uid}','${safeName}')">
+    <strong>${u.name}</strong>
     <small>@${u.username}${blocked ? ' • Blocked' : ''}</small>
    </div>
-   <div class="row-actions">
-    <button class="secondary-btn" style="padding:7px 10px;font-size:12px"
-     onclick="toggleFollowUser('${u.uid}')">${following ? 'Unfollow' : 'Follow'}</button>
-    <button class="primary" style="width:auto;padding:7px 12px;font-size:12px"
-     onclick="showPage('messages');openChatWith('${u.uid}','${safeName}')">Chat</button>
-    <button class="danger-btn" onclick="toggleBlockUser('${u.uid}')">${blocked ? 'Unblock' : 'Block'}</button>
-    <button class="danger-btn" onclick="openReportModal('${u.uid}','${safeName}')">Report</button>
-   </div>
+   <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
   `;
   list.appendChild(row);
  });
@@ -1920,7 +1984,7 @@ function renderChatsList(){
     row.innerHTML = `
      <div class="avatar" style="background:var(--light);color:var(--blue)">#</div>
      <div class="details">
-      <strong>${r.name}</strong><br>
+      <strong>${r.name}</strong>
       <small>${r.description || 'Chat Room'} • by ${r.createdByName || 'Member'}</small>
      </div>
      <button class="secondary-btn" style="padding:6px 12px;font-size:12px">Join</button>
@@ -1946,9 +2010,10 @@ function renderChatsList(){
   row.innerHTML = `
    <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
-    <strong>${u.name}</strong><br>
+    <strong>${u.name}</strong>
     <small>${blocked ? 'Blocked • Tap to open chat' : 'Tap to message'}</small>
    </div>
+   <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
   `;
   list.appendChild(row);
  });
@@ -1986,7 +2051,6 @@ window.openChatWith = function(peerUid, peerName){
  document.getElementById('directChatActions').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
  document.getElementById('chatPeerSub').textContent='Tap DP for profile';
- updateBlockRoomUI();
  const peerAv = document.getElementById('chatPeerAvatar');
  setAvatarContent(peerAv, peerName, getUserPhoto(peerUid));
  peerAv.onclick = () => window.viewProfilePic(peerUid, peerName);
