@@ -28,7 +28,6 @@
 body.dark-mode{
  --bg:#0f172a;
  --card:#1e293b;
- --text:#f1f59;
  --text:#f1f5f9;
  --muted:#94a3b8;
  --light:#334155;
@@ -79,9 +78,11 @@ header{
  display:grid;place-items:center;position:relative;
 }
 .badge-pill{
- background:#ef4444;color:#fff;font-size:10px;font-weight:700;
- padding:2px 6px;border-radius:999px;line-height:1.1;
+ background:#1877f2;color:#fff;font-size:11px;font-weight:700;
+ min-width:20px;height:20px;padding:0 6px;border-radius:999px;
+ display:inline-grid;place-items:center;line-height:1;
 }
+.badge-pill.red{background:#ef4444}
 .container{max-width:1050px;margin:auto;padding:15px}
 .hidden{display:none!important}
 .card{
@@ -99,11 +100,23 @@ header{
 }
 .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--blue)}
 .search-box{
- width:100%;padding:10px 14px;border:1px solid var(--border);
- border-radius:22px;background:var(--bg);outline:none;font-size:14px;
- margin-bottom:10px;
+ width:100%;padding:11px 16px;border:1px solid var(--border);
+ border-radius:24px;background:var(--bg);outline:none;font-size:14px;
+ margin-bottom:12px;
 }
 .search-box:focus{border-color:var(--blue)}
+.chat-subtabs{
+ display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;
+ border-bottom:1px solid var(--border);
+}
+.chat-subtab-btn{
+ background:transparent;border:0;color:var(--muted);
+ padding:8px 13px;border-radius:999px;font-size:13px;font-weight:600;
+ display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.chat-subtab-btn.active{
+ background:var(--blue);color:#fff;
+}
 .primary{
  width:100%;background:var(--blue);color:white;
  border:0;padding:12px;border-radius:9px;font-weight:bold;
@@ -148,7 +161,7 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
 .top-profile{display:flex;align-items:center;gap:12px}
 .avatar-wrap{position:relative;flex-shrink:0}
 .avatar{
- width:44px;height:44px;border-radius:50%;
+ width:46px;height:46px;border-radius:50%;
  background:#d9eaff;color:var(--blue);
  display:grid;place-items:center;font-weight:bold;flex-shrink:0;
  overflow:hidden;cursor:pointer;
@@ -156,7 +169,7 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
 .avatar img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 .online-dot{
  position:absolute;right:1px;bottom:1px;
- width:11px;height:11px;border-radius:50%;
+ width:12px;height:12px;border-radius:50%;
  background:#16a34a;border:2px solid var(--card);
  pointer-events:none;
 }
@@ -200,7 +213,7 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
 .section-title{font-size:16px;font-weight:bold;margin-bottom:0}
 .page-header-row{
  display:flex;align-items:center;justify-content:space-between;
- gap:10px;flex-wrap:wrap;margin:6px 0 15px;
+ gap:10px;flex-wrap:wrap;margin:6px 0 12px;
 }
 .page-title{font-size:20px;color:var(--blue);margin:0}
 .invite-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -271,7 +284,16 @@ main{padding-bottom:85px}
 .chat-row .details strong,.chat-row .details small{
  display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.chat-row small{color:var(--muted)}
+.chat-row small{color:var(--muted);font-size:13px;margin-top:2px}
+.chat-row-right{
+ display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;
+}
+.chat-row-time{font-size:11px;color:var(--muted);font-weight:600}
+.chat-row-time.unread{color:var(--blue)}
+.receipt-tick{font-size:12px;font-weight:800;letter-spacing:-1px}
+.receipt-tick.sent{color:var(--muted)}
+.receipt-tick.read{color:#1877f2}
+body.dark-mode .receipt-tick.read{color:#38bdf8}
 .wa-strip{
  display:flex;gap:12px;overflow-x:auto;padding:6px 2px 6px;
 }
@@ -315,7 +337,8 @@ body.chat-fullscreen-active nav.navbar{
 body.chat-fullscreen-active main{
  padding-bottom:0!important;
 }
-body.chat-fullscreen-active #messagesPage > .page-header-row{
+body.chat-fullscreen-active #messagesPage > .page-header-row,
+body.chat-fullscreen-active #messagesPage > .chat-subtabs{
  display:none!important;
 }
 body.chat-fullscreen-active .container{
@@ -364,7 +387,7 @@ body.chat-fullscreen-active .container{
 }
 body.dark-mode .msg-reply-quote{background:rgba(255,255,255,0.08)}
 .msg-meta-row{
- display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:4px;
+ display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:4px;
 }
 .msg-mini-act{
  background:none;border:0;color:var(--muted);font-size:11px;padding:0;
@@ -467,6 +490,13 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 .call-btn{border:0;padding:11px 18px;border-radius:999px;font-weight:700;color:#fff}
 .empty{text-align:center;color:var(--muted);padding:24px 10px}
 .invite-box{margin-top:14px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.fab-compose{
+ position:fixed;right:18px;bottom:78px;
+ width:54px;height:54px;border-radius:50%;
+ background:var(--blue);color:#fff;border:0;
+ box-shadow:0 6px 18px rgba(24,119,242,0.38);
+ display:grid;place-items:center;font-size:22px;z-index:22;
+}
 #toast{
  position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
  background:#0f172a;color:#fff;padding:10px 16px;border-radius:20px;
@@ -638,6 +668,14 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     </div>
    </div>
 
+   <div class="chat-subtabs" id="chatSubtabs">
+    <button type="button" class="chat-subtab-btn active" data-subtab="chats" onclick="setChatSubtab('chats')">💬 Chats</button>
+    <button type="button" class="chat-subtab-btn" data-subtab="friends" onclick="setChatSubtab('friends')">👥 Friends</button>
+    <button type="button" class="chat-subtab-btn" data-subtab="groups" onclick="setChatSubtab('groups')">👨‍👩‍👧‍👦 Groups</button>
+    <button type="button" class="chat-subtab-btn" data-subtab="calls" onclick="setChatSubtab('calls')">📞 Calls</button>
+    <button type="button" class="chat-subtab-btn" data-subtab="settings" onclick="setChatSubtab('settings')">⚙️ Settings</button>
+   </div>
+
    <div id="chatOverviewWrap">
     <div class="card">
      <div class="section-title" style="margin-bottom:12px">Status</div>
@@ -650,9 +688,21 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     </div>
 
     <div class="card" id="chatListCard">
-     <div class="section-title" style="margin-bottom:10px">Search & Recent Chats</div>
-     <input id="chatSearchInput" class="search-box" placeholder="Search registered members or friends by name or @username..." oninput="renderChatsList()">
+     <input id="chatSearchInput" class="search-box" placeholder="Search friends or messages..." oninput="renderChatsList()">
      <div id="chatList"></div>
+    </div>
+
+    <div class="card hidden" id="chatGroupsTabCard">
+     <div class="section-title-row">
+      <div class="section-title">Groups & Rooms</div>
+      <button class="mini-action-btn" onclick="openCreateGroupModal()">+ Group</button>
+     </div>
+     <div id="chatTabGroupsList"></div>
+    </div>
+
+    <div class="card hidden" id="chatCallsTabCard">
+     <div class="section-title" style="margin-bottom:10px">Quick Voice & Video Calls</div>
+     <div id="chatTabCallsList"></div>
     </div>
    </div>
 
@@ -708,6 +758,8 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
      </div>
     </div>
    </div>
+
+   <button type="button" class="fab-compose" onclick="openCreateGroupModal()" title="New Group or Chat">✎</button>
   </section>
 
   <!-- FRIENDS / PEOPLE -->
@@ -728,7 +780,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <input id="peopleSearchInput" class="search-box" placeholder="Search by name or @username..." oninput="renderPeople()">
    </div>
    <div class="card" id="friendRequestsCard">
-    <div class="section-title" style="margin-bottom:10px">Friend Requests <span id="reqCountBadge" class="badge-pill hidden">0</span></div>
+    <div class="section-title" style="margin-bottom:10px">Friend Requests <span id="reqCountBadge" class="badge-pill red hidden">0</span></div>
     <div id="friendRequestsList"></div>
    </div>
    <div class="card" id="myFriendsCard">
@@ -1049,19 +1101,19 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </button>
  <button onclick="showPage('friends')">
   <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-  People <span id="navReqBadge" class="badge-pill hidden">0</span>
+  Friends <span id="navReqBadge" class="badge-pill red hidden">0</span>
  </button>
  <button onclick="showPage('messages')">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  Chats <span id="navChatBadge" class="badge-pill hidden">0</span>
+  Chats <span id="navChatBadge" class="badge-pill red hidden">0</span>
+ </button>
+ <button onclick="showPage('notifications')">
+  <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  Notifications <span id="navNotifBadge" class="badge-pill red hidden">0</span>
  </button>
  <button onclick="showPage('profile')">
   <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   Profile
- </button>
- <button onclick="showPage('settings')">
-  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l-.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-  More
  </button>
 </nav>
 
@@ -1075,7 +1127,7 @@ import {
  signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import {
- getFirestore, collection, doc, setDoc, getDoc,
+ getFirestore, collection, doc, setDoc, getDoc, getDocs,
  addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
@@ -1128,6 +1180,7 @@ let activePeer = null;
 let activeRoom = null;
 let activeGroup = null;
 let activeReplyTo = null;
+let activeChatSubtab = 'chats';
 let menuTargetUser = null;
 let reportTarget = null;
 let selectedFile = null;
@@ -1145,9 +1198,8 @@ let typingResetTimer = null;
 let messageSoundInitialized = false;
 let lastRenderedMsgCount = 0;
 
-// Unread tracking map per chatId
-let lastReadMap = {};
-let unreadByPeer = {};
+// Chat summary metadata per peerUid: { lastText, lastTime, lastSenderId, lastReadByPeer, unreadCount }
+let chatMetaByPeer = {};
 
 // Voice note recorder state
 let mediaRecorder = null;
@@ -1172,29 +1224,28 @@ const rtcConfig = {
  ]
 };
 
-function loadLastReadMap(){
- try{
-  const uidKey = (currentUser && currentUser.uid) ? currentUser.uid : 'default';
-  const all = JSON.parse(localStorage.getItem('amk_last_read') || '{}');
-  lastReadMap = all[uidKey] || {};
- }catch(e){ lastReadMap = {}; }
+function formatShortClock(ts){
+ const n = parseTimestampMs(ts);
+ if(!n) return '';
+ return new Date(n).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
-function saveLastReadForChat(chatKey, ts){
- try{
-  const uidKey = (currentUser && currentUser.uid) ? currentUser.uid : 'default';
-  const all = JSON.parse(localStorage.getItem('amk_last_read') || '{}');
-  if(!all[uidKey]) all[uidKey] = {};
-  all[uidKey][chatKey] = Math.max(all[uidKey][chatKey] || 0, ts || Date.now());
-  localStorage.setItem('amk_last_read', JSON.stringify(all));
-  lastReadMap = all[uidKey];
- }catch(e){}
+function getMessagePreviewLabel(m){
+ if(!m || m.deleted) return 'Message deleted';
+ if(m.stickerGlyph) return `${m.stickerGlyph} ${m.stickerLabel || 'Sticker'}`;
+ if(m.audioUrl) return '🎙️ Voice note';
+ if(m.mediaUrl){
+  const isVid = (m.mediaType && m.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(m.mediaUrl);
+  return m.text || (isVid ? '🎥 Video' : '📷 Photo');
+ }
+ return m.text || '';
 }
 
 function updateUnreadBadgesUI(){
  const reqCount = getFriendRequestsArray(currentUser).length;
  const reqBadge = document.getElementById('reqCountBadge');
  const navReqBadge = document.getElementById('navReqBadge');
+ const navNotifBadge = document.getElementById('navNotifBadge');
  if(reqBadge){
   reqBadge.textContent = String(reqCount);
   reqBadge.classList.toggle('hidden', reqCount <= 0);
@@ -1203,14 +1254,76 @@ function updateUnreadBadgesUI(){
   navReqBadge.textContent = String(reqCount);
   navReqBadge.classList.toggle('hidden', reqCount <= 0);
  }
+ if(navNotifBadge){
+  navNotifBadge.textContent = String(reqCount);
+  navNotifBadge.classList.toggle('hidden', reqCount <= 0);
+ }
 
- const totalUnread = Object.values(unreadByPeer).reduce((a,b)=>a + (b || 0), 0);
+ const totalUnread = Object.values(chatMetaByPeer).reduce((sum, item)=>sum + ((item && item.unreadCount) || 0), 0);
  const navChatBadge = document.getElementById('navChatBadge');
  if(navChatBadge){
   navChatBadge.textContent = String(totalUnread);
   navChatBadge.classList.toggle('hidden', totalUnread <= 0);
  }
 }
+
+async function refreshChatSummariesForPeers(){
+ if(!currentUser || !currentUser.uid) return;
+ const others = allUsers.filter(u => u.uid && u.uid !== currentUser.uid);
+ const nextMap = {};
+
+ await Promise.all(others.map(async (peer) => {
+  const chatId = getChatId(currentUser.uid, peer.uid);
+  try{
+   const qMsg = query(collection(db,'chats',chatId,'messages'), orderBy('createdAt','asc'));
+   const snap = await getDocs(qMsg);
+   let lastDoc = null;
+   let unreadCount = 0;
+   snap.forEach((d)=>{
+    const m = d.data();
+    lastDoc = m;
+    if(m.senderId !== currentUser.uid && !m.readByPeer){
+     unreadCount += 1;
+    }
+   });
+   if(lastDoc){
+    nextMap[peer.uid] = {
+     lastText: getMessagePreviewLabel(lastDoc),
+     lastTime: parseTimestampMs(lastDoc.createdAt),
+     lastSenderId: lastDoc.senderId,
+     lastReadByPeer: Boolean(lastDoc.readByPeer),
+     unreadCount
+    };
+   }
+  }catch(e){}
+ }));
+
+ chatMetaByPeer = nextMap;
+ updateUnreadBadgesUI();
+ renderChatsList();
+}
+
+window.setChatSubtab = function(tabName){
+ activeChatSubtab = tabName || 'chats';
+ document.querySelectorAll('#chatSubtabs .chat-subtab-btn').forEach(btn=>{
+  btn.classList.toggle('active', btn.dataset.subtab === activeChatSubtab);
+ });
+ if(activeChatSubtab === 'friends'){
+  window.showPage('friends');
+  return;
+ }
+ if(activeChatSubtab === 'settings'){
+  window.showPage('settings');
+  return;
+ }
+ const listCard = document.getElementById('chatListCard');
+ const groupsCard = document.getElementById('chatGroupsTabCard');
+ const callsCard = document.getElementById('chatCallsTabCard');
+ if(listCard) listCard.classList.toggle('hidden', activeChatSubtab !== 'chats');
+ if(groupsCard) groupsCard.classList.toggle('hidden', activeChatSubtab !== 'groups');
+ if(callsCard) callsCard.classList.toggle('hidden', activeChatSubtab !== 'calls');
+ renderChatsList();
+};
 
 function ensureAudioContext(){
  try{
@@ -1465,6 +1578,7 @@ window.acceptFriendRequest = async function(requesterUid){
   }, { merge:true });
   showToast('Friend request accepted!');
   updateProfileUI();
+  updateUnreadBadgesUI();
   renderPeople();
   renderChatsList();
  }catch(e){
@@ -1481,6 +1595,7 @@ window.declineFriendRequest = async function(requesterUid){
   await updateDoc(myRef, { friendRequests: arrayRemove(requesterUid) }).catch(()=>{});
   await updateDoc(reqRef, { sentRequests: arrayRemove(currentUser.uid) }).catch(()=>{});
   showToast('Friend request declined');
+  updateUnreadBadgesUI();
   renderPeople();
  }catch(e){
   showToast('Could not decline request');
@@ -2005,7 +2120,6 @@ function showAppUI(){
  if(!currentUser && auth.currentUser){
   currentUser = fallbackUserFromAuth(auth.currentUser);
  }
- loadLastReadMap();
  document.getElementById('register').classList.add('hidden');
  document.getElementById('login').classList.add('hidden');
  document.getElementById('app').classList.remove('hidden');
@@ -2162,7 +2276,7 @@ window.showPage = function(page){
  if(page !== 'messages'){
   window.closeChatRoom();
  }
- const pages=['home','messages','friends','notifications','profile','settings'];
+ const pages=['home','friends','messages','notifications','profile','settings'];
  pages.forEach(p=>{
   document.getElementById(p+'Page').classList.toggle('hidden',p!==page);
  });
@@ -2170,7 +2284,15 @@ window.showPage = function(page){
   btn.classList.toggle('active',pages[i]===page);
  });
  if(page==='friends') renderPeople();
- if(page==='messages') renderChatsList();
+ if(page==='messages'){
+  activeChatSubtab = 'chats';
+  document.querySelectorAll('#chatSubtabs .chat-subtab-btn').forEach(b=>b.classList.toggle('active', b.dataset.subtab==='chats'));
+  document.getElementById('chatListCard').classList.remove('hidden');
+  document.getElementById('chatGroupsTabCard').classList.add('hidden');
+  document.getElementById('chatCallsTabCard').classList.add('hidden');
+  refreshChatSummariesForPeers();
+  renderChatsList();
+ }
  if(page==='home') renderChatsList();
  if(page==='notifications') renderNotifications();
  window.scrollTo(0,0);
@@ -2320,6 +2442,7 @@ function listenRealtime(){
   renderNotifications();
   updateProfileUI();
   updateUnreadBadgesUI();
+  refreshChatSummariesForPeers();
  }, ()=>{});
 
  const qRooms=query(collection(db,'rooms'),orderBy('createdAt','desc'));
@@ -2903,6 +3026,8 @@ function renderChatsList(){
  const topStrip = document.getElementById('chatTopProfiles');
  const groupsBox = document.getElementById('homeGroupsList');
  const roomsBox = document.getElementById('homeRoomsList');
+ const chatTabGroupsBox = document.getElementById('chatTabGroupsList');
+ const chatTabCallsBox = document.getElementById('chatTabCallsList');
  const list = document.getElementById('chatList');
  const searchInput = document.getElementById('chatSearchInput');
  const q = searchInput ? searchInput.value : '';
@@ -2930,11 +3055,12 @@ function renderChatsList(){
   }
  }
 
+ const myGroups = allGroups.filter(g => {
+  if(!Array.isArray(g.members) || !g.members.length) return true;
+  return currentUser && g.members.includes(currentUser.uid);
+ });
+
  if(groupsBox){
-  const myGroups = allGroups.filter(g => {
-   if(!Array.isArray(g.members) || !g.members.length) return true;
-   return currentUser && g.members.includes(currentUser.uid);
-  });
   if(!myGroups.length){
    groupsBox.innerHTML = '<div class="empty">No group chats yet. Tap "+ Group" to create one!</div>';
   }else{
@@ -2956,6 +3082,73 @@ function renderChatsList(){
     `;
     groupsBox.appendChild(row);
    });
+  }
+ }
+
+ if(chatTabGroupsBox){
+  const combinedItems = [
+   ...myGroups.map(g => ({ kind: 'group', item: g })),
+   ...allRooms.map(r => ({ kind: 'room', item: r }))
+  ];
+  if(!combinedItems.length){
+   chatTabGroupsBox.innerHTML = '<div class="empty">No groups or rooms yet.</div>';
+  }else{
+   chatTabGroupsBox.innerHTML = combinedItems.map(entry => {
+    if(entry.kind === 'group'){
+     const g = entry.item;
+     const safeName = (g.name || 'Group').replace(/'/g,"\\'");
+     const safeDesc = (g.description || 'Group Chat').replace(/'/g,"\\'");
+     const count = Array.isArray(g.members) ? g.members.length : 1;
+     return `
+      <div class="chat-row" onclick="window.openGroupChat('${g.id}','${safeName}','${safeDesc}',${count})">
+       <div class="avatar" style="background:var(--light);color:var(--blue)">👥</div>
+       <div class="details">
+        <strong>${g.name}</strong>
+        <small>${count} members • ${g.description || 'Group Chat'}</small>
+       </div>
+       <span class="chat-row-time">Group</span>
+      </div>
+     `;
+    }
+    const r = entry.item;
+    const safeName = (r.name || 'Room').replace(/'/g,"\\'");
+    const safeDesc = (r.description || 'Chat Room').replace(/'/g,"\\'");
+    return `
+     <div class="chat-row" onclick="window.openRoomChat('${r.id}','${safeName}','${safeDesc}')">
+      <div class="avatar" style="background:var(--light);color:var(--blue)">#</div>
+      <div class="details">
+       <strong>${r.name}</strong>
+       <small>${r.description || 'Chat Room'}</small>
+      </div>
+      <span class="chat-row-time">Room</span>
+     </div>
+    `;
+   }).join('');
+  }
+ }
+
+ if(chatTabCallsBox){
+  if(!allOthers.length){
+   chatTabCallsBox.innerHTML = '<div class="empty">No members available to call yet.</div>';
+  }else{
+   chatTabCallsBox.innerHTML = allOthers.map(u => {
+    const photo = u.photoUrl || getSavedPhoto(u.uid);
+    const online = isUserCurrentlyOnline(u);
+    const safeName = u.name.replace(/'/g,"\\'");
+    return `
+     <div class="chat-row">
+      <div onclick="viewProfilePic('${u.uid}','${safeName}')">${renderAvatarBlock(u.name, photo, online)}</div>
+      <div class="details">
+       <strong>${u.name}</strong>
+       <small class="${online?'presence-online':''}">${getPresenceText(u)}</small>
+      </div>
+      <div class="row-actions">
+       <button type="button" class="mini-action-btn" onclick="activePeer={uid:'${u.uid}',name:'${safeName}'};startCall('audio')">📞 Voice</button>
+       <button type="button" class="mini-action-btn muted-btn" onclick="activePeer={uid:'${u.uid}',name:'${safeName}'};startCall('video')">📹 Video</button>
+      </div>
+     </div>
+    `;
+   }).join('');
   }
  }
 
@@ -2987,7 +3180,7 @@ function renderChatsList(){
 
  if(!filteredOthers.length){
   list.innerHTML = q.trim()
-   ? '<div class="empty">No registered members match your search.</div>'
+   ? '<div class="empty">No friends or members match your search.</div>'
    : emptyFriendsMarkup('Invite friends to start chatting!');
   return;
  }
@@ -2997,11 +3190,26 @@ function renderChatsList(){
   const photo = u.photoUrl || getSavedPhoto(u.uid);
   const typing = isPeerTypingToMe(u);
   const online = isUserCurrentlyOnline(u);
-  const presenceStr = getPresenceText(u);
   const safeName = u.name.replace(/'/g,"\\'");
   const blocked = isBlockedByMe(u.uid);
-  const friendTag = isFriendWith(u.uid) ? ' • Friend' : '';
-  const unreadN = unreadByPeer[u.uid] || 0;
+  const meta = chatMetaByPeer[u.uid] || null;
+  const unreadN = (meta && meta.unreadCount) || 0;
+
+  let subtitleHtml = '';
+  if(blocked){
+   subtitleHtml = `<small>Blocked • ${getPresenceText(u)}</small>`;
+  }else if(typing){
+   subtitleHtml = `<small class="presence-online">typing...</small>`;
+  }else if(meta && meta.lastText){
+   const tickHtml = (currentUser && meta.lastSenderId === currentUser.uid)
+    ? `<span class="receipt-tick ${meta.lastReadByPeer ? 'read' : 'sent'}">${meta.lastReadByPeer ? '✓✓' : '✓'}</span> `
+    : '';
+   subtitleHtml = `<small>${tickHtml}${meta.lastText}</small>`;
+  }else{
+   subtitleHtml = `<small class="${online?'presence-online':''}">${online ? 'Online' : (u.username ? '@' + u.username : 'Tap to start chat')}</small>`;
+  }
+
+  const timeLabel = (meta && meta.lastTime) ? formatShortClock(meta.lastTime) : '';
   const unreadBadge = unreadN > 0 ? `<span class="badge-pill">${unreadN}</span>` : '';
 
   const row = document.createElement('div');
@@ -3010,11 +3218,14 @@ function renderChatsList(){
    <div onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${renderAvatarBlock(u.name, photo, online)}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong>
-    <small class="${(typing||online)?'presence-online':''}">${blocked ? 'Blocked • ' : ''}${presenceStr}${friendTag}</small>
+    ${subtitleHtml}
    </div>
-   <div class="row-actions">
-    ${unreadBadge}
-    <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
+   <div class="chat-row-right" onclick="window.openChatWith('${u.uid}','${safeName}')">
+    <span class="chat-row-time ${unreadN > 0 ? 'unread' : ''}">${timeLabel}</span>
+    <div style="display:flex;align-items:center;gap:4px">
+     ${unreadBadge}
+     <button type="button" class="three-dots-btn" style="width:28px;height:28px;font-size:17px" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
+    </div>
    </div>
   `;
   list.appendChild(row);
@@ -3060,21 +3271,34 @@ window.deleteChatMessage = async function(msgId){
  }
 };
 
-function renderMessagesSnapshot(snap, showSenderTag, chatKey){
+async function markDirectMessagesAsRead(chatId, snap){
+ if(!currentUser || !chatId || !snap) return;
+ const updates = [];
+ snap.forEach((d)=>{
+  const m = d.data();
+  if(m && m.senderId && m.senderId !== currentUser.uid && !m.readByPeer){
+   updates.push(updateDoc(doc(db,'chats',chatId,'messages',d.id), {
+    readByPeer: true,
+    readAt: Date.now()
+   }).catch(()=>{}));
+  }
+ });
+ if(updates.length){
+  await Promise.all(updates);
+ }
+}
+
+function renderMessagesSnapshot(snap, showSenderTag, chatIdForRead){
  const box=document.getElementById('chatMessages');
  const docs=[];
- let maxTs = 0;
  snap.forEach(d=>{
-  const data = d.data();
-  const ts = parseTimestampMs(data.createdAt);
-  if(ts > maxTs) maxTs = ts;
-  docs.push({ id: d.id, ...data });
+  docs.push({ id: d.id, ...d.data() });
  });
 
- if(chatKey && maxTs > 0){
-  saveLastReadForChat(chatKey, maxTs);
-  if(activePeer && activePeer.uid){
-   unreadByPeer[activePeer.uid] = 0;
+ if(chatIdForRead && activePeer && activePeer.uid === getPeerIdFromChatId(chatIdForRead)){
+  markDirectMessagesAsRead(chatIdForRead, snap);
+  if(chatMetaByPeer[activePeer.uid]){
+   chatMetaByPeer[activePeer.uid].unreadCount = 0;
    updateUnreadBadgesUI();
   }
  }
@@ -3127,6 +3351,9 @@ function renderMessagesSnapshot(snap, showSenderTag, chatKey){
   const safeSender = (m.senderName || 'Member').replace(/'/g,"\\'").replace(/"/g,'&quot;');
   const safeSnippet = plainSnippet.replace(/'/g,"\\'").replace(/"/g,'&quot;').slice(0, 60);
   const delBtn = isMe ? `<button type="button" class="msg-mini-act" onclick="deleteChatMessage('${m.id}')" title="Delete">🗑</button>` : '';
+  const readReceiptHtml = (isMe && !showSenderTag)
+   ? `<span class="receipt-tick ${m.readByPeer ? 'read' : 'sent'}" title="${m.readByPeer ? 'Read' : 'Sent'}">${m.readByPeer ? '✓✓' : '✓'}</span>`
+   : '';
 
   div.innerHTML=`
    ${senderTag}
@@ -3136,11 +3363,18 @@ function renderMessagesSnapshot(snap, showSenderTag, chatKey){
     <button type="button" class="msg-mini-act" onclick="setReplyToMessage('${m.id}','${safeSender}','${safeSnippet}')">↩ Reply</button>
     ${delBtn}
     <span class="msg-time">${timeStr}</span>
+    ${readReceiptHtml}
    </div>
   `;
   box.appendChild(div);
  });
  box.scrollTop=box.scrollHeight;
+}
+
+function getPeerIdFromChatId(chatId){
+ if(!currentUser || !chatId) return '';
+ const parts = chatId.split('_');
+ return parts.find(p => p && p !== currentUser.uid) || '';
 }
 
 window.triggerChatMedia = function(){
@@ -3198,6 +3432,7 @@ window.sendStickerMessage = async function(glyph, label){
   senderName: currentUser.name,
   stickerGlyph: glyph,
   stickerLabel: label || 'Sticker',
+  readByPeer: false,
   createdAt: Date.now()
  });
  if(ok) playMessageSound(false);
@@ -3205,7 +3440,7 @@ window.sendStickerMessage = async function(glyph, label){
 
 function enterFullScreenChatUI(){
  document.getElementById('app').classList.remove('hidden');
- const pages=['home','messages','friends','notifications','profile','settings'];
+ const pages=['home','friends','messages','notifications','profile','settings'];
  pages.forEach(p=>{
   document.getElementById(p+'Page').classList.toggle('hidden', p !== 'messages');
  });
@@ -3232,7 +3467,9 @@ window.openChatWith = function(peerUid, peerName){
   typingTo: foundPeer ? foundPeer.typingTo : '',
   typingAt: foundPeer ? foundPeer.typingAt : 0
  };
- unreadByPeer[peerUid] = 0;
+ if(chatMetaByPeer[peerUid]){
+  chatMetaByPeer[peerUid].unreadCount = 0;
+ }
  updateUnreadBadgesUI();
  enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.remove('hidden');
@@ -3264,7 +3501,7 @@ window.openGroupChat = function(groupId, groupName, groupDesc, memberCount){
 
  if(unsubMessages) unsubMessages();
  const qMsg=query(collection(db,'groups',groupId,'messages'),orderBy('createdAt','asc'));
- unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, true, 'group_' + groupId), ()=>{});
+ unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, true, null), ()=>{});
 };
 
 window.openRoomChat = function(roomId, roomName, roomDesc){
@@ -3283,7 +3520,7 @@ window.openRoomChat = function(roomId, roomName, roomDesc){
 
  if(unsubMessages) unsubMessages();
  const qMsg=query(collection(db,'rooms',roomId,'messages'),orderBy('createdAt','asc'));
- unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, true, 'room_' + roomId), ()=>{});
+ unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, true, null), ()=>{});
 };
 
 window.closeChatRoom = function(){
@@ -3300,6 +3537,7 @@ window.closeChatRoom = function(){
  setFullScreenChatMode(false);
  document.getElementById('chatRoomCard').classList.add('hidden');
  document.getElementById('chatOverviewWrap').classList.remove('hidden');
+ refreshChatSummariesForPeers();
  if(wasGroupOrRoom){
   const homeSec = document.getElementById('homePage');
   if(homeSec && !homeSec.classList.contains('hidden')){
@@ -3334,6 +3572,7 @@ window.sendMessage = async function(){
     text,
     mediaUrl,
     mediaType: mediaToUpload.type || '',
+    readByPeer: false,
     createdAt: Date.now()
    });
    if(ok) playMessageSound(false);
@@ -3349,6 +3588,7 @@ window.sendMessage = async function(){
   senderId: currentUser.uid,
   senderName: currentUser.name,
   text,
+  readByPeer: false,
   createdAt: Date.now()
  });
  if(ok) playMessageSound(false);
@@ -3391,6 +3631,7 @@ window.toggleVoiceNote = async function(){
       senderId: currentUser.uid,
       senderName: currentUser.name,
       audioUrl,
+      readByPeer: false,
       createdAt: Date.now()
      };
      if(targetGroup){
@@ -3703,10 +3944,9 @@ window.openStatusCreate = function(){
 
 const origShowPage = window.showPage;
 window.showPage = function(page){
- const currentActive = document.querySelector('.navbar button.active');
- const currentPage = currentActive ? currentActive.textContent.trim().toLowerCase() : 'home';
- const mapLabel = { people: 'friends', more: 'settings' };
- const prevPage = mapLabel[currentPage] || currentPage;
+ const pages=['home','friends','messages','notifications','profile','settings'];
+ const currentIdx = Array.from(document.querySelectorAll('.navbar button')).findIndex(b => b.classList.contains('active'));
+ const prevPage = currentIdx >= 0 ? pages[currentIdx] : 'home';
  if(page !== 'home' && prevPage !== page){
   pushAppState('page_' + page);
  }
@@ -3767,7 +4007,7 @@ window.addEventListener('popstate', ()=>{
   return;
  }
 
- const activePages = ['messagesPage', 'friendsPage', 'notificationsPage', 'profilePage', 'settingsPage'];
+ const activePages = ['friendsPage', 'messagesPage', 'notificationsPage', 'profilePage', 'settingsPage'];
  const onSubPage = activePages.some(id => {
   const el = document.getElementById(id);
   return el && !el.classList.contains('hidden');
