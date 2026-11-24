@@ -157,7 +157,10 @@ body.dark-mode .danger-btn{
  font-weight:700;
 }
 .add-status{background:var(--light);color:var(--blue);font-size:24px}
-.section-title{font-size:16px;font-weight:bold;margin-bottom:12px}
+.section-title-row{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;
+}
+.section-title{font-size:16px;font-weight:bold;margin-bottom:0}
 .page-header-row{
  display:flex;align-items:center;justify-content:space-between;
  gap:10px;flex-wrap:wrap;margin:6px 0 15px;
@@ -231,7 +234,7 @@ main{padding-bottom:85px}
 .chat-row small{color:var(--muted)}
 .row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .wa-strip{
- display:flex;gap:12px;overflow-x:auto;padding:6px 2px 10px;
+ display:flex;gap:12px;overflow-x:auto;padding:6px 2px 6px;
 }
 .wa-person-chip{
  min-width:74px;max-width:78px;text-align:center;cursor:pointer;
@@ -264,6 +267,9 @@ main{padding-bottom:85px}
 .msg-bubble{
  max-width:78%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.4;
  box-shadow:0 1px 2px rgba(0,0,0,0.08);
+}
+.msg-sender-tag{
+ display:block;font-size:11px;font-weight:700;color:var(--blue);margin-bottom:2px;
 }
 .msg-sent{
  background:var(--wa-sent);
@@ -424,7 +430,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <div class="home-layout">
     <div>
      <div class="card">
-      <div class="section-title">24-Hour Status & Stories</div>
+      <div class="section-title" style="margin-bottom:12px">24-Hour Status & Stories</div>
       <div class="status-area" id="statusList"></div>
      </div>
 
@@ -458,7 +464,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 
     <div>
      <div class="card">
-      <div class="section-title">Your Account</div>
+      <div class="section-title" style="margin-bottom:12px">Your Account</div>
       <div class="top-profile">
        <div class="avatar" id="sideAvatar" onclick="viewMyProfilePic()" title="View Profile Pic">MK</div>
        <div>
@@ -473,11 +479,12 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    </div>
   </section>
 
-  <!-- MESSAGES (WHATSAPP STYLE + STATUS TOP + PROFILES FIRST) -->
+  <!-- MESSAGES (WHATSAPP STYLE + STATUS TOP + HIDDEN PROFILES UNTIL OPENED + ROOM CHAT) -->
   <section id="messagesPage" class="hidden">
    <div class="page-header-row">
     <h2 class="page-title">Chats</h2>
     <div class="invite-actions">
+     <button class="primary" style="width:auto;padding:8px 14px;font-size:13px" onclick="openCreateRoomModal()">+ Create Room</button>
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
     </div>
@@ -486,20 +493,28 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <div id="chatOverviewWrap">
     <!-- Status on top of chat -->
     <div class="card">
-     <div class="section-title">Status</div>
+     <div class="section-title" style="margin-bottom:12px">Status</div>
      <div class="status-area" id="chatStatusList"></div>
     </div>
 
-    <!-- People profiles appearing first before chat threads -->
+    <!-- Quick DP strip (tap DP to view full profile; tap name to open chat) -->
     <div class="card">
-     <div class="section-title">People & Profiles</div>
+     <div class="section-title" style="margin-bottom:10px">Contacts (Tap DP for Profile)</div>
      <div class="wa-strip" id="chatTopProfiles"></div>
-     <div id="chatPeopleProfiles"></div>
+    </div>
+
+    <!-- Chat Rooms -->
+    <div class="card">
+     <div class="section-title-row">
+      <div class="section-title">Chat Rooms</div>
+      <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateRoomModal()">+ New Room</button>
+     </div>
+     <div id="roomsList"></div>
     </div>
 
     <!-- Active / Recent Conversations -->
     <div class="card" id="chatListCard">
-     <div class="section-title">Recent Chats</div>
+     <div class="section-title" style="margin-bottom:12px">Recent Chats</div>
      <div id="chatList"></div>
     </div>
    </div>
@@ -514,7 +529,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
        <small id="chatPeerSub" style="color:var(--muted);font-size:11px">Tap DP for profile</small>
       </div>
      </div>
-     <div class="chat-call-actions">
+     <div class="chat-call-actions" id="directChatActions">
       <button class="icon-action-btn" onclick="startCall('audio')" title="Normal Voice Call">
        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
       </button>
@@ -611,10 +626,29 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </main>
 
+<!-- CREATE CHAT ROOM MODAL -->
+<div id="createRoomModal" class="modal hidden">
+ <div class="modal-content">
+  <h3 style="margin-bottom:10px;color:var(--blue)">Create Chat Room</h3>
+  <div class="form-group">
+   <label>Room Name</label>
+   <input id="roomNameInput" placeholder="e.g. Hausa Music Lovers">
+  </div>
+  <div class="form-group">
+   <label>Description (optional)</label>
+   <textarea id="roomDescInput" rows="2" placeholder="What is this room about?"></textarea>
+  </div>
+  <div style="display:flex;gap:10px">
+   <button class="primary" id="createRoomBtn" onclick="createChatRoom()">Create Room</button>
+   <button class="primary" style="background:#64748b" onclick="closeCreateRoomModal()">Cancel</button>
+  </div>
+ </div>
+</div>
+
 <!-- VIEW PROFILE PIC MODAL -->
 <div id="viewDpModal" class="modal hidden" onclick="if(event.target===this)closeViewDpModal()">
  <div class="modal-content">
-  <h3 style="margin-bottom:10px;color:var(--blue);text-align:center">Profile Photo</h3>
+  <h3 style="margin-bottom:10px;color:var(--blue);text-align:center">Member Profile</h3>
   <div class="view-dp-wrap">
    <div class="view-dp-large" id="viewDpBox">MK</div>
    <h3 id="viewDpName">Member Name</h3>
@@ -842,12 +876,15 @@ let currentUser = null;
 let allUsers = [];
 let allPosts = [];
 let allStatuses = [];
+let allRooms = [];
 let activePeer = null;
+let activeRoom = null;
 let reportTarget = null;
 let selectedFile = null;
 let unsubPosts = null;
 let unsubStatuses = null;
 let unsubUsers = null;
+let unsubRooms = null;
 let unsubMessages = null;
 let unsubCalls = null;
 let unsubCallCandidates = null;
@@ -1261,6 +1298,7 @@ window.logoutUser = async function(){
  if(unsubPosts) unsubPosts();
  if(unsubStatuses) unsubStatuses();
  if(unsubUsers) unsubUsers();
+ if(unsubRooms) unsubRooms();
  if(unsubMessages) unsubMessages();
  if(unsubCalls) unsubCalls();
  if(unsubCallCandidates) unsubCallCandidates();
@@ -1392,6 +1430,7 @@ function listenRealtime(){
  if(unsubUsers) unsubUsers();
  if(unsubPosts) unsubPosts();
  if(unsubStatuses) unsubStatuses();
+ if(unsubRooms) unsubRooms();
  if(unsubCalls) unsubCalls();
 
  unsubUsers=onSnapshot(collection(db,'users'),(snap)=>{
@@ -1415,6 +1454,12 @@ function listenRealtime(){
   renderStatuses();
   updateProfileUI();
   updateBlockRoomUI();
+ }, ()=>{});
+
+ const qRooms=query(collection(db,'rooms'),orderBy('createdAt','desc'));
+ unsubRooms=onSnapshot(qRooms,(snap)=>{
+  allRooms=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderChatsList();
  }, ()=>{});
 
  const qPosts=query(collection(db,'posts'),orderBy('createdAt','desc'));
@@ -1796,62 +1841,97 @@ function renderPeople(){
  });
 }
 
+// Chat Rooms creation & rendering
+window.openCreateRoomModal = function(){
+ document.getElementById('roomNameInput').value = '';
+ document.getElementById('roomDescInput').value = '';
+ document.getElementById('createRoomModal').classList.remove('hidden');
+};
+
+window.closeCreateRoomModal = function(){
+ document.getElementById('createRoomModal').classList.add('hidden');
+};
+
+window.createChatRoom = async function(){
+ if(!currentUser) return;
+ const name = document.getElementById('roomNameInput').value.trim();
+ const desc = document.getElementById('roomDescInput').value.trim();
+ if(!name){ showToast('Enter a room name'); return; }
+
+ const btn = document.getElementById('createRoomBtn');
+ btn.disabled = true; btn.textContent = 'Creating...';
+ try{
+  const docRef = await addDoc(collection(db,'rooms'),{
+   name,
+   description: desc || 'Public chat room',
+   createdBy: currentUser.uid,
+   createdByName: currentUser.name,
+   createdAt: Date.now()
+  });
+  closeCreateRoomModal();
+  showToast('Chat room created!');
+  window.openRoomChat(docRef.id, name, desc || 'Chat Room');
+ }catch(e){
+  showToast('Failed to create room');
+ }finally{
+  btn.disabled = false; btn.textContent = 'Create Room';
+ }
+};
+
 function renderChatsList(){
  const topStrip = document.getElementById('chatTopProfiles');
- const profilesList = document.getElementById('chatPeopleProfiles');
+ const roomsBox = document.getElementById('roomsList');
  const list = document.getElementById('chatList');
  if(!list) return;
 
  const others = allUsers.filter(u => !currentUser || u.uid !== currentUser.uid);
 
  if(topStrip){
-  topStrip.innerHTML = '';
-  others.forEach(u => {
-   const photo = u.photoUrl || getSavedPhoto(u.uid);
-   const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
-   const safeName = u.name.replace(/'/g,"\\'");
-   const chip = document.createElement('div');
-   chip.className = 'wa-person-chip';
-   chip.innerHTML = `
-    <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')">${avatarInner}</div>
-    <small onclick="window.openChatWith('${u.uid}','${safeName}')">${u.name}</small>
-   `;
-   topStrip.appendChild(chip);
-  });
- }
-
- if(profilesList){
   if(!others.length){
-   profilesList.innerHTML = emptyFriendsMarkup('Invite friends to see their profiles first and chat!');
+   topStrip.innerHTML = '<small style="color:var(--muted)">No contacts yet.</small>';
   }else{
-   profilesList.innerHTML = '';
+   topStrip.innerHTML = '';
    others.forEach(u => {
     const photo = u.photoUrl || getSavedPhoto(u.uid);
     const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
     const safeName = u.name.replace(/'/g,"\\'");
-    const following = isFollowing(u.uid);
-    const blocked = isBlockedByMe(u.uid);
+    const chip = document.createElement('div');
+    chip.className = 'wa-person-chip';
+    chip.innerHTML = `
+     <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
+     <small onclick="window.openChatWith('${u.uid}','${safeName}')">${u.name}</small>
+    `;
+    topStrip.appendChild(chip);
+   });
+  }
+ }
+
+ if(roomsBox){
+  if(!allRooms.length){
+   roomsBox.innerHTML = '<div class="empty">No chat rooms yet. Tap "+ Create Room" to start one!</div>';
+  }else{
+   roomsBox.innerHTML = '';
+   allRooms.forEach(r => {
+    const safeName = (r.name || 'Room').replace(/'/g,"\\'");
+    const safeDesc = (r.description || 'Chat Room').replace(/'/g,"\\'");
     const row = document.createElement('div');
     row.className = 'chat-row';
+    row.onclick = () => window.openRoomChat(r.id, safeName, safeDesc);
     row.innerHTML = `
-     <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
-     <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
-      <strong>${u.name}</strong><br>
-      <small>@${u.username}${blocked ? ' • Blocked' : ' • Tap to chat'}</small>
+     <div class="avatar" style="background:var(--light);color:var(--blue)">#</div>
+     <div class="details">
+      <strong>${r.name}</strong><br>
+      <small>${r.description || 'Chat Room'} • by ${r.createdByName || 'Member'}</small>
      </div>
-     <div class="row-actions" onclick="event.stopPropagation()">
-      <button class="secondary-btn" style="padding:6px 10px;font-size:12px" onclick="toggleFollowUser('${u.uid}')">${following ? 'Unfollow' : 'Follow'}</button>
-      <button class="danger-btn" onclick="toggleBlockUser('${u.uid}')">${blocked ? 'Unblock' : 'Block'}</button>
-      <button class="danger-btn" onclick="openReportModal('${u.uid}','${safeName}')">Report</button>
-     </div>
+     <button class="secondary-btn" style="padding:6px 12px;font-size:12px">Join</button>
     `;
-    profilesList.appendChild(row);
+    roomsBox.appendChild(row);
    });
   }
  }
 
  if(!others.length){
-  list.innerHTML = emptyFriendsMarkup('No recent chats yet.');
+  list.innerHTML = emptyFriendsMarkup('Invite friends to start chatting!');
   return;
  }
 
@@ -1864,10 +1944,10 @@ function renderChatsList(){
   const row = document.createElement('div');
   row.className = 'chat-row';
   row.innerHTML = `
-   <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
+   <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong><br>
-    <small>${blocked ? 'Blocked • Tap to open chat' : 'Open conversation'}</small>
+    <small>${blocked ? 'Blocked • Tap to open chat' : 'Tap to message'}</small>
    </div>
   `;
   list.appendChild(row);
@@ -1878,11 +1958,34 @@ function getChatId(uid1, uid2){
  return [uid1, uid2].sort().join('_');
 }
 
+function renderMessagesSnapshot(snap, isRoom){
+ const box=document.getElementById('chatMessages');
+ box.innerHTML='';
+ snap.forEach(docSnap=>{
+  const m=docSnap.data();
+  const div=document.createElement('div');
+  const isMe = m.senderId===currentUser.uid;
+  div.className='msg-bubble '+(isMe?'msg-sent':'msg-recv');
+  const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+  const senderTag = (isRoom && !isMe && m.senderName) ? `<span class="msg-sender-tag">${m.senderName}</span>` : '';
+  if(m.audioUrl){
+   div.innerHTML=`${senderTag}<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio><span class="msg-time">${timeStr}</span>`;
+  }else{
+   div.innerHTML=`${senderTag}<span>${m.text || ''}</span><span class="msg-time">${timeStr}</span>`;
+  }
+  box.appendChild(div);
+ });
+ box.scrollTop=box.scrollHeight;
+}
+
 window.openChatWith = function(peerUid, peerName){
+ activeRoom = null;
  activePeer={uid:peerUid, name:peerName};
  document.getElementById('chatOverviewWrap').classList.add('hidden');
  document.getElementById('chatRoomCard').classList.remove('hidden');
+ document.getElementById('directChatActions').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
+ document.getElementById('chatPeerSub').textContent='Tap DP for profile';
  updateBlockRoomUI();
  const peerAv = document.getElementById('chatPeerAvatar');
  setAvatarContent(peerAv, peerName, getUserPhoto(peerUid));
@@ -1891,27 +1994,29 @@ window.openChatWith = function(peerUid, peerName){
  if(unsubMessages) unsubMessages();
  const chatId=getChatId(currentUser.uid, peerUid);
  const qMsg=query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'));
- unsubMessages=onSnapshot(qMsg,(snap)=>{
-  const box=document.getElementById('chatMessages');
-  box.innerHTML='';
-  snap.forEach(docSnap=>{
-   const m=docSnap.data();
-   const div=document.createElement('div');
-   div.className='msg-bubble '+(m.senderId===currentUser.uid?'msg-sent':'msg-recv');
-   const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
-   if(m.audioUrl){
-    div.innerHTML=`<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio><span class="msg-time">${timeStr}</span>`;
-   }else{
-    div.innerHTML=`<span>${m.text || ''}</span><span class="msg-time">${timeStr}</span>`;
-   }
-   box.appendChild(div);
-  });
-  box.scrollTop=box.scrollHeight;
- }, ()=>{});
+ unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, false), ()=>{});
+};
+
+window.openRoomChat = function(roomId, roomName, roomDesc){
+ activePeer = null;
+ activeRoom = { id: roomId, name: roomName, description: roomDesc };
+ document.getElementById('chatOverviewWrap').classList.add('hidden');
+ document.getElementById('chatRoomCard').classList.remove('hidden');
+ document.getElementById('directChatActions').classList.add('hidden');
+ document.getElementById('chatPeerName').textContent = roomName;
+ document.getElementById('chatPeerSub').textContent = roomDesc || 'Chat Room';
+ const peerAv = document.getElementById('chatPeerAvatar');
+ peerAv.textContent = '#';
+ peerAv.onclick = null;
+
+ if(unsubMessages) unsubMessages();
+ const qMsg=query(collection(db,'rooms',roomId,'messages'),orderBy('createdAt','asc'));
+ unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, true), ()=>{});
 };
 
 window.closeChatRoom = function(){
  activePeer=null;
+ activeRoom=null;
  if(unsubMessages) unsubMessages();
  document.getElementById('chatRoomCard').classList.add('hidden');
  document.getElementById('chatOverviewWrap').classList.remove('hidden');
@@ -1920,7 +2025,20 @@ window.closeChatRoom = function(){
 window.sendMessage = async function(){
  const input=document.getElementById('chatMsgInput');
  const text=input.value.trim();
- if(!text || !activePeer)return;
+ if(!text) return;
+
+ if(activeRoom){
+  input.value='';
+  await addDoc(collection(db,'rooms',activeRoom.id,'messages'),{
+   senderId:currentUser.uid,
+   senderName:currentUser.name,
+   text,
+   createdAt:Date.now()
+  });
+  return;
+ }
+
+ if(!activePeer)return;
  if(isBlockedByMe(activePeer.uid)){
   showToast('Unblock this user first to send messages');
   return;
@@ -1933,6 +2051,7 @@ window.sendMessage = async function(){
  input.value='';
  await addDoc(collection(db,'chats',chatId,'messages'),{
   senderId:currentUser.uid,
+  senderName:currentUser.name,
   text,
   createdAt:Date.now()
  });
@@ -1940,13 +2059,15 @@ window.sendMessage = async function(){
 
 // Voice Note Recording & Sending
 window.toggleVoiceNote = async function(){
- if(!activePeer){ showToast('Open a chat first'); return; }
- if(isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid)){
+ if(!activePeer && !activeRoom){ showToast('Open a chat or room first'); return; }
+ if(activePeer && (isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid))){
   showToast('Messaging is unavailable for this contact');
   return;
  }
  const btn = document.getElementById('voiceNoteBtn');
  const statusEl = document.getElementById('voiceRecStatus');
+ const targetPeer = activePeer ? { ...activePeer } : null;
+ const targetRoom = activeRoom ? { ...activeRoom } : null;
 
  if(!isRecordingVoice){
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -1963,17 +2084,23 @@ window.toggleVoiceNote = async function(){
    mediaRecorder.onstop = async () => {
     stream.getTracks().forEach(t => t.stop());
     const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-    if(!blob.size || !activePeer) return;
+    if(!blob.size) return;
     showToast('Sending voice note...');
     try{
      const file = new File([blob], `voice_${Date.now()}.webm`, { type: blob.type });
      const audioUrl = await uploadToCloudinary(file);
-     const chatId = getChatId(currentUser.uid, activePeer.uid);
-     await addDoc(collection(db,'chats',chatId,'messages'),{
+     const payload = {
       senderId: currentUser.uid,
+      senderName: currentUser.name,
       audioUrl,
       createdAt: Date.now()
-     });
+     };
+     if(targetRoom){
+      await addDoc(collection(db,'rooms',targetRoom.id,'messages'), payload);
+     }else if(targetPeer){
+      const chatId = getChatId(currentUser.uid, targetPeer.uid);
+      await addDoc(collection(db,'chats',chatId,'messages'), payload);
+     }
      showToast('Voice note sent!');
     }catch(err){
      showToast('Failed to send voice note');
