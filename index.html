@@ -103,6 +103,17 @@ header{
  padding:8px 14px;border-radius:9px;font-weight:600;font-size:13px;
  display:inline-flex;align-items:center;gap:6px;
 }
+.mini-action-btn{
+ background:var(--blue);color:#fff;border:0;
+ padding:6px 11px;border-radius:8px;font-size:12px;font-weight:600;
+}
+.mini-action-btn.muted-btn{
+ background:var(--light);color:var(--text);border:1px solid var(--border);
+}
+.mini-action-btn.danger-btn{
+ background:#ef4444;color:#fff;
+}
+.row-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
 .three-dots-btn{
  background:none;border:0;color:var(--muted);
  width:34px;height:34px;border-radius:50%;
@@ -679,7 +690,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   <!-- FRIENDS / PEOPLE -->
   <section id="friendsPage" class="hidden">
    <div class="page-header-row">
-    <h2 class="page-title">People on ADAM MK CHAT</h2>
+    <h2 class="page-title">Friends & People</h2>
     <div class="invite-actions">
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
@@ -689,7 +700,18 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <div class="section-title" style="margin-bottom:12px">Status</div>
     <div class="status-area" id="peopleStatusList"></div>
    </div>
-   <div class="card" id="peopleList"></div>
+   <div class="card" id="friendRequestsCard">
+    <div class="section-title" style="margin-bottom:10px">Friend Requests</div>
+    <div id="friendRequestsList"></div>
+   </div>
+   <div class="card" id="myFriendsCard">
+    <div class="section-title" style="margin-bottom:10px">My Friends</div>
+    <div id="myFriendsList"></div>
+   </div>
+   <div class="card">
+    <div class="section-title" style="margin-bottom:10px">All Members</div>
+    <div id="peopleList"></div>
+   </div>
   </section>
 
   <!-- NOTIFICATIONS -->
@@ -714,7 +736,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     </div>
     <div class="stats">
      <div><strong id="statPosts">0</strong><small>Posts</small></div>
-     <div><strong id="statFollowers">0</strong><small>Followers</small></div>
+     <div><strong id="statFriends">0</strong><small>Friends</small></div>
      <div><strong id="statFollowing">0</strong><small>Following</small></div>
      <div><strong id="statUsers">0</strong><small>Members</small></div>
     </div>
@@ -758,6 +780,10 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <button type="button" class="wa-menu-item" id="dotsViewProfileBtn">
     <span>View Profile</span>
     <span>›</span>
+   </button>
+   <button type="button" class="wa-menu-item" id="dotsFriendBtn">
+    <span>Add Friend</span>
+    <span>+</span>
    </button>
    <button type="button" class="wa-menu-item" id="dotsFollowBtn">
     <span>Follow</span>
@@ -831,6 +857,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div id="viewDpActionsWrap" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
    <button class="primary" id="viewDpChatBtn">Send Message</button>
+   <button class="secondary-btn" style="width:100%;justify-content:center;padding:10px" id="viewDpFriendBtn">Add Friend</button>
    <button class="secondary-btn" style="width:100%;justify-content:center;padding:10px" id="viewDpFollowBtn">Follow</button>
   </div>
   <button class="primary" style="background:#64748b" onclick="closeViewDpModal()">Close</button>
@@ -1267,6 +1294,9 @@ function fallbackUserFromAuth(user){
   email: user ? (user.email || '') : '',
   bio: 'Welcome to ADAM MK CHAT!',
   photoUrl: getSavedPhoto(uid),
+  friends: [],
+  friendRequests: [],
+  sentRequests: [],
   following: [],
   followers: [],
   blockedUsers: [],
@@ -1274,6 +1304,126 @@ function fallbackUserFromAuth(user){
   lastSeen: Date.now()
  };
 }
+
+function getFriendsArray(userObj){
+ return Array.isArray(userObj && userObj.friends) ? userObj.friends : [];
+}
+
+function getFriendRequestsArray(userObj){
+ return Array.isArray(userObj && userObj.friendRequests) ? userObj.friendRequests : [];
+}
+
+function getSentRequestsArray(userObj){
+ return Array.isArray(userObj && userObj.sentRequests) ? userObj.sentRequests : [];
+}
+
+function isFriendWith(targetUid){
+ if(!currentUser || !targetUid) return false;
+ return getFriendsArray(currentUser).includes(targetUid);
+}
+
+function hasSentFriendRequestTo(targetUid){
+ if(!currentUser || !targetUid) return false;
+ if(getSentRequestsArray(currentUser).includes(targetUid)) return true;
+ const peer = allUsers.find(u => u.uid === targetUid);
+ return peer ? getFriendRequestsArray(peer).includes(currentUser.uid) : false;
+}
+
+function hasIncomingFriendRequestFrom(targetUid){
+ if(!currentUser || !targetUid) return false;
+ return getFriendRequestsArray(currentUser).includes(targetUid);
+}
+
+window.sendFriendRequest = async function(targetUid){
+ if(!currentUser || !targetUid || targetUid === currentUser.uid) return;
+ if(isFriendWith(targetUid)){ showToast('Already friends'); return; }
+ if(isBlockedByMe(targetUid) || isBlockedByPeer(targetUid)){
+  showToast('Cannot send friend request');
+  return;
+ }
+ const myRef = doc(db,'users',currentUser.uid);
+ const peerRef = doc(db,'users',targetUid);
+ try{
+  currentUser.sentRequests = Array.from(new Set([...getSentRequestsArray(currentUser), targetUid]));
+  await setDoc(myRef, { sentRequests: arrayUnion(targetUid) }, { merge:true });
+  await setDoc(peerRef, { friendRequests: arrayUnion(currentUser.uid) }, { merge:true });
+  showToast('Friend request sent!');
+  renderPeople();
+ }catch(e){
+  showToast('Failed to send friend request');
+ }
+};
+
+window.cancelFriendRequest = async function(targetUid){
+ if(!currentUser || !targetUid) return;
+ const myRef = doc(db,'users',currentUser.uid);
+ const peerRef = doc(db,'users',targetUid);
+ try{
+  currentUser.sentRequests = getSentRequestsArray(currentUser).filter(id => id !== targetUid);
+  await updateDoc(myRef, { sentRequests: arrayRemove(targetUid) }).catch(()=>{});
+  await updateDoc(peerRef, { friendRequests: arrayRemove(currentUser.uid) }).catch(()=>{});
+  showToast('Friend request cancelled');
+  renderPeople();
+ }catch(e){
+  showToast('Could not cancel request');
+ }
+};
+
+window.acceptFriendRequest = async function(requesterUid){
+ if(!currentUser || !requesterUid) return;
+ const myRef = doc(db,'users',currentUser.uid);
+ const reqRef = doc(db,'users',requesterUid);
+ try{
+  currentUser.friendRequests = getFriendRequestsArray(currentUser).filter(id => id !== requesterUid);
+  currentUser.friends = Array.from(new Set([...getFriendsArray(currentUser), requesterUid]));
+  await setDoc(myRef, {
+   friends: arrayUnion(requesterUid),
+   friendRequests: arrayRemove(requesterUid)
+  }, { merge:true });
+  await setDoc(reqRef, {
+   friends: arrayUnion(currentUser.uid),
+   sentRequests: arrayRemove(currentUser.uid)
+  }, { merge:true });
+  showToast('Friend request accepted!');
+  updateProfileUI();
+  renderPeople();
+  renderChatsList();
+ }catch(e){
+  showToast('Could not accept request');
+ }
+};
+
+window.declineFriendRequest = async function(requesterUid){
+ if(!currentUser || !requesterUid) return;
+ const myRef = doc(db,'users',currentUser.uid);
+ const reqRef = doc(db,'users',requesterUid);
+ try{
+  currentUser.friendRequests = getFriendRequestsArray(currentUser).filter(id => id !== requesterUid);
+  await updateDoc(myRef, { friendRequests: arrayRemove(requesterUid) }).catch(()=>{});
+  await updateDoc(reqRef, { sentRequests: arrayRemove(currentUser.uid) }).catch(()=>{});
+  showToast('Friend request declined');
+  renderPeople();
+ }catch(e){
+  showToast('Could not decline request');
+ }
+};
+
+window.removeFriend = async function(friendUid){
+ if(!currentUser || !friendUid) return;
+ const myRef = doc(db,'users',currentUser.uid);
+ const friendRef = doc(db,'users',friendUid);
+ try{
+  currentUser.friends = getFriendsArray(currentUser).filter(id => id !== friendUid);
+  await updateDoc(myRef, { friends: arrayRemove(friendUid) }).catch(()=>{});
+  await updateDoc(friendRef, { friends: arrayRemove(currentUser.uid) }).catch(()=>{});
+  showToast('Removed from friends');
+  updateProfileUI();
+  renderPeople();
+  renderChatsList();
+ }catch(e){
+  showToast('Could not remove friend');
+ }
+};
 
 function isFollowing(targetUid){
  if(!currentUser || !targetUid) return false;
@@ -1480,12 +1630,46 @@ window.openUserActionMenu = function(targetUid, targetName){
  document.getElementById('dotsMenuTitle').textContent = name;
 
  const viewBtn = document.getElementById('dotsViewProfileBtn');
+ const friendBtn = document.getElementById('dotsFriendBtn');
  const followBtn = document.getElementById('dotsFollowBtn');
  const blockBtn = document.getElementById('dotsBlockBtn');
  const reportBtn = document.getElementById('dotsReportBtn');
 
+ const friendNow = isFriendWith(targetUid);
+ const incomingReq = hasIncomingFriendRequestFrom(targetUid);
+ const sentReq = hasSentFriendRequestTo(targetUid);
  const followingNow = isFollowing(targetUid);
  const blockedNow = isBlockedByMe(targetUid);
+
+ if(friendNow){
+  friendBtn.innerHTML = `<span>Remove Friend</span><span>✕</span>`;
+  friendBtn.onclick = async () => {
+   const u = menuTargetUser;
+   closeUserActionMenu();
+   if(u) await window.removeFriend(u.uid);
+  };
+ }else if(incomingReq){
+  friendBtn.innerHTML = `<span>Accept Friend Request</span><span>✓</span>`;
+  friendBtn.onclick = async () => {
+   const u = menuTargetUser;
+   closeUserActionMenu();
+   if(u) await window.acceptFriendRequest(u.uid);
+  };
+ }else if(sentReq){
+  friendBtn.innerHTML = `<span>Cancel Request</span><span>✕</span>`;
+  friendBtn.onclick = async () => {
+   const u = menuTargetUser;
+   closeUserActionMenu();
+   if(u) await window.cancelFriendRequest(u.uid);
+  };
+ }else{
+  friendBtn.innerHTML = `<span>Add Friend</span><span>+</span>`;
+  friendBtn.onclick = async () => {
+   const u = menuTargetUser;
+   closeUserActionMenu();
+   if(u) await window.sendFriendRequest(u.uid);
+  };
+ }
 
  followBtn.innerHTML = `<span>${followingNow ? 'Unfollow' : 'Follow'}</span><span>${followingNow ? '−' : '+'}</span>`;
  blockBtn.innerHTML = `<span>${blockedNow ? 'Unblock' : 'Block'}</span><span>🚫</span>`;
@@ -1578,6 +1762,7 @@ window.viewProfilePic = function(uid, fallbackName){
 
  const actionsWrap = document.getElementById('viewDpActionsWrap');
  const chatBtn = document.getElementById('viewDpChatBtn');
+ const friendBtn = document.getElementById('viewDpFriendBtn');
  const followBtn = document.getElementById('viewDpFollowBtn');
 
  if(currentUser && uid && uid !== currentUser.uid){
@@ -1586,6 +1771,20 @@ window.viewProfilePic = function(uid, fallbackName){
    closeViewDpModal();
    window.showPage('messages');
    window.openChatWith(uid, name);
+  };
+  const syncFriendBtnLabel = () => {
+   if(isFriendWith(uid)) friendBtn.textContent = 'Remove Friend';
+   else if(hasIncomingFriendRequestFrom(uid)) friendBtn.textContent = 'Accept Friend Request';
+   else if(hasSentFriendRequestTo(uid)) friendBtn.textContent = 'Cancel Request';
+   else friendBtn.textContent = 'Add Friend';
+  };
+  syncFriendBtnLabel();
+  friendBtn.onclick = async () => {
+   if(isFriendWith(uid)) await window.removeFriend(uid);
+   else if(hasIncomingFriendRequestFrom(uid)) await window.acceptFriendRequest(uid);
+   else if(hasSentFriendRequestTo(uid)) await window.cancelFriendRequest(uid);
+   else await window.sendFriendRequest(uid);
+   syncFriendBtnLabel();
   };
   followBtn.textContent = isFollowing(uid) ? 'Unfollow' : 'Follow';
   followBtn.onclick = async () => {
@@ -1748,6 +1947,9 @@ window.registerUser = async function(){
    email,
    bio:'Welcome to ADAM MK CHAT!',
    photoUrl:getSavedPhoto(cred.user.uid),
+   friends:[],
+   friendRequests:[],
+   sentRequests:[],
    following:[],
    followers:[],
    blockedUsers:[],
@@ -1821,6 +2023,9 @@ onAuthStateChanged(auth, async (user)=>{
      ...currentUser,
      ...data,
      photoUrl: data.photoUrl || currentUser.photoUrl || '',
+     friends: Array.isArray(data.friends) ? data.friends : (currentUser.friends || []),
+     friendRequests: Array.isArray(data.friendRequests) ? data.friendRequests : (currentUser.friendRequests || []),
+     sentRequests: Array.isArray(data.sentRequests) ? data.sentRequests : (currentUser.sentRequests || []),
      following: Array.isArray(data.following) ? data.following : (currentUser.following || []),
      followers: Array.isArray(data.followers) ? data.followers : (currentUser.followers || []),
      blockedUsers: Array.isArray(data.blockedUsers) ? data.blockedUsers : (currentUser.blockedUsers || []),
@@ -1869,7 +2074,7 @@ function updateProfileUI(){
  document.getElementById('profileBio').textContent=currentUser.bio || '';
  const myPosts=allPosts.filter(p=>p.uid===currentUser.uid).length;
  document.getElementById('statPosts').textContent=myPosts;
- document.getElementById('statFollowers').textContent=(currentUser.followers || []).length;
+ document.getElementById('statFriends').textContent=getFriendsArray(currentUser).length;
  document.getElementById('statFollowing').textContent=(currentUser.following || []).length;
  document.getElementById('statUsers').textContent=allUsers.length;
 }
@@ -1951,6 +2156,9 @@ function listenRealtime(){
      ...currentUser,
      ...me,
      photoUrl: me.photoUrl || currentUser.photoUrl || getSavedPhoto(currentUser.uid),
+     friends: Array.isArray(me.friends) ? me.friends : (currentUser.friends || []),
+     friendRequests: Array.isArray(me.friendRequests) ? me.friendRequests : (currentUser.friendRequests || []),
+     sentRequests: Array.isArray(me.sentRequests) ? me.sentRequests : (currentUser.sentRequests || []),
      following: Array.isArray(me.following) ? me.following : (currentUser.following || []),
      followers: Array.isArray(me.followers) ? me.followers : (currentUser.followers || []),
      blockedUsers: Array.isArray(me.blockedUsers) ? me.blockedUsers : (currentUser.blockedUsers || [])
@@ -2320,32 +2528,112 @@ function emptyFriendsMarkup(msg){
  `;
 }
 
-// People list with online/offline, lastSeen & 3-dots menu
+// Friends, Friend Requests & All Members
 function renderPeople(){
- const list=document.getElementById('peopleList');
- if(!list)return;
- const others=allUsers.filter(u=>!currentUser || u.uid!==currentUser.uid);
+ const reqBox = document.getElementById('friendRequestsList');
+ const friendsBox = document.getElementById('myFriendsList');
+ const list = document.getElementById('peopleList');
+
+ const others = allUsers.filter(u => !currentUser || u.uid !== currentUser.uid);
+
+ if(reqBox){
+  const incomingIds = getFriendRequestsArray(currentUser);
+  if(!incomingIds.length){
+   reqBox.innerHTML = '<div class="empty" style="padding:12px 6px">No pending friend requests.</div>';
+  }else{
+   reqBox.innerHTML = '';
+   incomingIds.forEach(reqId => {
+    const reqUser = allUsers.find(u => u.uid === reqId);
+    const name = (reqUser && reqUser.name) || 'Member';
+    const photo = (reqUser && reqUser.photoUrl) || getSavedPhoto(reqId);
+    const online = isUserCurrentlyOnline(reqUser);
+    const safeName = name.replace(/'/g,"\\'");
+    const row = document.createElement('div');
+    row.className = 'chat-row';
+    row.innerHTML = `
+     <div onclick="event.stopPropagation();viewProfilePic('${reqId}','${safeName}')">${renderAvatarBlock(name, photo, online)}</div>
+     <div class="details">
+      <strong>${name}</strong>
+      <small>Wants to be your friend</small>
+     </div>
+     <div class="row-actions">
+      <button type="button" class="mini-action-btn" onclick="event.stopPropagation();acceptFriendRequest('${reqId}')">Accept</button>
+      <button type="button" class="mini-action-btn danger-btn" onclick="event.stopPropagation();declineFriendRequest('${reqId}')">Decline</button>
+     </div>
+    `;
+    reqBox.appendChild(row);
+   });
+  }
+ }
+
+ if(friendsBox){
+  const friendIds = getFriendsArray(currentUser);
+  if(!friendIds.length){
+   friendsBox.innerHTML = '<div class="empty" style="padding:12px 6px">You have no friends added yet. Tap Add Friend below!</div>';
+  }else{
+   friendsBox.innerHTML = '';
+   friendIds.forEach(fId => {
+    const fUser = allUsers.find(u => u.uid === fId);
+    const name = (fUser && fUser.name) || 'Friend';
+    const photo = (fUser && fUser.photoUrl) || getSavedPhoto(fId);
+    const online = isUserCurrentlyOnline(fUser);
+    const presenceStr = getPresenceText(fUser);
+    const safeName = name.replace(/'/g,"\\'");
+    const row = document.createElement('div');
+    row.className = 'chat-row';
+    row.innerHTML = `
+     <div onclick="event.stopPropagation();viewProfilePic('${fId}','${safeName}')">${renderAvatarBlock(name, photo, online)}</div>
+     <div class="details" onclick="showPage('messages');openChatWith('${fId}','${safeName}')">
+      <strong>${name}</strong>
+      <small class="${online?'presence-online':''}">${presenceStr}</small>
+     </div>
+     <div class="row-actions">
+      <button type="button" class="mini-action-btn" onclick="event.stopPropagation();showPage('messages');openChatWith('${fId}','${safeName}')">Chat</button>
+      <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${fId}','${safeName}')" title="More options">⋮</button>
+     </div>
+    `;
+    friendsBox.appendChild(row);
+   });
+  }
+ }
+
+ if(!list) return;
  if(!others.length){
-  list.innerHTML=emptyFriendsMarkup('No other members registered yet. Invite friends to join ADAM MK CHAT!');
+  list.innerHTML = emptyFriendsMarkup('No other members registered yet. Invite friends to join ADAM MK CHAT!');
   return;
  }
- list.innerHTML='';
- others.forEach(u=>{
+ list.innerHTML = '';
+ others.forEach(u => {
   const photo = u.photoUrl || getSavedPhoto(u.uid);
   const online = isUserCurrentlyOnline(u);
   const presenceStr = getPresenceText(u);
   const safeName = u.name.replace(/'/g,"\\'");
   const blocked = isBlockedByMe(u.uid);
   const subText = `${presenceStr}${blocked ? ' • Blocked' : ''}`;
-  const row=document.createElement('div');
-  row.className='chat-row';
-  row.innerHTML=`
+
+  let actionBtnHtml = '';
+  if(isFriendWith(u.uid)){
+   actionBtnHtml = `<button type="button" class="mini-action-btn muted-btn" onclick="event.stopPropagation();showPage('messages');openChatWith('${u.uid}','${safeName}')">Friends</button>`;
+  }else if(hasIncomingFriendRequestFrom(u.uid)){
+   actionBtnHtml = `<button type="button" class="mini-action-btn" onclick="event.stopPropagation();acceptFriendRequest('${u.uid}')">Accept</button>`;
+  }else if(hasSentFriendRequestTo(u.uid)){
+   actionBtnHtml = `<button type="button" class="mini-action-btn muted-btn" onclick="event.stopPropagation();cancelFriendRequest('${u.uid}')">Requested</button>`;
+  }else{
+   actionBtnHtml = `<button type="button" class="mini-action-btn" onclick="event.stopPropagation();sendFriendRequest('${u.uid}')">+ Add Friend</button>`;
+  }
+
+  const row = document.createElement('div');
+  row.className = 'chat-row';
+  row.innerHTML = `
    <div onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${renderAvatarBlock(u.name, photo, online)}</div>
    <div class="details" onclick="showPage('messages');openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong>
     <small class="${online?'presence-online':''}">${subText}</small>
    </div>
-   <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
+   <div class="row-actions">
+    ${actionBtnHtml}
+    <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
+   </div>
   `;
   list.appendChild(row);
  });
@@ -2536,13 +2824,14 @@ function renderChatsList(){
   const presenceStr = getPresenceText(u);
   const safeName = u.name.replace(/'/g,"\\'");
   const blocked = isBlockedByMe(u.uid);
+  const friendTag = isFriendWith(u.uid) ? ' • Friend' : '';
   const row = document.createElement('div');
   row.className = 'chat-row';
   row.innerHTML = `
    <div onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${renderAvatarBlock(u.name, photo, online)}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong>
-    <small class="${online?'presence-online':''}">${blocked ? 'Blocked • ' : ''}${presenceStr}</small>
+    <small class="${online?'presence-online':''}">${blocked ? 'Blocked • ' : ''}${presenceStr}${friendTag}</small>
    </div>
    <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
   `;
