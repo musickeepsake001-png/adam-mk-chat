@@ -1,25 +1,38 @@
 {
+  "id": "./",
   "name": "ADAM MK CHAT",
   "short_name": "ADAM MK",
-  "description": "Global social networking and messaging platform where people can connect, chat, share photos, videos, music, and 24-hour status updates.",
+  "description": "Adam MK Chat is a social and music sharing platform where users can chat, share photos, videos, statuses and music.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f1f5fb",
+  "orientation": "portrait-primary",
+  "background_color": "#1877f2",
   "theme_color": "#1877f2",
+  "lang": "en",
+  "categories": [
+    "social",
+    "communication",
+    "music"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.svg",
-      "sizes": "any",
+      "src": "icons/adam-mk-icon.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any"
     }
+  ],
+  "dir": "ltr",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
   ]
 }
