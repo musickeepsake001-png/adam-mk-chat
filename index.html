@@ -275,7 +275,7 @@ main{padding-bottom:85px}
 .chat-call-actions{display:flex;gap:6px;align-items:center}
 .icon-action-btn{
  background:var(--light);color:var(--blue);border:1px solid var(--border);
- width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+ width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:15px;flex-shrink:0;
 }
 .icon-action-btn.recording{
  background:#ef4444;color:#fff;border-color:#ef4444;animation:pulseRec 1s infinite;
@@ -312,7 +312,7 @@ body.chat-fullscreen-active .container{
  z-index:45;
  display:flex;
  flex-direction:column;
- padding:12px;
+ padding:10px;
  background:var(--card);
 }
 #chatRoomCard.fullscreen-chat .chat-window{
@@ -331,6 +331,7 @@ body.chat-fullscreen-active .container{
 .msg-bubble{
  max-width:78%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.4;
  box-shadow:0 1px 2px rgba(0,0,0,0.08);
+ word-break:break-word;
 }
 .msg-sender-tag{
  display:block;font-size:11px;font-weight:700;color:var(--blue);margin-bottom:2px;
@@ -351,11 +352,48 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  display:block;font-size:10px;color:var(--muted);margin-top:4px;text-align:right;
 }
 .msg-bubble audio{width:210px;max-width:100%;margin-top:4px;display:block}
-.chat-input-bar{
- display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border);
- align-items:center;background:var(--card);border-radius:12px;padding:8px;
+.msg-bubble img.chat-media-img{
+ max-width:230px;max-height:240px;width:100%;object-fit:cover;border-radius:9px;margin-top:4px;display:block;
 }
-.chat-input-bar input{flex:1;min-width:0;padding:10px 14px;border:1px solid var(--border);border-radius:22px;background:var(--bg)}
+.msg-bubble video.chat-media-vid{
+ max-width:240px;max-height:240px;width:100%;border-radius:9px;margin-top:4px;display:block;
+}
+.msg-sticker-badge{
+ font-size:44px;line-height:1.15;display:inline-block;padding:2px 4px;
+}
+.msg-sticker-sub{
+ display:block;font-size:11px;color:var(--muted);margin-top:2px;
+}
+.chat-media-bar{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ background:var(--card);border:1px solid var(--border);border-radius:10px;
+ padding:6px 10px;margin-bottom:6px;font-size:12px;
+}
+.chat-picker-panel{
+ background:var(--card);border:1px solid var(--border);border-radius:12px;
+ padding:8px;margin-bottom:6px;max-height:155px;overflow-y:auto;
+}
+.emoji-grid{
+ display:grid;grid-template-columns:repeat(8,1fr);gap:4px;text-align:center;
+}
+.emoji-item{
+ background:none;border:0;font-size:21px;padding:4px;border-radius:7px;
+}
+.emoji-item:hover{background:var(--light)}
+.sticker-grid{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;
+}
+.sticker-item{
+ background:var(--bg);border:1px solid var(--border);border-radius:10px;
+ padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.sticker-item span.st-glyph{font-size:28px;line-height:1.1}
+.sticker-item small{font-size:10px;color:var(--muted)}
+.chat-input-bar{
+ display:flex;gap:5px;padding-top:8px;border-top:1px solid var(--border);
+ align-items:center;background:var(--card);border-radius:12px;padding:6px 8px;
+}
+.chat-input-bar input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--border);border-radius:22px;background:var(--bg)}
 .modal{
  position:fixed;inset:0;background:rgba(0,0,0,0.65);
  display:grid;place-items:center;z-index:50;padding:15px;overflow-y:auto;
@@ -613,12 +651,26 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
      <div id="voiceRecStatus" class="hidden" style="font-size:12px;color:#ef4444;padding:4px 8px;font-weight:600">
       🎙️ Recording voice note... tap Mic again to send
      </div>
+     <div id="chatMediaPreview" class="chat-media-bar hidden">
+      <span id="chatMediaName">Media selected</span>
+      <button type="button" class="link" onclick="clearChatMedia()" style="color:#ef4444">✕ Remove</button>
+     </div>
+     <div id="emojiPickerPanel" class="chat-picker-panel hidden">
+      <div class="emoji-grid" id="emojiGrid"></div>
+     </div>
+     <div id="stickerPickerPanel" class="chat-picker-panel hidden">
+      <div class="sticker-grid" id="stickerGrid"></div>
+     </div>
+     <input type="file" id="chatMediaInput" accept="image/*,video/*" class="hidden" onchange="handleChatMediaSelect(event)">
      <div class="chat-input-bar">
-      <button class="icon-action-btn" id="voiceNoteBtn" onclick="toggleVoiceNote()" title="Record Voice Note">
+      <button type="button" class="icon-action-btn" onclick="toggleEmojiPicker()" title="Emoji">😀</button>
+      <button type="button" class="icon-action-btn" onclick="toggleStickerPicker()" title="Sticker">🏷️</button>
+      <button type="button" class="icon-action-btn" onclick="triggerChatMedia()" title="Send Photo or Video">📎</button>
+      <button type="button" class="icon-action-btn" id="voiceNoteBtn" onclick="toggleVoiceNote()" title="Record Voice Note">
        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
       </button>
       <input id="chatMsgInput" placeholder="Message" onkeypress="if(event.key==='Enter')sendMessage()">
-      <button class="primary" style="width:auto;padding:10px 18px;border-radius:22px" onclick="sendMessage()">Send</button>
+      <button type="button" class="primary" id="sendChatBtn" style="width:auto;padding:9px 14px;border-radius:22px" onclick="sendMessage()">Send</button>
      </div>
     </div>
    </div>
@@ -985,6 +1037,24 @@ const SHARE_URL = (window.location.href && window.location.href.startsWith("http
  ? window.location.href.split("#")[0].split("?")[0]
  : "https://musickeepsake001-png.github.io/adam-mk-chat/";
 
+const EMOJI_LIST = [
+ "😀","😂","🥰","😍","😘","😎","🤩","🤗",
+ "😢","😭","😡","🤯","🥳","🙏","👍","👎",
+ "❤️","🔥","✨","🎉","💯","🎶","🎤","👑",
+ "🌹","💐","💎","🌟","☀️","🌙","⚡","☕"
+];
+
+const STICKER_LIST = [
+ { glyph: "🥇", label: "Gold MK" },
+ { glyph: "👑", label: "King Vibes" },
+ { glyph: "🔥", label: "On Fire" },
+ { glyph: "💖", label: "Pure Love" },
+ { glyph: "🎵", label: "Music Mood" },
+ { glyph: "🎉", label: "Celebrate" },
+ { glyph: "🙌", label: "Big Respect" },
+ { glyph: "😂", label: "Too Funny" }
+];
+
 const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch (e) {}
 const auth = getAuth(app);
@@ -1002,6 +1072,7 @@ let activeGroup = null;
 let menuTargetUser = null;
 let reportTarget = null;
 let selectedFile = null;
+let selectedChatMedia = null;
 let unsubPosts = null;
 let unsubStatuses = null;
 let unsubUsers = null;
@@ -1011,13 +1082,15 @@ let unsubMessages = null;
 let unsubCalls = null;
 let unsubCallCandidates = null;
 let presenceHeartbeatTimer = null;
+let messageSoundInitialized = false;
+let lastRenderedMsgCount = 0;
 
 // Voice note recorder state
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecordingVoice = false;
 
-// WebRTC call state
+// WebRTC call state & Ringtone
 let peerConnection = null;
 let localStream = null;
 let activeCallDocId = null;
@@ -1025,12 +1098,134 @@ let incomingCallDoc = null;
 let callKind = 'audio';
 let isMicMuted = false;
 let isCamOff = false;
+let audioCtx = null;
+let ringtoneTimer = null;
 
 const rtcConfig = {
  iceServers: [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" }
  ]
+};
+
+function ensureAudioContext(){
+ try{
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return null;
+  if(!audioCtx) audioCtx = new Ctx();
+  if(audioCtx.state === 'suspended'){
+   audioCtx.resume().catch(()=>{});
+  }
+  return audioCtx;
+ }catch(e){ return null; }
+}
+
+function playMessageSound(isIncoming){
+ const ctx = ensureAudioContext();
+ if(!ctx) return;
+ try{
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  if(isIncoming){
+   osc.frequency.setValueAtTime(587.33, now);
+   osc.frequency.exponentialRampToValueAtTime(880, now + 0.14);
+  }else{
+   osc.frequency.setValueAtTime(523.25, now);
+   osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
+  }
+  gain.gain.setValueAtTime(0.001, now);
+  gain.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.19);
+ }catch(e){}
+}
+
+function playSingleRingBurst(){
+ const ctx = ensureAudioContext();
+ if(!ctx) return;
+ try{
+  const now = ctx.currentTime;
+  const notes = [659.25, 783.99, 659.25, 783.99];
+  notes.forEach((freq, idx)=>{
+   const start = now + idx * 0.14;
+   const osc = ctx.createOscillator();
+   const gain = ctx.createGain();
+   osc.type = 'triangle';
+   osc.frequency.setValueAtTime(freq, start);
+   gain.gain.setValueAtTime(0.001, start);
+   gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+   gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.12);
+   osc.connect(gain);
+   gain.connect(ctx.destination);
+   osc.start(start);
+   osc.stop(start + 0.13);
+  });
+ }catch(e){}
+}
+
+function startCallRingtone(){
+ stopCallRingtone();
+ playSingleRingBurst();
+ ringtoneTimer = setInterval(()=>{
+  playSingleRingBurst();
+ }, 1800);
+}
+
+function stopCallRingtone(){
+ if(ringtoneTimer){
+  clearInterval(ringtoneTimer);
+  ringtoneTimer = null;
+ }
+}
+
+function initPickers(){
+ const eGrid = document.getElementById('emojiGrid');
+ if(eGrid){
+  eGrid.innerHTML = EMOJI_LIST.map(em => `<button type="button" class="emoji-item" onclick="insertChatEmoji('${em}')">${em}</button>`).join('');
+ }
+ const sGrid = document.getElementById('stickerGrid');
+ if(sGrid){
+  sGrid.innerHTML = STICKER_LIST.map(st => `
+   <button type="button" class="sticker-item" onclick="sendStickerMessage('${st.glyph}','${st.label}')">
+    <span class="st-glyph">${st.glyph}</span>
+    <small>${st.label}</small>
+   </button>
+  `).join('');
+ }
+}
+initPickers();
+
+function hideChatPanels(){
+ const ep = document.getElementById('emojiPickerPanel');
+ const sp = document.getElementById('stickerPickerPanel');
+ if(ep) ep.classList.add('hidden');
+ if(sp) sp.classList.add('hidden');
+}
+
+window.toggleEmojiPicker = function(){
+ const ep = document.getElementById('emojiPickerPanel');
+ const sp = document.getElementById('stickerPickerPanel');
+ if(sp) sp.classList.add('hidden');
+ if(ep) ep.classList.toggle('hidden');
+};
+
+window.toggleStickerPicker = function(){
+ const ep = document.getElementById('emojiPickerPanel');
+ const sp = document.getElementById('stickerPickerPanel');
+ if(ep) ep.classList.add('hidden');
+ if(sp) sp.classList.toggle('hidden');
+};
+
+window.insertChatEmoji = function(emoji){
+ const inp = document.getElementById('chatMsgInput');
+ if(!inp) return;
+ inp.value += emoji;
+ inp.focus();
 };
 
 function getSavedPhoto(uid){
@@ -1046,6 +1241,20 @@ function savePhotoLocal(uid, url){
   if(uid && url) map[uid] = url;
   localStorage.setItem('amk_dp_map', JSON.stringify(map));
  }catch(e){}
+}
+
+function parseTimestampMs(val){
+ if(!val) return 0;
+ if(typeof val === 'number') return val;
+ if(typeof val === 'string'){
+  const parsed = Date.parse(val);
+  return Number.isNaN(parsed) ? 0 : parsed;
+ }
+ if(typeof val === 'object'){
+  if(typeof val.toMillis === 'function') return val.toMillis();
+  if(typeof val.seconds === 'number') return val.seconds * 1000;
+ }
+ return 0;
 }
 
 function fallbackUserFromAuth(user){
@@ -1089,13 +1298,13 @@ function isUserCurrentlyOnline(userObj){
  if(!userObj) return false;
  if(currentUser && userObj.uid === currentUser.uid) return true;
  if(userObj.isOnline === false) return false;
- const seen = Number(userObj.lastSeen || 0);
+ const seen = parseTimestampMs(userObj.lastSeen);
  if(!seen) return Boolean(userObj.isOnline);
  return (Date.now() - seen) < 120000;
 }
 
 function formatLastSeenTime(ts){
- const n = Number(ts || 0);
+ const n = parseTimestampMs(ts);
  if(!n) return 'Offline';
  const d = new Date(n);
  const now = new Date();
@@ -1185,9 +1394,20 @@ setInterval(()=>{
  }
 }, 30000);
 
-function refreshActivePeerPresence(){
+async function refreshActivePeerPresence(){
  if(!activePeer) return;
- const peerObj = allUsers.find(u => u.uid === activePeer.uid) || activePeer;
+ let peerObj = allUsers.find(u => u.uid === activePeer.uid) || activePeer;
+ if(!peerObj.lastSeen && activePeer.uid){
+  try{
+   const snap = await getDoc(doc(db,'users',activePeer.uid));
+   if(snap && snap.exists()){
+    const d = snap.data();
+    activePeer.isOnline = d.isOnline;
+    activePeer.lastSeen = d.lastSeen;
+    peerObj = { ...peerObj, ...d };
+   }
+  }catch(e){}
+ }
  const subEl = document.getElementById('chatPeerSub');
  if(!subEl) return;
  const online = isUserCurrentlyOnline(peerObj);
@@ -1788,13 +2008,16 @@ function listenRealtime(){
      incomingCallDoc = { id: change.doc.id, ...data };
      callKind = data.callType || 'audio';
      openCallModalUI(data.callerName || 'Caller', data.callerId, 'Incoming ' + (callKind === 'video' ? 'Video Call' : 'Voice Call'), true);
+     startCallRingtone();
     }
     if(change.type === 'modified' && change.doc.id === activeCallDocId){
      if(data.answer && peerConnection && !peerConnection.currentRemoteDescription){
       await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+      stopCallRingtone();
       document.getElementById('callStatusLabel').textContent = 'Connected';
      }
      if(data.status === 'ended'){
+      stopCallRingtone();
       cleanupCallLocal();
       document.getElementById('callModal').classList.add('hidden');
       showToast('Call ended');
@@ -2333,23 +2556,107 @@ function getChatId(uid1, uid2){
 
 function renderMessagesSnapshot(snap, showSenderTag){
  const box=document.getElementById('chatMessages');
+ const docs=[];
+ snap.forEach(d=>docs.push(d.data()));
+
+ if(messageSoundInitialized && docs.length > lastRenderedMsgCount){
+  const newest = docs[docs.length - 1];
+  if(newest && currentUser && newest.senderId !== currentUser.uid){
+   playMessageSound(true);
+  }
+ }
+ lastRenderedMsgCount = docs.length;
+ messageSoundInitialized = true;
+
  box.innerHTML='';
- snap.forEach(docSnap=>{
-  const m=docSnap.data();
+ docs.forEach(m=>{
   const div=document.createElement('div');
   const isMe = m.senderId===currentUser.uid;
   div.className='msg-bubble '+(isMe?'msg-sent':'msg-recv');
   const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
   const senderTag = (showSenderTag && !isMe && m.senderName) ? `<span class="msg-sender-tag">${m.senderName}</span>` : '';
-  if(m.audioUrl){
-   div.innerHTML=`${senderTag}<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio><span class="msg-time">${timeStr}</span>`;
+
+  let bodyHtml = '';
+  if(m.stickerGlyph){
+   bodyHtml = `<span class="msg-sticker-badge">${m.stickerGlyph}</span><span class="msg-sticker-sub">${m.stickerLabel || 'Sticker'}</span>`;
+  }else if(m.audioUrl){
+   bodyHtml = `<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio>`;
+  }else if(m.mediaUrl){
+   const isVid = (m.mediaType && m.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(m.mediaUrl);
+   if(isVid){
+    bodyHtml = `<video src="${m.mediaUrl}" controls class="chat-media-vid"></video>`;
+   }else{
+    bodyHtml = `<img src="${m.mediaUrl}" class="chat-media-img" loading="lazy" alt="Shared photo">`;
+   }
+   if(m.text){
+    bodyHtml += `<div style="margin-top:5px">${m.text}</div>`;
+   }
   }else{
-   div.innerHTML=`${senderTag}<span>${m.text || ''}</span><span class="msg-time">${timeStr}</span>`;
+   bodyHtml = `<span>${m.text || ''}</span>`;
   }
+
+  div.innerHTML=`${senderTag}${bodyHtml}<span class="msg-time">${timeStr}</span>`;
   box.appendChild(div);
  });
  box.scrollTop=box.scrollHeight;
 }
+
+window.triggerChatMedia = function(){
+ const inp = document.getElementById('chatMediaInput');
+ if(inp) inp.click();
+};
+
+window.handleChatMediaSelect = function(e){
+ const file = e.target.files && e.target.files[0];
+ if(!file) return;
+ selectedChatMedia = file;
+ document.getElementById('chatMediaName').textContent = '📎 ' + file.name;
+ document.getElementById('chatMediaPreview').classList.remove('hidden');
+};
+
+window.clearChatMedia = function(){
+ selectedChatMedia = null;
+ const inp = document.getElementById('chatMediaInput');
+ if(inp) inp.value = '';
+ const box = document.getElementById('chatMediaPreview');
+ if(box) box.classList.add('hidden');
+};
+
+async function pushPayloadToActiveChat(payload){
+ if(activeGroup){
+  await addDoc(collection(db,'groups',activeGroup.id,'messages'), payload);
+  return true;
+ }
+ if(activeRoom){
+  await addDoc(collection(db,'rooms',activeRoom.id,'messages'), payload);
+  return true;
+ }
+ if(!activePeer) return false;
+ if(isBlockedByMe(activePeer.uid)){
+  showToast('Unblock this user first to send messages');
+  return false;
+ }
+ if(isBlockedByPeer(activePeer.uid)){
+  showToast('You cannot send messages to this user');
+  return false;
+ }
+ const chatId = getChatId(currentUser.uid, activePeer.uid);
+ await addDoc(collection(db,'chats',chatId,'messages'), payload);
+ return true;
+}
+
+window.sendStickerMessage = async function(glyph, label){
+ if(!currentUser) return;
+ hideChatPanels();
+ const ok = await pushPayloadToActiveChat({
+  senderId: currentUser.uid,
+  senderName: currentUser.name,
+  stickerGlyph: glyph,
+  stickerLabel: label || 'Sticker',
+  createdAt: Date.now()
+ });
+ if(ok) playMessageSound(false);
+};
 
 function enterFullScreenChatUI(){
  document.getElementById('app').classList.remove('hidden');
@@ -2359,6 +2666,10 @@ function enterFullScreenChatUI(){
  });
  document.getElementById('chatOverviewWrap').classList.add('hidden');
  document.getElementById('chatRoomCard').classList.remove('hidden');
+ hideChatPanels();
+ window.clearChatMedia();
+ messageSoundInitialized = false;
+ lastRenderedMsgCount = 0;
  setFullScreenChatMode(true);
  window.scrollTo(0,0);
 }
@@ -2430,6 +2741,8 @@ window.closeChatRoom = function(){
  activePeer=null;
  activeRoom=null;
  activeGroup=null;
+ hideChatPanels();
+ window.clearChatMedia();
  const subEl = document.getElementById('chatPeerSub');
  if(subEl) subEl.classList.remove('presence-online');
  if(unsubMessages){ unsubMessages(); unsubMessages = null; }
@@ -2447,47 +2760,47 @@ window.closeChatRoom = function(){
 window.sendMessage = async function(){
  const input=document.getElementById('chatMsgInput');
  const text=input.value.trim();
- if(!text) return;
+ const mediaToUpload = selectedChatMedia;
+ if(!text && !mediaToUpload) return;
 
- if(activeGroup){
-  input.value='';
-  await addDoc(collection(db,'groups',activeGroup.id,'messages'),{
-   senderId:currentUser.uid,
-   senderName:currentUser.name,
-   text,
-   createdAt:Date.now()
-  });
+ if(activePeer && (isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid))){
+  showToast('Messaging is unavailable for this contact');
   return;
  }
 
- if(activeRoom){
-  input.value='';
-  await addDoc(collection(db,'rooms',activeRoom.id,'messages'),{
-   senderId:currentUser.uid,
-   senderName:currentUser.name,
-   text,
-   createdAt:Date.now()
-  });
-  return;
- }
-
- if(!activePeer)return;
- if(isBlockedByMe(activePeer.uid)){
-  showToast('Unblock this user first to send messages');
-  return;
- }
- if(isBlockedByPeer(activePeer.uid)){
-  showToast('You cannot send messages to this user');
-  return;
- }
- const chatId=getChatId(currentUser.uid, activePeer.uid);
+ const sendBtn = document.getElementById('sendChatBtn');
  input.value='';
- await addDoc(collection(db,'chats',chatId,'messages'),{
-  senderId:currentUser.uid,
-  senderName:currentUser.name,
+ hideChatPanels();
+ if(mediaToUpload){
+  window.clearChatMedia();
+  if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = '...'; }
+  showToast('Uploading media...');
+  try{
+   const mediaUrl = await uploadToCloudinary(mediaToUpload);
+   const ok = await pushPayloadToActiveChat({
+    senderId: currentUser.uid,
+    senderName: currentUser.name,
+    text,
+    mediaUrl,
+    mediaType: mediaToUpload.type || '',
+    createdAt: Date.now()
+   });
+   if(ok) playMessageSound(false);
+  }catch(e){
+   showToast('Failed to send media');
+  }finally{
+   if(sendBtn){ sendBtn.disabled = false; sendBtn.textContent = 'Send'; }
+  }
+  return;
+ }
+
+ const ok = await pushPayloadToActiveChat({
+  senderId: currentUser.uid,
+  senderName: currentUser.name,
   text,
-  createdAt:Date.now()
+  createdAt: Date.now()
  });
+ if(ok) playMessageSound(false);
 };
 
 // Voice Note Recording & Sending
@@ -2537,6 +2850,7 @@ window.toggleVoiceNote = async function(){
       const chatId = getChatId(currentUser.uid, targetPeer.uid);
       await addDoc(collection(db,'chats',chatId,'messages'), payload);
      }
+     playMessageSound(false);
      showToast('Voice note sent!');
     }catch(err){
      showToast('Failed to send voice note');
@@ -2559,7 +2873,7 @@ window.toggleVoiceNote = async function(){
  }
 };
 
-// Normal Call & Video Call (WebRTC + Firestore)
+// Normal Call & Video Call (WebRTC + Firestore + Ringtone)
 function openCallModalUI(peerName, peerUid, statusText, isIncoming){
  document.getElementById('callPeerTitle').textContent = peerName;
  document.getElementById('callStatusLabel').textContent = statusText;
@@ -2646,6 +2960,7 @@ window.startCall = async function(kind){
  }
 
  openCallModalUI(activePeer.name, activePeer.uid, 'Calling...', false);
+ startCallRingtone();
 
  const callDocRef = doc(collection(db,'calls'));
  activeCallDocId = callDocRef.id;
@@ -2668,6 +2983,7 @@ window.startCall = async function(kind){
 
 window.acceptIncomingCall = async function(){
  if(!incomingCallDoc) return;
+ stopCallRingtone();
  const docData = incomingCallDoc;
  activeCallDocId = docData.id;
  callKind = docData.callType || 'audio';
@@ -2717,6 +3033,7 @@ window.toggleCameraCall = function(){
 };
 
 function cleanupCallLocal(){
+ stopCallRingtone();
  if(unsubCallCandidates){ unsubCallCandidates(); unsubCallCandidates = null; }
  if(peerConnection){
   try { peerConnection.close(); } catch(e) {}
@@ -2733,6 +3050,7 @@ function cleanupCallLocal(){
 }
 
 window.endCall = async function(skipFirestore){
+ stopCallRingtone();
  const idToEnd = activeCallDocId || (incomingCallDoc && incomingCallDoc.id);
  cleanupCallLocal();
  document.getElementById('callModal').classList.add('hidden');
