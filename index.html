@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#1877f2">
 <meta name="description" content="ADAM MK CHAT - Connect, Share and Communicate with the World">
 <title>ADAM MK CHAT</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/svg+xml" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="apple-touch-icon" href="./icon.svg">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -103,18 +103,11 @@ header{
  padding:8px 14px;border-radius:9px;font-weight:600;font-size:13px;
  display:inline-flex;align-items:center;gap:6px;
 }
-.danger-btn{
- background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;
- padding:7px 11px;border-radius:8px;font-weight:600;font-size:12px;
- display:inline-flex;align-items:center;gap:4px;
-}
-body.dark-mode .danger-btn{
- background:rgba(239,68,68,0.18);color:#fca5a5;border-color:rgba(239,68,68,0.35);
-}
 .three-dots-btn{
  background:none;border:0;color:var(--muted);
  width:34px;height:34px;border-radius:50%;
- display:grid;place-items:center;font-size:19px;font-weight:800;line-height:1;
+ display:grid;place-items:center;font-size:20px;font-weight:800;line-height:1;
+ flex-shrink:0;
 }
 .three-dots-btn:hover{background:var(--light);color:var(--text)}
 .wa-menu-list{display:flex;flex-direction:column;gap:6px}
@@ -133,7 +126,7 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
 .auth-footer{text-align:center;margin-top:17px;font-size:14px}
 .top-profile{display:flex;align-items:center;gap:12px}
 .avatar{
- width:44px;height:44px;border-radius:50%;
+ width:46px;height:46px;border-radius:50%;
  background:#d9eaff;color:var(--blue);
  display:grid;place-items:center;font-weight:bold;flex-shrink:0;
  overflow:hidden;cursor:pointer;
@@ -153,32 +146,19 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
  overflow:hidden;margin-bottom:12px;
 }
 .view-dp-large img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
-.status-area{display:flex;gap:14px;overflow-x:auto;padding:4px 0 8px}
-.status-item{min-width:86px;max-width:92px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.status-area{display:flex;gap:14px;overflow-x:auto;padding:4px 0 6px}
+.status-item{min-width:74px;max-width:86px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center}
 .status-ring{
- width:60px;height:60px;border:2.5px solid var(--blue);
- padding:2px;border-radius:50%;margin:0 auto 6px;
+ width:56px;height:56px;border:2.5px solid var(--blue);
+ padding:2px;border-radius:50%;margin:0 auto 4px;
 }
 .status-ring .avatar{width:100%;height:100%}
-.status-item small{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:88px}
-.status-view-btn{
- margin-top:5px;
- background:var(--light);
- color:var(--blue);
- border:1px solid var(--border);
- border-radius:999px;
- padding:2px 8px;
- font-size:10px;
- font-weight:700;
-}
-.add-status{background:var(--light);color:var(--blue);font-size:24px}
-.section-title-row{
- display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;
-}
-.section-title{font-size:16px;font-weight:bold;margin-bottom:0}
+.status-item small{font-size:12px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
+.add-status{background:var(--light);color:var(--blue);font-size:26px;font-weight:700}
+.section-title{font-size:16px;font-weight:bold}
 .page-header-row{
  display:flex;align-items:center;justify-content:space-between;
- gap:10px;flex-wrap:wrap;margin:6px 0 15px;
+ gap:10px;flex-wrap:wrap;margin:4px 0 12px;
 }
 .page-title{font-size:20px;color:var(--blue);margin:0}
 .invite-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -241,24 +221,18 @@ main{padding-bottom:85px}
 }
 .menu-item:last-child{border:0}
 .chat-row{
- display:flex;align-items:center;gap:12px;padding:12px 4px;
+ display:flex;align-items:center;gap:12px;padding:13px 4px;
  border-bottom:1px solid var(--border);cursor:pointer;
 }
 .chat-row:last-child{border:0}
 .chat-row .details{flex:1;min-width:0}
-.chat-row .details strong,.chat-row .details small{
- display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.chat-row .details strong{
+ display:block;font-size:15px;text-transform:uppercase;letter-spacing:0.4px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.chat-row small{color:var(--muted)}
-.wa-strip{
- display:flex;gap:12px;overflow-x:auto;padding:6px 2px 6px;
-}
-.wa-person-chip{
- min-width:74px;max-width:78px;text-align:center;cursor:pointer;
- display:flex;flex-direction:column;align-items:center;gap:4px;
-}
-.wa-person-chip small{
- font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:76px;
+.chat-row .details small{
+ display:block;font-size:12px;color:var(--muted);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .chat-header{
  display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -284,9 +258,6 @@ main{padding-bottom:85px}
 .msg-bubble{
  max-width:78%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.4;
  box-shadow:0 1px 2px rgba(0,0,0,0.08);
-}
-.msg-sender-tag{
- display:block;font-size:11px;font-weight:700;color:var(--blue);margin-bottom:2px;
 }
 .msg-sent{
  background:var(--wa-sent);
@@ -496,42 +467,16 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    </div>
   </section>
 
-  <!-- MESSAGES (WHATSAPP STYLE + 3 DOTS MENU + ROOM CHAT) -->
+  <!-- MESSAGES (MATCHING PAPER SKETCH: STATUS + CLEAN CHAT LIST WITH DP, NAME & 3 DOTS) -->
   <section id="messagesPage" class="hidden">
-   <div class="page-header-row">
-    <h2 class="page-title">Chats</h2>
-    <div class="invite-actions">
-     <button class="primary" style="width:auto;padding:8px 14px;font-size:13px" onclick="openCreateRoomModal()">+ Create Room</button>
-     <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
-     <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
-    </div>
-   </div>
-
    <div id="chatOverviewWrap">
-    <!-- Status on top of chat -->
-    <div class="card">
-     <div class="section-title" style="margin-bottom:12px">Status</div>
+    <!-- Status row -->
+    <div class="card" style="padding:12px 14px">
      <div class="status-area" id="chatStatusList"></div>
     </div>
 
-    <!-- Quick DP strip -->
-    <div class="card">
-     <div class="section-title" style="margin-bottom:10px">Contacts</div>
-     <div class="wa-strip" id="chatTopProfiles"></div>
-    </div>
-
-    <!-- Chat Rooms -->
-    <div class="card">
-     <div class="section-title-row">
-      <div class="section-title">Chat Rooms</div>
-      <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateRoomModal()">+ New Room</button>
-     </div>
-     <div id="roomsList"></div>
-    </div>
-
-    <!-- Active / Recent Conversations -->
-    <div class="card" id="chatListCard">
-     <div class="section-title" style="margin-bottom:12px">Recent Chats</div>
+    <!-- Clean Chat List box -->
+    <div class="card" id="chatListCard" style="padding:8px 14px">
      <div id="chatList"></div>
     </div>
    </div>
@@ -665,25 +610,6 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    </button>
   </div>
   <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="closeUserActionMenu()">Cancel</button>
- </div>
-</div>
-
-<!-- CREATE CHAT ROOM MODAL -->
-<div id="createRoomModal" class="modal hidden">
- <div class="modal-content">
-  <h3 style="margin-bottom:10px;color:var(--blue)">Create Chat Room</h3>
-  <div class="form-group">
-   <label>Room Name</label>
-   <input id="roomNameInput" placeholder="e.g. Hausa Music Lovers">
-  </div>
-  <div class="form-group">
-   <label>Description (optional)</label>
-   <textarea id="roomDescInput" rows="2" placeholder="What is this room about?"></textarea>
-  </div>
-  <div style="display:flex;gap:10px">
-   <button class="primary" id="createRoomBtn" onclick="createChatRoom()">Create Room</button>
-   <button class="primary" style="background:#64748b" onclick="closeCreateRoomModal()">Cancel</button>
-  </div>
  </div>
 </div>
 
@@ -851,7 +777,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </div>
 
-<!-- NAVIGATION -->
+<!-- NAVIGATION (HOME, PEOPLE, CHAT, PROFILE, MORE) -->
 <nav class="navbar hidden" id="navbar">
  <button class="active" onclick="showPage('home')">
   <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -863,14 +789,14 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </button>
  <button onclick="showPage('messages')">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  Chats
+  Chat
  </button>
  <button onclick="showPage('profile')">
   <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   Profile
  </button>
  <button onclick="showPage('settings')">
-  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l-.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   More
  </button>
 </nav>
@@ -914,16 +840,13 @@ let currentUser = null;
 let allUsers = [];
 let allPosts = [];
 let allStatuses = [];
-let allRooms = [];
 let activePeer = null;
-let activeRoom = null;
 let menuTargetUser = null;
 let reportTarget = null;
 let selectedFile = null;
 let unsubPosts = null;
 let unsubStatuses = null;
 let unsubUsers = null;
-let unsubRooms = null;
 let unsubMessages = null;
 let unsubCalls = null;
 let unsubCallCandidates = null;
@@ -1371,7 +1294,6 @@ window.logoutUser = async function(){
  if(unsubPosts) unsubPosts();
  if(unsubStatuses) unsubStatuses();
  if(unsubUsers) unsubUsers();
- if(unsubRooms) unsubRooms();
  if(unsubMessages) unsubMessages();
  if(unsubCalls) unsubCalls();
  if(unsubCallCandidates) unsubCallCandidates();
@@ -1503,7 +1425,6 @@ function listenRealtime(){
  if(unsubUsers) unsubUsers();
  if(unsubPosts) unsubPosts();
  if(unsubStatuses) unsubStatuses();
- if(unsubRooms) unsubRooms();
  if(unsubCalls) unsubCalls();
 
  unsubUsers=onSnapshot(collection(db,'users'),(snap)=>{
@@ -1526,12 +1447,6 @@ function listenRealtime(){
   renderPosts();
   renderStatuses();
   updateProfileUI();
- }, ()=>{});
-
- const qRooms=query(collection(db,'rooms'),orderBy('createdAt','desc'));
- unsubRooms=onSnapshot(qRooms,(snap)=>{
-  allRooms=snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderChatsList();
  }, ()=>{});
 
  const qPosts=query(collection(db,'posts'),orderBy('createdAt','desc'));
@@ -1589,38 +1504,58 @@ function getUserPhoto(uid){
 }
 
 // 24-Hour Status + Fullscreen Viewer + Viewers List
-function populateStatusContainer(container){
- if(!container) return;
- container.innerHTML=`
-  <div class="status-item" onclick="openStatusCreate()">
-   <div class="status-ring"><div class="avatar add-status">+</div></div>
-   <small>Your Status</small>
-   <span class="status-view-btn">Add</span>
-  </div>
- `;
+function renderStatuses(){
+ const homeList=document.getElementById('statusList');
+ const chatList=document.getElementById('chatStatusList');
+
+ if(homeList){
+  homeList.innerHTML=`
+   <div class="status-item" onclick="openStatusCreate()">
+    <div class="status-ring"><div class="avatar add-status">+</div></div>
+    <small>Your Status</small>
+   </div>
+  `;
+ }
+
+ if(chatList){
+  chatList.innerHTML=`
+   <div class="status-item" onclick="openStatusCreate()">
+    <div class="status-ring"><div class="avatar add-status">+</div></div>
+    <small>Status</small>
+   </div>
+  `;
+ }
+
  allStatuses.forEach(st=>{
   if(isBlockedByMe(st.uid)) return;
   const photo = getUserPhoto(st.uid);
   const avatarInner = photo
    ? `<img src="${photo}" alt="${st.userName || 'U'}">`
    : (st.userName||'U')[0].toUpperCase();
-  const viewersCount = Array.isArray(st.viewers) ? st.viewers.length : 0;
-  const item=document.createElement('div');
-  item.className='status-item';
-  item.innerHTML=`
-   <div class="status-ring"><div class="avatar st-avatar">${avatarInner}</div></div>
-   <small class="st-label">${st.userName}</small>
-   <button type="button" class="status-view-btn">View (${viewersCount})</button>
-  `;
-  item.querySelector('.st-avatar').onclick=(e)=>{e.stopPropagation();window.viewProfilePic(st.uid, st.userName);};
-  item.onclick=()=>openStatusFullscreen(st);
-  container.appendChild(item);
- });
-}
 
-function renderStatuses(){
- populateStatusContainer(document.getElementById('statusList'));
- populateStatusContainer(document.getElementById('chatStatusList'));
+  if(homeList){
+   const item=document.createElement('div');
+   item.className='status-item';
+   item.innerHTML=`
+    <div class="status-ring"><div class="avatar st-avatar">${avatarInner}</div></div>
+    <small class="st-label">${st.userName}</small>
+   `;
+   item.querySelector('.st-avatar').onclick=(e)=>{e.stopPropagation();window.viewProfilePic(st.uid, st.userName);};
+   item.onclick=()=>openStatusFullscreen(st);
+   homeList.appendChild(item);
+  }
+
+  if(chatList){
+   const cItem=document.createElement('div');
+   cItem.className='status-item';
+   cItem.innerHTML=`
+    <div class="status-ring"><div class="avatar">${avatarInner}</div></div>
+    <small>${st.userName}</small>
+   `;
+   cItem.onclick=()=>openStatusFullscreen(st);
+   chatList.appendChild(cItem);
+  }
+ });
 }
 
 window.openStatusCreate = function(){
@@ -1905,95 +1840,12 @@ function renderPeople(){
  });
 }
 
-// Chat Rooms creation & rendering
-window.openCreateRoomModal = function(){
- document.getElementById('roomNameInput').value = '';
- document.getElementById('roomDescInput').value = '';
- document.getElementById('createRoomModal').classList.remove('hidden');
-};
-
-window.closeCreateRoomModal = function(){
- document.getElementById('createRoomModal').classList.add('hidden');
-};
-
-window.createChatRoom = async function(){
- if(!currentUser) return;
- const name = document.getElementById('roomNameInput').value.trim();
- const desc = document.getElementById('roomDescInput').value.trim();
- if(!name){ showToast('Enter a room name'); return; }
-
- const btn = document.getElementById('createRoomBtn');
- btn.disabled = true; btn.textContent = 'Creating...';
- try{
-  const docRef = await addDoc(collection(db,'rooms'),{
-   name,
-   description: desc || 'Public chat room',
-   createdBy: currentUser.uid,
-   createdByName: currentUser.name,
-   createdAt: Date.now()
-  });
-  closeCreateRoomModal();
-  showToast('Chat room created!');
-  window.openRoomChat(docRef.id, name, desc || 'Chat Room');
- }catch(e){
-  showToast('Failed to create room');
- }finally{
-  btn.disabled = false; btn.textContent = 'Create Room';
- }
-};
-
+// Clean Chat List matching paper sketch: DP circle + Name + 3 dots on right
 function renderChatsList(){
- const topStrip = document.getElementById('chatTopProfiles');
- const roomsBox = document.getElementById('roomsList');
  const list = document.getElementById('chatList');
  if(!list) return;
 
  const others = allUsers.filter(u => !currentUser || u.uid !== currentUser.uid);
-
- if(topStrip){
-  if(!others.length){
-   topStrip.innerHTML = '<small style="color:var(--muted)">No contacts yet.</small>';
-  }else{
-   topStrip.innerHTML = '';
-   others.forEach(u => {
-    const photo = u.photoUrl || getSavedPhoto(u.uid);
-    const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
-    const safeName = u.name.replace(/'/g,"\\'");
-    const chip = document.createElement('div');
-    chip.className = 'wa-person-chip';
-    chip.innerHTML = `
-     <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
-     <small onclick="window.openChatWith('${u.uid}','${safeName}')">${u.name}</small>
-    `;
-    topStrip.appendChild(chip);
-   });
-  }
- }
-
- if(roomsBox){
-  if(!allRooms.length){
-   roomsBox.innerHTML = '<div class="empty">No chat rooms yet. Tap "+ Create Room" to start one!</div>';
-  }else{
-   roomsBox.innerHTML = '';
-   allRooms.forEach(r => {
-    const safeName = (r.name || 'Room').replace(/'/g,"\\'");
-    const safeDesc = (r.description || 'Chat Room').replace(/'/g,"\\'");
-    const row = document.createElement('div');
-    row.className = 'chat-row';
-    row.onclick = () => window.openRoomChat(r.id, safeName, safeDesc);
-    row.innerHTML = `
-     <div class="avatar" style="background:var(--light);color:var(--blue)">#</div>
-     <div class="details">
-      <strong>${r.name}</strong>
-      <small>${r.description || 'Chat Room'} • by ${r.createdByName || 'Member'}</small>
-     </div>
-     <button class="secondary-btn" style="padding:6px 12px;font-size:12px">Join</button>
-    `;
-    roomsBox.appendChild(row);
-   });
-  }
- }
-
  if(!others.length){
   list.innerHTML = emptyFriendsMarkup('Invite friends to start chatting!');
   return;
@@ -2011,7 +1863,7 @@ function renderChatsList(){
    <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong>
-    <small>${blocked ? 'Blocked • Tap to open chat' : 'Tap to message'}</small>
+    ${blocked ? '<small>Blocked</small>' : ''}
    </div>
    <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
   `;
@@ -2023,7 +1875,7 @@ function getChatId(uid1, uid2){
  return [uid1, uid2].sort().join('_');
 }
 
-function renderMessagesSnapshot(snap, isRoom){
+function renderMessagesSnapshot(snap){
  const box=document.getElementById('chatMessages');
  box.innerHTML='';
  snap.forEach(docSnap=>{
@@ -2032,11 +1884,10 @@ function renderMessagesSnapshot(snap, isRoom){
   const isMe = m.senderId===currentUser.uid;
   div.className='msg-bubble '+(isMe?'msg-sent':'msg-recv');
   const timeStr = m.createdAt ? new Date(m.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
-  const senderTag = (isRoom && !isMe && m.senderName) ? `<span class="msg-sender-tag">${m.senderName}</span>` : '';
   if(m.audioUrl){
-   div.innerHTML=`${senderTag}<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio><span class="msg-time">${timeStr}</span>`;
+   div.innerHTML=`<div>🎙️ Voice Note</div><audio src="${m.audioUrl}" controls></audio><span class="msg-time">${timeStr}</span>`;
   }else{
-   div.innerHTML=`${senderTag}<span>${m.text || ''}</span><span class="msg-time">${timeStr}</span>`;
+   div.innerHTML=`<span>${m.text || ''}</span><span class="msg-time">${timeStr}</span>`;
   }
   box.appendChild(div);
  });
@@ -2044,11 +1895,9 @@ function renderMessagesSnapshot(snap, isRoom){
 }
 
 window.openChatWith = function(peerUid, peerName){
- activeRoom = null;
  activePeer={uid:peerUid, name:peerName};
  document.getElementById('chatOverviewWrap').classList.add('hidden');
  document.getElementById('chatRoomCard').classList.remove('hidden');
- document.getElementById('directChatActions').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
  document.getElementById('chatPeerSub').textContent='Tap DP for profile';
  const peerAv = document.getElementById('chatPeerAvatar');
@@ -2058,29 +1907,11 @@ window.openChatWith = function(peerUid, peerName){
  if(unsubMessages) unsubMessages();
  const chatId=getChatId(currentUser.uid, peerUid);
  const qMsg=query(collection(db,'chats',chatId,'messages'),orderBy('createdAt','asc'));
- unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, false), ()=>{});
-};
-
-window.openRoomChat = function(roomId, roomName, roomDesc){
- activePeer = null;
- activeRoom = { id: roomId, name: roomName, description: roomDesc };
- document.getElementById('chatOverviewWrap').classList.add('hidden');
- document.getElementById('chatRoomCard').classList.remove('hidden');
- document.getElementById('directChatActions').classList.add('hidden');
- document.getElementById('chatPeerName').textContent = roomName;
- document.getElementById('chatPeerSub').textContent = roomDesc || 'Chat Room';
- const peerAv = document.getElementById('chatPeerAvatar');
- peerAv.textContent = '#';
- peerAv.onclick = null;
-
- if(unsubMessages) unsubMessages();
- const qMsg=query(collection(db,'rooms',roomId,'messages'),orderBy('createdAt','asc'));
- unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap, true), ()=>{});
+ unsubMessages=onSnapshot(qMsg,(snap)=>renderMessagesSnapshot(snap), ()=>{});
 };
 
 window.closeChatRoom = function(){
  activePeer=null;
- activeRoom=null;
  if(unsubMessages) unsubMessages();
  document.getElementById('chatRoomCard').classList.add('hidden');
  document.getElementById('chatOverviewWrap').classList.remove('hidden');
@@ -2089,20 +1920,7 @@ window.closeChatRoom = function(){
 window.sendMessage = async function(){
  const input=document.getElementById('chatMsgInput');
  const text=input.value.trim();
- if(!text) return;
-
- if(activeRoom){
-  input.value='';
-  await addDoc(collection(db,'rooms',activeRoom.id,'messages'),{
-   senderId:currentUser.uid,
-   senderName:currentUser.name,
-   text,
-   createdAt:Date.now()
-  });
-  return;
- }
-
- if(!activePeer)return;
+ if(!text || !activePeer)return;
  if(isBlockedByMe(activePeer.uid)){
   showToast('Unblock this user first to send messages');
   return;
@@ -2115,7 +1933,6 @@ window.sendMessage = async function(){
  input.value='';
  await addDoc(collection(db,'chats',chatId,'messages'),{
   senderId:currentUser.uid,
-  senderName:currentUser.name,
   text,
   createdAt:Date.now()
  });
@@ -2123,15 +1940,14 @@ window.sendMessage = async function(){
 
 // Voice Note Recording & Sending
 window.toggleVoiceNote = async function(){
- if(!activePeer && !activeRoom){ showToast('Open a chat or room first'); return; }
- if(activePeer && (isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid))){
+ if(!activePeer){ showToast('Open a chat first'); return; }
+ if(isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid)){
   showToast('Messaging is unavailable for this contact');
   return;
  }
  const btn = document.getElementById('voiceNoteBtn');
  const statusEl = document.getElementById('voiceRecStatus');
- const targetPeer = activePeer ? { ...activePeer } : null;
- const targetRoom = activeRoom ? { ...activeRoom } : null;
+ const targetPeer = { ...activePeer };
 
  if(!isRecordingVoice){
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -2153,18 +1969,12 @@ window.toggleVoiceNote = async function(){
     try{
      const file = new File([blob], `voice_${Date.now()}.webm`, { type: blob.type });
      const audioUrl = await uploadToCloudinary(file);
-     const payload = {
+     const chatId = getChatId(currentUser.uid, targetPeer.uid);
+     await addDoc(collection(db,'chats',chatId,'messages'),{
       senderId: currentUser.uid,
-      senderName: currentUser.name,
       audioUrl,
       createdAt: Date.now()
-     };
-     if(targetRoom){
-      await addDoc(collection(db,'rooms',targetRoom.id,'messages'), payload);
-     }else if(targetPeer){
-      const chatId = getChatId(currentUser.uid, targetPeer.uid);
-      await addDoc(collection(db,'chats',chatId,'messages'), payload);
-     }
+     });
      showToast('Voice note sent!');
     }catch(err){
      showToast('Failed to send voice note');
@@ -2249,7 +2059,7 @@ function createPeerConnection(callDocRef, isCaller){
 }
 
 window.startCall = async function(kind){
- if(!activePeer){ showToast('Select a user in Chats first'); return; }
+ if(!activePeer){ showToast('Select a user in Chat first'); return; }
  if(isBlockedByMe(activePeer.uid) || isBlockedByPeer(activePeer.uid)){
   showToast('Cannot call this contact');
   return;
