@@ -277,7 +277,21 @@ main{padding-bottom:85px}
  50%{transform:scale(1.08)}
 }
 
-/* FULL-SCREEN CHAT VIEW */
+/* FULL-SCREEN CHAT VIEW (NO TOP/BOTTOM BARS) */
+body.chat-fullscreen-active header,
+body.chat-fullscreen-active nav.navbar{
+ display:none!important;
+}
+body.chat-fullscreen-active main{
+ padding-bottom:0!important;
+}
+body.chat-fullscreen-active #messagesPage > .page-header-row{
+ display:none!important;
+}
+body.chat-fullscreen-active .container{
+ padding:0!important;
+ max-width:none!important;
+}
 #chatRoomCard.fullscreen-chat{
  position:fixed;
  inset:0;
@@ -1072,6 +1086,7 @@ function setFullScreenChatMode(enabled){
  const card = document.getElementById('chatRoomCard');
  if(!card) return;
  card.classList.toggle('fullscreen-chat', Boolean(enabled));
+ document.body.classList.toggle('chat-fullscreen-active', Boolean(enabled));
 }
 
 window.toggleFollowUser = async function(targetUid){
