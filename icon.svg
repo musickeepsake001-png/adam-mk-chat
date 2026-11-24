@@ -1,1 +1,57 @@
-​<svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 512 512"><rect width="512" height="512" rx="115" fill="#1877f2"/><path d="M116 128H396A44 44 0 0 1 440 172V312A44 44 0 0 1 396 356H224L144 420V356H116A44 44 0 0 1 72 312V172A44 44 0 0 1 116 128Z" fill="#fff"/><path d="M136 296V192H164L200 244L236 192H264V296H238V234L200 286L162 234V296Z" fill="#1877f2"/><path d="M294 296V192H320V236L362 192H396L352 238L398 296H364L332 254L320 266V296Z" fill="#1877f2"/></svg>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+
+  <!-- Blue rounded background -->
+  <rect
+    width="512"
+    height="512"
+    rx="115"
+    fill="#1877f2"
+  />
+
+  <!-- White chat bubble -->
+  <path
+    d="M256 76
+       C151 76 76 145 76 238
+       C76 325 139 386 225 397
+       L144 420
+       L250 410
+       C356 413 436 344 436 245
+       C436 146 359 76 256 76Z"
+    fill="#ffffff"
+  />
+
+  <!-- Geometric M -->
+  <path
+    d="M139 305
+       L139 190
+       L168 190
+       L205 244
+       L242 190
+       L271 190
+       L271 305
+       L240 305
+       L240 240
+       L205 289
+       L170 240
+       L170 305Z"
+    fill="#1877f2"
+  />
+
+  <!-- Geometric K -->
+  <path
+    d="M286 190
+       L317 190
+       L317 235
+       L359 190
+       L398 190
+       L347 245
+       L402 305
+       L361 305
+       L317 259
+       L317 305
+       L286 305Z"
+    fill="#1877f2"
+  />
+
+</svg>
