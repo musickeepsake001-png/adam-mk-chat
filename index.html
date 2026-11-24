@@ -124,6 +124,7 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
 }
 .auth-footer{text-align:center;margin-top:17px;font-size:14px}
 .top-profile{display:flex;align-items:center;gap:12px}
+.avatar-wrap{position:relative;flex-shrink:0}
 .avatar{
  width:44px;height:44px;border-radius:50%;
  background:#d9eaff;color:var(--blue);
@@ -131,6 +132,13 @@ body.dark-mode .wa-menu-item.danger{color:#fca5a5}
  overflow:hidden;cursor:pointer;
 }
 .avatar img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.online-dot{
+ position:absolute;right:1px;bottom:1px;
+ width:11px;height:11px;border-radius:50%;
+ background:#16a34a;border:2px solid var(--card);
+ pointer-events:none;
+}
+.presence-online{color:#16a34a!important;font-weight:600}
 .dp-picker-box{
  display:flex;align-items:center;gap:12px;
  padding:10px;border:1px dashed var(--border);
@@ -587,7 +595,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
       <div class="avatar" id="chatPeerAvatar" style="width:36px;height:36px" title="View Profile Pic">A</div>
       <div style="min-width:0">
        <strong id="chatPeerName" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">User</strong>
-       <small id="chatPeerSub" style="color:var(--muted);font-size:11px">Tap DP for profile</small>
+       <small id="chatPeerSub" style="color:var(--muted);font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Offline</small>
       </div>
      </div>
      <div class="chat-call-actions" id="directChatActions">
@@ -766,6 +774,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <div class="view-dp-large" id="viewDpBox">MK</div>
    <h3 id="viewDpName">Member Name</h3>
    <small id="viewDpUsername" style="color:var(--muted);margin-top:2px">@username</small>
+   <small id="viewDpPresence" style="color:var(--muted);margin-top:4px;font-size:12px"></small>
    <p id="viewDpBio" style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.4"></p>
   </div>
   <div id="viewDpActionsWrap" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
@@ -1001,6 +1010,7 @@ let unsubGroups = null;
 let unsubMessages = null;
 let unsubCalls = null;
 let unsubCallCandidates = null;
+let presenceHeartbeatTimer = null;
 
 // Voice note recorder state
 let mediaRecorder = null;
@@ -1050,7 +1060,9 @@ function fallbackUserFromAuth(user){
   photoUrl: getSavedPhoto(uid),
   following: [],
   followers: [],
-  blockedUsers: []
+  blockedUsers: [],
+  isOnline: true,
+  lastSeen: Date.now()
  };
 }
 
@@ -1073,6 +1085,44 @@ function isBlockedByPeer(targetUid){
  return peer.blockedUsers.includes(currentUser.uid);
 }
 
+function isUserCurrentlyOnline(userObj){
+ if(!userObj) return false;
+ if(currentUser && userObj.uid === currentUser.uid) return true;
+ if(userObj.isOnline === false) return false;
+ const seen = Number(userObj.lastSeen || 0);
+ if(!seen) return Boolean(userObj.isOnline);
+ return (Date.now() - seen) < 120000;
+}
+
+function formatLastSeenTime(ts){
+ const n = Number(ts || 0);
+ if(!n) return 'Offline';
+ const d = new Date(n);
+ const now = new Date();
+ const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+ const isToday = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+ if(isToday) return `Last seen today at ${timeStr}`;
+ const yesterday = new Date(now);
+ yesterday.setDate(now.getDate() - 1);
+ const isYesterday = d.getFullYear() === yesterday.getFullYear() && d.getMonth() === yesterday.getMonth() && d.getDate() === yesterday.getDate();
+ if(isYesterday) return `Last seen yesterday at ${timeStr}`;
+ return `Last seen ${d.toLocaleDateString()} ${timeStr}`;
+}
+
+function getPresenceText(userObj){
+ if(!userObj) return 'Offline';
+ if(isUserCurrentlyOnline(userObj)) return 'Online';
+ return formatLastSeenTime(userObj.lastSeen);
+}
+
+function renderAvatarBlock(name, photoUrl, online, extraClass){
+ const inner = photoUrl
+  ? `<img src="${photoUrl}" alt="${name || 'DP'}">`
+  : (name || 'M')[0].toUpperCase();
+ const dot = online ? `<span class="online-dot"></span>` : '';
+ return `<div class="avatar-wrap"><div class="avatar ${extraClass || ''}">${inner}</div>${dot}</div>`;
+}
+
 function setAvatarContent(el, name, photoUrl){
  if(!el)return;
  if(photoUrl){
@@ -1080,6 +1130,69 @@ function setAvatarContent(el, name, photoUrl){
  }else{
   el.textContent = (name || 'M')[0].toUpperCase();
  }
+}
+
+async function updatePresenceStatus(online){
+ if(!currentUser || !currentUser.uid) return;
+ const nowTs = Date.now();
+ currentUser.isOnline = Boolean(online);
+ currentUser.lastSeen = nowTs;
+ try{
+  await setDoc(doc(db,'users',currentUser.uid),{
+   uid: currentUser.uid,
+   isOnline: Boolean(online),
+   lastSeen: nowTs
+  }, { merge: true });
+ }catch(e){}
+}
+
+function startPresenceTracking(){
+ stopPresenceTracking();
+ updatePresenceStatus(true);
+ presenceHeartbeatTimer = setInterval(()=>{
+  if(currentUser && document.visibilityState !== 'hidden'){
+   updatePresenceStatus(true);
+  }
+ }, 45000);
+}
+
+function stopPresenceTracking(){
+ if(presenceHeartbeatTimer){
+  clearInterval(presenceHeartbeatTimer);
+  presenceHeartbeatTimer = null;
+ }
+}
+
+document.addEventListener('visibilitychange', ()=>{
+ if(!currentUser) return;
+ if(document.visibilityState === 'hidden'){
+  updatePresenceStatus(false);
+ }else{
+  updatePresenceStatus(true);
+  refreshActivePeerPresence();
+ }
+});
+
+window.addEventListener('pagehide', ()=>{
+ if(currentUser) updatePresenceStatus(false);
+});
+
+setInterval(()=>{
+ if(currentUser){
+  refreshActivePeerPresence();
+  renderChatsList();
+  renderPeople();
+ }
+}, 30000);
+
+function refreshActivePeerPresence(){
+ if(!activePeer) return;
+ const peerObj = allUsers.find(u => u.uid === activePeer.uid) || activePeer;
+ const subEl = document.getElementById('chatPeerSub');
+ if(!subEl) return;
+ const online = isUserCurrentlyOnline(peerObj);
+ subEl.textContent = getPresenceText(peerObj);
+ subEl.classList.toggle('presence-online', online);
 }
 
 function setFullScreenChatMode(enabled){
@@ -1233,10 +1346,14 @@ window.viewProfilePic = function(uid, fallbackName){
  const username = (userObj && userObj.username) ? `@${userObj.username}` : '';
  const bio = (userObj && userObj.bio) ? userObj.bio : '';
  const photo = (userObj && userObj.photoUrl) || getUserPhoto(uid) || '';
+ const presenceEl = document.getElementById('viewDpPresence');
+ const online = isUserCurrentlyOnline(userObj);
 
  setAvatarContent(document.getElementById('viewDpBox'), name, photo);
  document.getElementById('viewDpName').textContent = name;
  document.getElementById('viewDpUsername').textContent = username;
+ presenceEl.textContent = getPresenceText(userObj);
+ presenceEl.classList.toggle('presence-online', online);
  document.getElementById('viewDpBio').textContent = bio;
 
  const actionsWrap = document.getElementById('viewDpActionsWrap');
@@ -1370,6 +1487,7 @@ function showAppUI(){
  updateProfileUI();
  renderPeople();
  renderChatsList();
+ startPresenceTracking();
  try { listenRealtime(); } catch(e) {}
  window.showPage('home');
 }
@@ -1412,7 +1530,9 @@ window.registerUser = async function(){
    photoUrl:getSavedPhoto(cred.user.uid),
    following:[],
    followers:[],
-   blockedUsers:[]
+   blockedUsers:[],
+   isOnline:true,
+   lastSeen:Date.now()
   };
   currentUser = profile;
   showAppUI();
@@ -1441,6 +1561,7 @@ window.loginUser = async function(){
   document.getElementById('headerActions').classList.remove('hidden');
 
   try { updateProfileUI(); } catch(e) {}
+  try { startPresenceTracking(); } catch(e) {}
   try { listenRealtime(); } catch(e) {}
   try { window.showPage('home'); } catch(e) {}
  }catch(err){
@@ -1449,6 +1570,8 @@ window.loginUser = async function(){
 };
 
 window.logoutUser = async function(){
+ stopPresenceTracking();
+ await updatePresenceStatus(false);
  if(unsubPosts) unsubPosts();
  if(unsubStatuses) unsubStatuses();
  if(unsubUsers) unsubUsers();
@@ -1480,13 +1603,17 @@ onAuthStateChanged(auth, async (user)=>{
      photoUrl: data.photoUrl || currentUser.photoUrl || '',
      following: Array.isArray(data.following) ? data.following : (currentUser.following || []),
      followers: Array.isArray(data.followers) ? data.followers : (currentUser.followers || []),
-     blockedUsers: Array.isArray(data.blockedUsers) ? data.blockedUsers : (currentUser.blockedUsers || [])
+     blockedUsers: Array.isArray(data.blockedUsers) ? data.blockedUsers : (currentUser.blockedUsers || []),
+     isOnline: true,
+     lastSeen: Date.now()
     };
     if(currentUser.photoUrl) savePhotoLocal(currentUser.uid, currentUser.photoUrl);
     updateProfileUI();
+    updatePresenceStatus(true);
    }
   } catch(e) {}
  }else{
+  stopPresenceTracking();
   currentUser=null;
   showAuth('login');
  }
@@ -1568,7 +1695,9 @@ window.saveProfile = async function(){
    username:currentUser.username || name.toLowerCase().replace(/\s+/g,''),
    email:currentUser.email || '',
    bio,
-   photoUrl
+   photoUrl,
+   isOnline:true,
+   lastSeen:Date.now()
   }, { merge:true });
   currentUser.name=name;
   currentUser.bio=bio;
@@ -1608,6 +1737,7 @@ function listenRealtime(){
     };
    }
   }
+  refreshActivePeerPresence();
   renderPeople();
   renderChatsList();
   renderPosts();
@@ -1967,7 +2097,7 @@ function emptyFriendsMarkup(msg){
  `;
 }
 
-// People list with 3-dots WhatsApp menu
+// People list with online/offline, lastSeen & 3-dots menu
 function renderPeople(){
  const list=document.getElementById('peopleList');
  if(!list)return;
@@ -1979,18 +2109,18 @@ function renderPeople(){
  list.innerHTML='';
  others.forEach(u=>{
   const photo = u.photoUrl || getSavedPhoto(u.uid);
-  const avatarInner = photo
-   ? `<img src="${photo}" alt="${u.name}">`
-   : u.name[0].toUpperCase();
+  const online = isUserCurrentlyOnline(u);
+  const presenceStr = getPresenceText(u);
   const safeName = u.name.replace(/'/g,"\\'");
   const blocked = isBlockedByMe(u.uid);
+  const subText = `${presenceStr}${blocked ? ' • Blocked' : ''}`;
   const row=document.createElement('div');
   row.className='chat-row';
   row.innerHTML=`
-   <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${avatarInner}</div>
+   <div onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="View Profile Pic">${renderAvatarBlock(u.name, photo, online)}</div>
    <div class="details" onclick="showPage('messages');openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong>
-    <small>@${u.username}${blocked ? ' • Blocked' : ''}</small>
+    <small class="${online?'presence-online':''}">${subText}</small>
    </div>
    <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
   `;
@@ -2103,12 +2233,12 @@ function renderChatsList(){
    topStrip.innerHTML = '';
    others.forEach(u => {
     const photo = u.photoUrl || getSavedPhoto(u.uid);
-    const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
+    const online = isUserCurrentlyOnline(u);
     const safeName = u.name.replace(/'/g,"\\'");
     const chip = document.createElement('div');
     chip.className = 'wa-person-chip';
     chip.innerHTML = `
-     <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
+     <div onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${renderAvatarBlock(u.name, photo, online)}</div>
      <small onclick="window.openChatWith('${u.uid}','${safeName}')">${u.name}</small>
     `;
     topStrip.appendChild(chip);
@@ -2179,16 +2309,17 @@ function renderChatsList(){
  list.innerHTML = '';
  others.forEach(u => {
   const photo = u.photoUrl || getSavedPhoto(u.uid);
-  const avatarInner = photo ? `<img src="${photo}" alt="${u.name}">` : u.name[0].toUpperCase();
+  const online = isUserCurrentlyOnline(u);
+  const presenceStr = getPresenceText(u);
   const safeName = u.name.replace(/'/g,"\\'");
   const blocked = isBlockedByMe(u.uid);
   const row = document.createElement('div');
   row.className = 'chat-row';
   row.innerHTML = `
-   <div class="avatar" onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${avatarInner}</div>
+   <div onclick="event.stopPropagation();viewProfilePic('${u.uid}','${safeName}')" title="Tap to view profile">${renderAvatarBlock(u.name, photo, online)}</div>
    <div class="details" onclick="window.openChatWith('${u.uid}','${safeName}')">
     <strong>${u.name}</strong>
-    <small>${blocked ? 'Blocked • Tap to open chat' : 'Tap to message'}</small>
+    <small class="${online?'presence-online':''}">${blocked ? 'Blocked • ' : ''}${presenceStr}</small>
    </div>
    <button type="button" class="three-dots-btn" onclick="event.stopPropagation();openUserActionMenu('${u.uid}','${safeName}')" title="More options">⋮</button>
   `;
@@ -2235,11 +2366,17 @@ function enterFullScreenChatUI(){
 window.openChatWith = function(peerUid, peerName){
  activeRoom = null;
  activeGroup = null;
- activePeer={uid:peerUid, name:peerName};
+ const foundPeer = allUsers.find(u => u.uid === peerUid);
+ activePeer={
+  uid:peerUid,
+  name:peerName,
+  isOnline: foundPeer ? foundPeer.isOnline : false,
+  lastSeen: foundPeer ? foundPeer.lastSeen : 0
+ };
  enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.remove('hidden');
  document.getElementById('chatPeerName').textContent=peerName;
- document.getElementById('chatPeerSub').textContent='Tap DP for profile';
+ refreshActivePeerPresence();
  const peerAv = document.getElementById('chatPeerAvatar');
  setAvatarContent(peerAv, peerName, getUserPhoto(peerUid));
  peerAv.onclick = () => window.viewProfilePic(peerUid, peerName);
@@ -2257,7 +2394,9 @@ window.openGroupChat = function(groupId, groupName, groupDesc, memberCount){
  enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.add('hidden');
  document.getElementById('chatPeerName').textContent = groupName;
- document.getElementById('chatPeerSub').textContent = `${memberCount || 1} members • ${groupDesc || 'Group Chat'}`;
+ const subEl = document.getElementById('chatPeerSub');
+ subEl.classList.remove('presence-online');
+ subEl.textContent = `${memberCount || 1} members • ${groupDesc || 'Group Chat'}`;
  const peerAv = document.getElementById('chatPeerAvatar');
  peerAv.textContent = '👥';
  peerAv.onclick = null;
@@ -2274,7 +2413,9 @@ window.openRoomChat = function(roomId, roomName, roomDesc){
  enterFullScreenChatUI();
  document.getElementById('directChatActions').classList.add('hidden');
  document.getElementById('chatPeerName').textContent = roomName;
- document.getElementById('chatPeerSub').textContent = roomDesc || 'Chat Room';
+ const subEl = document.getElementById('chatPeerSub');
+ subEl.classList.remove('presence-online');
+ subEl.textContent = roomDesc || 'Chat Room';
  const peerAv = document.getElementById('chatPeerAvatar');
  peerAv.textContent = '#';
  peerAv.onclick = null;
@@ -2289,6 +2430,8 @@ window.closeChatRoom = function(){
  activePeer=null;
  activeRoom=null;
  activeGroup=null;
+ const subEl = document.getElementById('chatPeerSub');
+ if(subEl) subEl.classList.remove('presence-online');
  if(unsubMessages){ unsubMessages(); unsubMessages = null; }
  setFullScreenChatMode(false);
  document.getElementById('chatRoomCard').classList.add('hidden');
