@@ -719,81 +719,42 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 <main id="app" class="hidden">
  <div class="container">
 
-  <!-- HOME -->
+  <!-- HOME (CLEAN FEED ONLY) -->
   <section id="homePage">
-   <div class="home-layout">
-    <div>
-     <div class="card">
-      <div class="create-post">
-       <div class="avatar" id="homeAvatar" onclick="handleHeaderAvatarTap()" title="View or Post Status">MK</div>
-       <input id="postInput" placeholder="What's on your mind?">
-      </div>
-      <div id="mediaPreview" class="media-preview hidden">
-       <span id="mediaName">File selected</span>
-       <button class="link" onclick="clearMedia()" style="color:#ef4444">Remove</button>
-      </div>
-      <input type="file" id="mediaFile" accept="image/*,video/*,audio/*" class="hidden" onchange="handleMediaSelect(event)">
-      <div class="post-tools">
-       <div style="display:flex;gap:12px">
-        <button class="link" onclick="triggerMedia('image/*,video/*')">
-         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-         Photo/Video
-        </button>
-        <button class="link" onclick="triggerMedia('audio/*')">
-         <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-         Music
-        </button>
-       </div>
-       <button class="primary" id="postBtn" style="width:auto;padding:8px 20px" onclick="addPost()">Post</button>
-      </div>
-     </div>
-
-     <div id="feed"></div>
+   <div class="card">
+    <div class="create-post">
+     <div class="avatar" id="homeAvatar" onclick="handleHeaderAvatarTap()" title="View or Post Status">MK</div>
+     <input id="postInput" placeholder="What's on your mind?">
     </div>
-
-    <div>
-     <div class="card">
-      <div class="section-title" style="margin-bottom:12px">Your Account</div>
-      <div class="top-profile">
-       <div class="avatar" id="sideAvatar" onclick="viewMyProfilePic()" title="View Profile Pic">MK</div>
-       <div>
-        <strong id="sideName">Welcome</strong><br>
-        <small id="sideUsername" style="color:var(--muted)">@username</small>
-       </div>
-      </div>
-      <button class="primary" style="margin-top:15px" onclick="showPage('profile')">View Profile</button>
-      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="toggleDarkMode()">🌙 Dark Mode: <span class="dark-mode-label">Off</span></button>
-      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="openStatusCreate()">🟢 Post 24h Status</button>
-      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="openCreateGroupModal()">👥 Create Group Chat</button>
-      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="openCreateRoomModal()"># Create Room</button>
-      <button class="secondary-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="inviteFriends()">➕ Invite Friends</button>
+    <div id="mediaPreview" class="media-preview hidden">
+     <span id="mediaName">File selected</span>
+     <button class="link" onclick="clearMedia()" style="color:#ef4444">Remove</button>
+    </div>
+    <input type="file" id="mediaFile" accept="image/*,video/*,audio/*" class="hidden" onchange="handleMediaSelect(event)">
+    <div class="post-tools">
+     <div style="display:flex;gap:12px">
+      <button class="link" onclick="triggerMedia('image/*,video/*')">
+       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+       Photo/Video
+      </button>
+      <button class="link" onclick="triggerMedia('audio/*')">
+       <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+       Music
+      </button>
      </div>
-
-     <div class="card">
-      <div class="section-title-row">
-       <div class="section-title">Chat Groups</div>
-       <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateGroupModal()">+ Group</button>
-      </div>
-      <div id="homeGroupsList"></div>
-     </div>
-
-     <div class="card">
-      <div class="section-title-row">
-       <div class="section-title">Chat Rooms</div>
-       <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateRoomModal()">+ Room</button>
-      </div>
-      <div id="homeRoomsList"></div>
-     </div>
+     <button class="primary" id="postBtn" style="width:auto;padding:8px 20px" onclick="addPost()">Post</button>
     </div>
    </div>
+
+   <div id="feed"></div>
   </section>
 
   <!-- CHATS PAGE -->
   <section id="messagesPage" class="hidden">
    <div class="page-header-row">
+    <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
     <h2 class="page-title">Chats</h2>
     <div class="invite-actions">
-     <button class="secondary-btn" onclick="toggleDarkMode()">🌙 <span class="dark-mode-label">Off</span></button>
      <button class="secondary-btn" onclick="openStatusCreate()">🟢 Add Status</button>
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
     </div>
@@ -831,7 +792,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <div class="card hidden" id="chatRoomCard">
     <div class="chat-header">
      <div style="display:flex;align-items:center;gap:10px;min-width:0">
-      <button class="link" onclick="closeChatRoom()">← Back</button>
+      <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
       <div class="avatar" id="chatPeerAvatar" style="width:36px;height:36px" title="View Status or Profile">A</div>
       <div style="min-width:0">
        <strong id="chatPeerName" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">User</strong>
@@ -887,6 +848,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   <!-- FRIENDS / PEOPLE -->
   <section id="friendsPage" class="hidden">
    <div class="page-header-row">
+    <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
     <h2 class="page-title">Friends & People</h2>
     <div class="invite-actions">
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
@@ -917,18 +879,20 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 
   <!-- NOTIFICATIONS -->
   <section id="notificationsPage" class="hidden">
-   <h2 class="page-title">Notifications</h2>
+   <div class="page-header-row">
+    <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
+    <h2 class="page-title">Notifications</h2>
+    <span></span>
+   </div>
    <div id="notificationsContainer" class="card empty">All notifications are up to date.</div>
   </section>
 
-  <!-- PROFILE -->
+  <!-- PROFILE & DEDICATED HUB FOR ACCOUNT, GROUPS, ROOMS & SHORTCUTS -->
   <section id="profilePage" class="hidden">
    <div class="page-header-row">
-    <h2 class="page-title">My Profile</h2>
-    <div class="invite-actions">
-     <button class="secondary-btn" onclick="toggleDarkMode()">🌙 Dark Mode: <span class="dark-mode-label">Off</span></button>
-     <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
-    </div>
+    <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
+    <h2 class="page-title">Account & Menu</h2>
+    <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
    </div>
    <div class="card">
     <div class="profile-cover"></div>
@@ -946,9 +910,50 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
      <button class="primary" style="flex:1" onclick="openEditProfile()">Edit Profile</button>
-     <button class="secondary-btn" style="flex:1;justify-content:center;padding:12px" onclick="toggleDarkMode()">🌙 Dark Mode: <span class="dark-mode-label">Off</span></button>
      <button class="secondary-btn" style="flex:1;justify-content:center;padding:12px" onclick="viewMyProfilePic()">🖼 View DP</button>
+     <button class="secondary-btn" style="flex:1;justify-content:center;padding:12px" onclick="navigateTo('settings')">⚙️ Settings</button>
     </div>
+   </div>
+
+   <!-- DEDICATED QUICK ACTIONS HUB (MOVED OUT OF HOME) -->
+   <div class="card">
+    <div class="section-title" style="margin-bottom:12px">Quick Actions & Status</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+     <button class="secondary-btn" style="width:100%;justify-content:space-between;padding:12px 14px" onclick="openStatusCreate()">
+      <span>🟢 Post 24h Status</span>
+      <span>›</span>
+     </button>
+     <button class="secondary-btn" style="width:100%;justify-content:space-between;padding:12px 14px" onclick="openCreateGroupModal()">
+      <span>👥 Create Group Chat</span>
+      <span>+</span>
+     </button>
+     <button class="secondary-btn" style="width:100%;justify-content:space-between;padding:12px 14px" onclick="openCreateRoomModal()">
+      <span># Create Room</span>
+      <span>+</span>
+     </button>
+     <button class="secondary-btn" style="width:100%;justify-content:space-between;padding:12px 14px" onclick="inviteFriends()">
+      <span>➕ Invite Friends</span>
+      <span>›</span>
+     </button>
+    </div>
+   </div>
+
+   <!-- DEDICATED CHAT GROUPS SECTION (MOVED OUT OF HOME) -->
+   <div class="card">
+    <div class="section-title-row">
+     <div class="section-title">Chat Groups</div>
+     <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateGroupModal()">+ Group</button>
+    </div>
+    <div id="menuGroupsList"></div>
+   </div>
+
+   <!-- DEDICATED CHAT ROOMS SECTION (MOVED OUT OF HOME) -->
+   <div class="card">
+    <div class="section-title-row">
+     <div class="section-title">Chat Rooms</div>
+     <button class="secondary-btn" style="padding:5px 10px;font-size:12px" onclick="openCreateRoomModal()">+ Room</button>
+    </div>
+    <div id="menuRoomsList"></div>
    </div>
 
    <div class="card">
@@ -959,7 +964,11 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 
   <!-- SETTINGS -->
   <section id="settingsPage" class="hidden">
-   <h2 class="page-title">Settings</h2>
+   <div class="page-header-row">
+    <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
+    <h2 class="page-title">Settings</h2>
+    <span></span>
+   </div>
    <div class="card">
     <div class="menu-item" onclick="requestPhoneNotificationPermission(true)">
      <span>🔔 Phone Notifications</span>
@@ -996,10 +1005,10 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <small id="vfCaptionText" style="color:#cbd5e1;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></small>
    </div>
   </div>
-  <button type="button" class="call-btn" style="background:rgba(255,255,255,0.18);padding:8px 14px" onclick="closeVideoFullscreen()">✕ Close</button>
+  <button type="button" class="call-btn" style="background:rgba(255,255,255,0.18);padding:8px 14px" onclick="goBackNavigation()">✕ Close</button>
  </div>
 
- <div class="vf-stage" onclick="if(event.target===this)closeVideoFullscreen()">
+ <div class="vf-stage" onclick="if(event.target===this)goBackNavigation()">
   <video id="vfVideoEl" controls autoplay playsinline onplay="recordMediaEngagement(activeFullscreenPostId,'view')"></video>
 
   <div class="vf-side-rail">
@@ -1047,7 +1056,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 </div>
 
 <!-- SHARE & DIRECT DOWNLOAD MODAL -->
-<div id="shareDownloadModal" class="modal hidden" onclick="if(event.target===this)closeShareDownloadModal()">
+<div id="shareDownloadModal" class="modal hidden" onclick="if(event.target===this)goBackNavigation()">
  <div class="modal-content" style="max-width:370px">
   <h3 id="shareModalTitle" style="margin-bottom:8px;color:var(--blue)">Share & Download</h3>
   <p id="shareModalSub" style="font-size:13px;color:var(--muted);margin-bottom:14px"></p>
@@ -1065,21 +1074,21 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <span>Copy</span>
    </button>
   </div>
-  <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="closeShareDownloadModal()">Close</button>
+  <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="goBackNavigation()">Close</button>
  </div>
 </div>
 
 <!-- LIKES & VIEWERS LIST MODAL -->
-<div id="likesListModal" class="modal hidden" onclick="if(event.target===this)closeLikesListModal()">
+<div id="likesListModal" class="modal hidden" onclick="if(event.target===this)goBackNavigation()">
  <div class="modal-content" style="max-width:360px">
   <h3 id="likesModalTitle" style="margin-bottom:12px;color:var(--blue)">Likes</h3>
   <div id="likesModalBody"></div>
-  <button type="button" class="primary" style="background:#64748b;margin-top:14px" onclick="closeLikesListModal()">Close</button>
+  <button type="button" class="primary" style="background:#64748b;margin-top:14px" onclick="goBackNavigation()">Close</button>
  </div>
 </div>
 
 <!-- WHATSAPP-STYLE 3-DOTS ACTION MENU MODAL -->
-<div id="threeDotsModal" class="modal hidden" onclick="if(event.target===this)closeUserActionMenu()">
+<div id="threeDotsModal" class="modal hidden" onclick="if(event.target===this)goBackNavigation()">
  <div class="modal-content" style="max-width:340px">
   <h3 id="dotsMenuTitle" style="margin-bottom:12px;font-size:16px">Options</h3>
   <div class="wa-menu-list">
@@ -1104,7 +1113,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <span>⚠</span>
    </button>
   </div>
-  <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="closeUserActionMenu()">Cancel</button>
+  <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="goBackNavigation()">Cancel</button>
  </div>
 </div>
 
@@ -1126,7 +1135,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div style="display:flex;gap:10px">
    <button class="primary" id="createGroupBtn" onclick="createChatGroup()">Create Group</button>
-   <button class="primary" style="background:#64748b" onclick="closeCreateGroupModal()">Cancel</button>
+   <button class="primary" style="background:#64748b" onclick="goBackNavigation()">Cancel</button>
   </div>
  </div>
 </div>
@@ -1145,13 +1154,13 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div style="display:flex;gap:10px">
    <button class="primary" id="createRoomBtn" onclick="createChatRoom()">Create Room</button>
-   <button class="primary" style="background:#64748b" onclick="closeCreateRoomModal()">Cancel</button>
+   <button class="primary" style="background:#64748b" onclick="goBackNavigation()">Cancel</button>
   </div>
  </div>
 </div>
 
 <!-- VIEW PROFILE PIC MODAL -->
-<div id="viewDpModal" class="modal hidden" onclick="if(event.target===this)closeViewDpModal()">
+<div id="viewDpModal" class="modal hidden" onclick="if(event.target===this)goBackNavigation()">
  <div class="modal-content">
   <h3 style="margin-bottom:10px;color:var(--blue);text-align:center">Member Profile</h3>
   <div class="view-dp-wrap">
@@ -1166,7 +1175,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <button class="secondary-btn" style="width:100%;justify-content:center;padding:10px" id="viewDpFriendBtn">Add Friend</button>
    <button class="secondary-btn" style="width:100%;justify-content:center;padding:10px" id="viewDpFollowBtn">Follow</button>
   </div>
-  <button class="primary" style="background:#64748b" onclick="closeViewDpModal()">Close</button>
+  <button class="primary" style="background:#64748b" onclick="goBackNavigation()">Close</button>
  </div>
 </div>
 
@@ -1191,7 +1200,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div style="display:flex;gap:10px">
    <button class="primary" style="background:#dc2626" id="submitReportBtn" onclick="submitUserReport()">Submit Report</button>
-   <button class="primary" style="background:#64748b" onclick="closeReportModal()">Cancel</button>
+   <button class="primary" style="background:#64748b" onclick="goBackNavigation()">Cancel</button>
   </div>
  </div>
 </div>
@@ -1208,7 +1217,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <button class="primary" style="flex:1" onclick="copyInviteLink(true)">Copy Link</button>
    <button class="primary" style="flex:1;background:#16a34a" onclick="shareWhatsApp()">WhatsApp</button>
   </div>
-  <button class="primary" style="background:#64748b;margin-top:10px" onclick="closeInviteModal()">Close</button>
+  <button class="primary" style="background:#64748b;margin-top:10px" onclick="goBackNavigation()">Close</button>
  </div>
 </div>
 
@@ -1240,7 +1249,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div style="display:flex;gap:10px">
    <button class="primary" id="saveProfileBtn" onclick="saveProfile()">Save</button>
-   <button class="primary" style="background:#64748b" onclick="closeEditProfile()">Cancel</button>
+   <button class="primary" style="background:#64748b" onclick="goBackNavigation()">Cancel</button>
   </div>
  </div>
 </div>
@@ -1258,7 +1267,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   </div>
   <div style="display:flex;gap:10px">
    <button class="primary" id="statusSubmitBtn" onclick="saveStatus()">Post Status</button>
-   <button class="primary" style="background:#64748b" onclick="closeStatusModal()">Cancel</button>
+   <button class="primary" style="background:#64748b" onclick="goBackNavigation()">Cancel</button>
   </div>
  </div>
 </div>
@@ -1277,7 +1286,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    </div>
    <div style="display:flex;gap:8px">
     <button class="call-btn" style="background:#1877f2;padding:8px 12px;font-size:12px" onclick="closeStatusFullscreen();openStatusCreate()">+ New</button>
-    <button class="call-btn" style="background:#ef4444;padding:8px 14px" onclick="closeStatusFullscreen()">✕ Close</button>
+    <button class="call-btn" style="background:#ef4444;padding:8px 14px" onclick="goBackNavigation()">✕ Close</button>
    </div>
   </div>
  </div>
@@ -1333,25 +1342,25 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 
 <!-- NAVIGATION -->
 <nav class="navbar hidden" id="navbar">
- <button class="active" onclick="showPage('home')">
+ <button class="active" onclick="navigateTo('home')">
   <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
   Home
  </button>
- <button onclick="showPage('friends')">
+ <button onclick="navigateTo('friends')">
   <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
   Friends <span id="navReqBadge" class="badge-pill red hidden">0</span>
  </button>
- <button onclick="showPage('messages')">
+ <button onclick="navigateTo('messages')">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   Chats <span id="navChatBadge" class="badge-pill red hidden">0</span>
  </button>
- <button onclick="showPage('notifications')">
+ <button onclick="navigateTo('notifications')">
   <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
   Notifications <span id="navNotifBadge" class="badge-pill red hidden">0</span>
  </button>
- <button onclick="showPage('profile')">
+ <button onclick="navigateTo('profile')">
   <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-  Profile
+  Menu
  </button>
 </nav>
 
@@ -1449,7 +1458,9 @@ let typingResetTimer = null;
 let messageSoundInitialized = false;
 let lastRenderedMsgCount = 0;
 
-let appHistoryGuardReady = false;
+/* NAVIGATION STACK FOR TRUE STEP-BY-STEP BACK */
+let navHistoryStack = [];
+let isHandlingPopState = false;
 let backExitArmed = false;
 let backExitTimer = null;
 
@@ -1484,6 +1495,169 @@ function showToast(msg){
  clearTimeout(showToast._timer);
  showToast._timer = setTimeout(()=>{ t.style.display = 'none'; }, 2800);
 }
+
+function getActivePageName(){
+ const pages = ['home','friends','messages','notifications','profile','settings'];
+ for(const p of pages){
+  const el = document.getElementById(p + 'Page');
+  if(el && !el.classList.contains('hidden')) return p;
+ }
+ return 'home';
+}
+
+function getOpenModalIds(){
+ const ids = [
+  'statusFullscreenModal',
+  'videoFullscreenModal',
+  'shareDownloadModal',
+  'likesListModal',
+  'callModal',
+  'threeDotsModal',
+  'reportModal',
+  'createGroupModal',
+  'createRoomModal',
+  'viewDpModal',
+  'inviteModal',
+  'editModal',
+  'statusModal'
+ ];
+ return ids.filter(id=>{
+  const el = document.getElementById(id);
+  return el && !el.classList.contains('hidden');
+ });
+}
+
+function closeSpecificModalById(id){
+ switch(id){
+  case 'statusFullscreenModal': closeStatusFullscreenInternal(); break;
+  case 'videoFullscreenModal': closeVideoFullscreenInternal(); break;
+  case 'shareDownloadModal': activeSharePostId = null; document.getElementById('shareDownloadModal').classList.add('hidden'); break;
+  case 'likesListModal': document.getElementById('likesListModal').classList.add('hidden'); break;
+  case 'callModal': window.endCall(); break;
+  case 'threeDotsModal': menuTargetUser = null; document.getElementById('threeDotsModal').classList.add('hidden'); break;
+  case 'reportModal': reportTarget = null; document.getElementById('reportModal').classList.add('hidden'); break;
+  case 'createGroupModal': document.getElementById('createGroupModal').classList.add('hidden'); break;
+  case 'createRoomModal': document.getElementById('createRoomModal').classList.add('hidden'); break;
+  case 'viewDpModal': document.getElementById('viewDpModal').classList.add('hidden'); break;
+  case 'inviteModal': document.getElementById('inviteModal').classList.add('hidden'); break;
+  case 'editModal': pendingDpFile = null; document.getElementById('editModal').classList.add('hidden'); break;
+  case 'statusModal': document.getElementById('statusModal').classList.add('hidden'); break;
+ }
+}
+
+function captureCurrentNavEntry(){
+ const openModals = getOpenModalIds();
+ const roomCard = document.getElementById('chatRoomCard');
+ const inChatRoom = Boolean(roomCard && !roomCard.classList.contains('hidden'));
+ return {
+  page: getActivePageName(),
+  inChatRoom,
+  peerUid: activePeer ? activePeer.uid : '',
+  peerName: activePeer ? activePeer.name : '',
+  roomId: activeRoom ? activeRoom.id : '',
+  groupId: activeGroup ? activeGroup.id : '',
+  openModals
+ };
+}
+
+function pushNavState(){
+ if(!currentUser || isHandlingPopState) return;
+ navHistoryStack.push(captureCurrentNavEntry());
+ try{
+  window.history.pushState({ amkStackLen: navHistoryStack.length }, '', window.location.href);
+ }catch(e){}
+}
+
+function applyNavEntry(entry){
+ if(!entry) return;
+ const currentOpen = getOpenModalIds();
+ currentOpen.forEach(id=>{
+  if(!entry.openModals.includes(id)){
+   closeSpecificModalById(id);
+  }
+ });
+
+ if(entry.page === 'messages' && entry.inChatRoom){
+  applyPageOnly('messages');
+  if(entry.roomId){
+   openRoomChatInternal(entry.roomId);
+  }else if(entry.groupId){
+   openGroupChatInternal(entry.groupId);
+  }else if(entry.peerUid){
+   openDirectChatInternal(entry.peerUid, entry.peerName);
+  }
+ }else{
+  closeChatRoomInternal(false);
+  applyPageOnly(entry.page || 'home');
+ }
+}
+
+window.goBackNavigation = function(){
+ if(!currentUser) return;
+ const currentOpen = getOpenModalIds();
+ if(currentOpen.length > 0){
+  const topModal = currentOpen[currentOpen.length - 1];
+  closeSpecificModalById(topModal);
+  return;
+ }
+ const roomCard = document.getElementById('chatRoomCard');
+ if(roomCard && !roomCard.classList.contains('hidden')){
+  closeChatRoomInternal(true);
+  return;
+ }
+ if(navHistoryStack.length > 0){
+  const prev = navHistoryStack.pop();
+  isHandlingPopState = true;
+  applyNavEntry(prev);
+  setTimeout(()=>{ isHandlingPopState = false; }, 30);
+  return;
+ }
+ const activePage = getActivePageName();
+ if(activePage !== 'home'){
+  applyPageOnly('home');
+ }
+};
+
+window.addEventListener('popstate', ()=>{
+ if(!currentUser) return;
+ const currentOpen = getOpenModalIds();
+ if(currentOpen.length > 0){
+  const topModal = currentOpen[currentOpen.length - 1];
+  closeSpecificModalById(topModal);
+  return;
+ }
+ const roomCard = document.getElementById('chatRoomCard');
+ if(roomCard && !roomCard.classList.contains('hidden')){
+  closeChatRoomInternal(false);
+  if(navHistoryStack.length > 0){
+   const prev = navHistoryStack.pop();
+   isHandlingPopState = true;
+   applyNavEntry(prev);
+   setTimeout(()=>{ isHandlingPopState = false; }, 30);
+  }
+  return;
+ }
+ if(navHistoryStack.length > 0){
+  const prev = navHistoryStack.pop();
+  isHandlingPopState = true;
+  applyNavEntry(prev);
+  setTimeout(()=>{ isHandlingPopState = false; }, 30);
+  return;
+ }
+ const activePage = getActivePageName();
+ if(activePage !== 'home'){
+  isHandlingPopState = true;
+  applyPageOnly('home');
+  setTimeout(()=>{ isHandlingPopState = false; }, 30);
+  return;
+ }
+ if(backExitArmed) return;
+ backExitArmed = true;
+ showToast('Danna Back sake idan kana son fita');
+ try{ window.history.pushState({ amkExitGuard: true }, '', window.location.href); }catch(e){}
+ clearTimeout(backExitTimer);
+ backExitTimer = setTimeout(()=>{ backExitArmed = false; }, 3000);
+});
 
 function getSavedPostsArray(userObj){
  return Array.isArray(userObj && userObj.savedPosts) ? userObj.savedPosts : [];
@@ -1603,6 +1777,7 @@ function setupFeedViewObserver(){
 window.openMediaViewersModal = function(postId, kind){
  const post = allPosts.find(p => p.id === postId);
  if(!post) return;
+ pushNavState();
  const mode = (kind === 'play' || kind === 'mediaView' || kind === 'postView') ? kind : 'postView';
  const entries = getEngagementEntries(post, mode);
  const total = getPostEngagementCount(post, mode);
@@ -1635,7 +1810,6 @@ window.openMediaViewersModal = function(postId, kind){
   }).join('');
  }
  document.getElementById('likesListModal').classList.remove('hidden');
- pushAppHistoryState('media-viewers');
 };
 
 function guessDownloadFilename(post){
@@ -1695,6 +1869,7 @@ window.closeShareDownloadModal = function(){
 
 window.sharePost = async function(postId){
  if(!postId) return;
+ pushNavState();
  const post = allPosts.find(p => p.id === postId);
  activeSharePostId = postId;
  const postUrl = `${SHARE_URL}?post=${encodeURIComponent(postId)}`;
@@ -1744,7 +1919,6 @@ window.sharePost = async function(postId){
  };
 
  document.getElementById('shareDownloadModal').classList.remove('hidden');
- pushAppHistoryState('share-download');
 };
 
 window.toggleSavePost = async function(postId){
@@ -1788,7 +1962,7 @@ function renderSavedPostsList(){
   return `
    <div class="chat-row">
     <div class="avatar">${isVid ? '🎥' : '🔖'}</div>
-    <div class="details" onclick="${isVid ? `openVideoFullscreen('${escapeHtml(p.id)}')` : `showPage('home')`}">
+    <div class="details" onclick="${isVid ? `openVideoFullscreen('${escapeHtml(p.id)}')` : `navigateTo('home')`}">
      <strong>${escapeHtml(p.authorName || 'Member')}</strong>
      <small>${escapeHtml(sub)}</small>
     </div>
@@ -1826,6 +2000,7 @@ function findMyLikeEntry(likesArr){
 window.openLikesListModal = function(postId){
  const post = allPosts.find(p => p.id === postId);
  if(!post) return;
+ pushNavState();
  const entries = getLikeUserEntries(post.likes);
  document.getElementById('likesModalTitle').textContent = `Likes (${entries.length})`;
  const body = document.getElementById('likesModalBody');
@@ -1850,7 +2025,6 @@ window.openLikesListModal = function(postId){
   }).join('');
  }
  document.getElementById('likesListModal').classList.remove('hidden');
- pushAppHistoryState('likes-list');
 };
 
 window.closeLikesListModal = function(){
@@ -1876,7 +2050,7 @@ window.toggleFeedCommentBox = function(postId){
 function syncFullscreenVideoUI(){
  if(!activeFullscreenPostId) return;
  const post = allPosts.find(p => p.id === activeFullscreenPostId);
- if(!post){ closeVideoFullscreen(); return; }
+ if(!post){ closeVideoFullscreenInternal(); return; }
 
  const likes = Array.isArray(post.likes) ? post.likes : [];
  const comments = Array.isArray(post.comments) ? post.comments : [];
@@ -1917,6 +2091,7 @@ function syncFullscreenVideoUI(){
 window.openVideoFullscreen = function(postId){
  const post = allPosts.find(p => p.id === postId);
  if(!post || !post.mediaUrl) return;
+ pushNavState();
  activeFullscreenPostId = postId;
  const vidEl = document.getElementById('vfVideoEl');
  vidEl.src = post.mediaUrl;
@@ -1926,10 +2101,9 @@ window.openVideoFullscreen = function(postId){
  document.getElementById('videoFullscreenModal').classList.remove('hidden');
  window.recordMediaEngagement(postId, 'mediaView');
  vidEl.play().catch(()=>{});
- pushAppHistoryState('video-fullscreen');
 };
 
-window.closeVideoFullscreen = function(){
+function closeVideoFullscreenInternal(){
  const vidEl = document.getElementById('vfVideoEl');
  if(vidEl){
   vidEl.pause();
@@ -1940,6 +2114,10 @@ window.closeVideoFullscreen = function(){
  if(drawer) drawer.classList.add('hidden');
  activeFullscreenPostId = null;
  document.getElementById('videoFullscreenModal').classList.add('hidden');
+}
+
+window.closeVideoFullscreen = function(){
+ closeVideoFullscreenInternal();
 };
 
 window.toggleLikeActiveVideo = async function(){
@@ -2146,87 +2324,6 @@ function getInitials(name){
  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function pushAppHistoryState(tag){
- if(!currentUser) return;
- try{
-  window.history.pushState({ amkApp: true, tag: tag || 'nav', ts: Date.now() }, '', window.location.href);
- }catch(e){}
-}
-
-function closeAnyOpenModalByBack(){
- const modalsInOrder = [
-  { id: 'statusFullscreenModal', closeFn: ()=>window.closeStatusFullscreen && window.closeStatusFullscreen() },
-  { id: 'videoFullscreenModal', closeFn: ()=>window.closeVideoFullscreen && window.closeVideoFullscreen() },
-  { id: 'shareDownloadModal', closeFn: ()=>window.closeShareDownloadModal && window.closeShareDownloadModal() },
-  { id: 'likesListModal', closeFn: ()=>window.closeLikesListModal && window.closeLikesListModal() },
-  { id: 'callModal', closeFn: ()=>window.endCall && window.endCall() },
-  { id: 'threeDotsModal', closeFn: ()=>window.closeUserActionMenu && window.closeUserActionMenu() },
-  { id: 'reportModal', closeFn: ()=>window.closeReportModal && window.closeReportModal() },
-  { id: 'createGroupModal', closeFn: ()=>window.closeCreateGroupModal && window.closeCreateGroupModal() },
-  { id: 'createRoomModal', closeFn: ()=>window.closeCreateRoomModal && window.closeCreateRoomModal() },
-  { id: 'viewDpModal', closeFn: ()=>window.closeViewDpModal && window.closeViewDpModal() },
-  { id: 'inviteModal', closeFn: ()=>window.closeInviteModal && window.closeInviteModal() },
-  { id: 'editModal', closeFn: ()=>window.closeEditProfile && window.closeEditProfile() },
-  { id: 'statusModal', closeFn: ()=>window.closeStatusModal && window.closeStatusModal() }
- ];
-
- for(const item of modalsInOrder){
-  const el = document.getElementById(item.id);
-  if(el && !el.classList.contains('hidden')){
-   item.closeFn();
-   return true;
-  }
- }
- return false;
-}
-
-function getActivePageName(){
- const pages = ['home','friends','messages','notifications','profile','settings'];
- for(const p of pages){
-  const el = document.getElementById(p + 'Page');
-  if(el && !el.classList.contains('hidden')) return p;
- }
- return 'home';
-}
-
-window.addEventListener('popstate', ()=>{
- if(!currentUser) return;
-
- if(closeAnyOpenModalByBack()){
-  backExitArmed = false;
-  pushAppHistoryState('modal-closed');
-  return;
- }
-
- const roomCard = document.getElementById('chatRoomCard');
- if(roomCard && !roomCard.classList.contains('hidden')){
-  backExitArmed = false;
-  window.closeChatRoom();
-  pushAppHistoryState('chat-closed');
-  return;
- }
-
- const activePage = getActivePageName();
- if(activePage !== 'home'){
-  backExitArmed = false;
-  window.showPage('home');
-  pushAppHistoryState('back-home');
-  return;
- }
-
- if(backExitArmed){
-  return;
- }
-
- backExitArmed = true;
- showToast('Danna Back sake idan kana son fita');
- pushAppHistoryState('home-guard');
- clearTimeout(backExitTimer);
- backExitTimer = setTimeout(()=>{
-  backExitArmed = false;
- }, 3000);
-});
-
 function syncDarkModeLabels(){
  const isDark = document.body.classList.contains('dark-mode');
  const labelText = isDark ? 'On' : 'Off';
@@ -2289,7 +2386,7 @@ window.handleUserAvatarTap = function(uid, fallbackName){
 };
 
 window.focusTopSearch = function(){
- window.showPage('messages');
+ window.navigateTo('messages');
  setTimeout(()=>{
   const inp = document.getElementById('chatSearchInput');
   if(inp) inp.focus();
@@ -2396,11 +2493,11 @@ window.setChatSubtab = function(tabName){
   btn.classList.toggle('active', btn.dataset.subtab === activeChatSubtab);
  });
  if(activeChatSubtab === 'friends'){
-  window.showPage('friends');
+  window.navigateTo('friends');
   return;
  }
  if(activeChatSubtab === 'settings'){
-  window.showPage('settings');
+  window.navigateTo('settings');
   return;
  }
  const listCard = document.getElementById('chatListCard');
@@ -2779,7 +2876,7 @@ window.toggleBlockUser = async function(targetUid){
    }, { merge:true });
    showToast('User blocked');
    if(activePeer && activePeer.uid === targetUid){
-    closeChatRoom();
+    closeChatRoomInternal(false);
    }
   }
   renderPeople();
@@ -2803,7 +2900,8 @@ function refreshActionMenuButtons(){
  const reportBtn = document.getElementById('dotsReportBtn');
 
  viewBtn.onclick = ()=>{
-  closeUserActionMenu();
+  document.getElementById('threeDotsModal').classList.add('hidden');
+  menuTargetUser = null;
   window.viewProfilePic(uid, name);
  };
 
@@ -2835,13 +2933,15 @@ function refreshActionMenuButtons(){
 
  reportBtn.onclick = ()=>{
   const targetCopy = { uid, name };
-  closeUserActionMenu();
+  document.getElementById('threeDotsModal').classList.add('hidden');
+  menuTargetUser = null;
   openReportModal(targetCopy.uid, targetCopy.name);
  };
 }
 
 window.openUserActionMenu = function(targetUid, targetName){
  if(!currentUser || !targetUid || targetUid === currentUser.uid) return;
+ pushNavState();
  const found = allUsers.find(u => u.uid === targetUid);
  menuTargetUser = {
   uid: targetUid,
@@ -2849,7 +2949,6 @@ window.openUserActionMenu = function(targetUid, targetName){
  };
  refreshActionMenuButtons();
  document.getElementById('threeDotsModal').classList.remove('hidden');
- pushAppHistoryState('three-dots');
 };
 
 window.closeUserActionMenu = function(){
@@ -2859,12 +2958,12 @@ window.closeUserActionMenu = function(){
 
 window.openReportModal = function(targetUid, targetName){
  if(!currentUser || !targetUid) return;
+ pushNavState();
  reportTarget = { uid: targetUid, name: targetName || 'User' };
  document.getElementById('reportTargetLabel').textContent = `Reporting: ${reportTarget.name}`;
  document.getElementById('reportReason').value = 'Harassment or abuse';
  document.getElementById('reportDetails').value = '';
  document.getElementById('reportModal').classList.remove('hidden');
- pushAppHistoryState('report-modal');
 };
 
 window.closeReportModal = function(){
@@ -2925,6 +3024,7 @@ function getFreshUser(uid){
 }
 
 window.viewProfilePic = function(uid, fallbackName){
+ pushNavState();
  const u = getFreshUser(uid);
  const name = (u && u.name) || fallbackName || 'Member';
  const uname = (u && u.username) ? `@${u.username}` : '';
@@ -2981,7 +3081,6 @@ window.viewProfilePic = function(uid, fallbackName){
  }
 
  document.getElementById('viewDpModal').classList.remove('hidden');
- pushAppHistoryState('view-dp');
 };
 
 window.viewMyProfilePic = function(){
@@ -2994,10 +3093,10 @@ window.closeViewDpModal = function(){
 };
 
 window.inviteFriends = function(){
+ pushNavState();
  const inp = document.getElementById('inviteLinkInput');
  if(inp) inp.value = SHARE_URL;
  document.getElementById('inviteModal').classList.remove('hidden');
- pushAppHistoryState('invite-modal');
 };
 
 window.closeInviteModal = function(){
@@ -3029,15 +3128,17 @@ window.showAuth = function(type){
  document.getElementById('login').classList.toggle('hidden', type !== 'login');
 };
 
-window.showPage = function(page){
+function applyPageOnly(page){
  const pages = ['home','friends','messages','notifications','profile','settings'];
  pages.forEach(p=>{
   const el = document.getElementById(p + 'Page');
   if(el) el.classList.toggle('hidden', p !== page);
  });
+ const navIndexMap = { home: 0, friends: 1, messages: 2, notifications: 3, profile: 4, settings: 4 };
  const navBtns = document.querySelectorAll('#navbar button');
+ const activeNavIdx = navIndexMap[page] ?? 0;
  navBtns.forEach((btn, idx)=>{
-  btn.classList.toggle('active', pages[idx] === page);
+  btn.classList.toggle('active', idx === activeNavIdx);
  });
  if(page !== 'messages'){
   document.body.classList.remove('chat-fullscreen-active');
@@ -3054,13 +3155,26 @@ window.showPage = function(page){
  }
  if(page === 'profile'){
   updateProfileUI();
+  renderGroupsAndRooms();
   renderSavedPostsList();
  }
  if(page === 'notifications') renderNotifications();
  if(page === 'settings') syncPhoneNotifStatusUI();
- if(currentUser && page !== 'home'){
-  pushAppHistoryState('page-' + page);
+}
+
+window.navigateTo = function(page){
+ const cur = getActivePageName();
+ const roomCard = document.getElementById('chatRoomCard');
+ const inRoom = Boolean(roomCard && !roomCard.classList.contains('hidden'));
+ if(cur !== page || inRoom){
+  pushNavState();
+  closeChatRoomInternal(false);
  }
+ applyPageOnly(page);
+};
+
+window.showPage = function(page){
+ window.navigateTo(page);
 };
 
 async function uploadToCloudinary(file){
@@ -3135,7 +3249,7 @@ window.logoutUser = async function(){
  stopPresenceHeartbeat();
  stopAllListeners();
  cleanupCallResources();
- appHistoryGuardReady = false;
+ navHistoryStack = [];
  backExitArmed = false;
  await signOut(auth);
  currentUser = null;
@@ -3251,10 +3365,8 @@ onAuthStateChanged(auth, async (user)=>{
   document.getElementById('navbar').classList.remove('hidden');
   document.getElementById('headerActions').classList.remove('hidden');
 
-  if(!appHistoryGuardReady){
-   appHistoryGuardReady = true;
-   pushAppHistoryState('init');
-  }
+  navHistoryStack = [];
+  try{ window.history.replaceState({ amkRoot: true }, '', window.location.href); }catch(e){}
 
   if('Notification' in window && Notification.permission === 'default'){
    setTimeout(()=>{ window.requestPhoneNotificationPermission(false); }, 1200);
@@ -3267,7 +3379,7 @@ onAuthStateChanged(auth, async (user)=>{
  }else{
   stopPresenceHeartbeat();
   stopAllListeners();
-  appHistoryGuardReady = false;
+  navHistoryStack = [];
   backExitArmed = false;
   currentUser = null;
   document.getElementById('app').classList.add('hidden');
@@ -3281,11 +3393,8 @@ function updateProfileUI(){
  if(!currentUser) return;
  renderAvatarEl(document.getElementById('headerDpBox'), currentUser, currentUser.name);
  renderAvatarEl(document.getElementById('homeAvatar'), currentUser, currentUser.name);
- renderAvatarEl(document.getElementById('sideAvatar'), currentUser, currentUser.name);
  renderAvatarEl(document.getElementById('profileAvatar'), currentUser, currentUser.name);
 
- document.getElementById('sideName').textContent = currentUser.name || 'Member';
- document.getElementById('sideUsername').textContent = '@' + (currentUser.username || 'member');
  document.getElementById('profileName').textContent = currentUser.name || 'Member';
  document.getElementById('profileUsername').textContent = '@' + (currentUser.username || 'member');
  document.getElementById('profileBio').textContent = currentUser.bio || '';
@@ -3619,10 +3728,10 @@ window.deletePost = async function(postId){
 };
 
 window.openStatusCreate = function(){
+ pushNavState();
  document.getElementById('statusText').value = '';
  document.getElementById('statusImgInput').value = '';
  document.getElementById('statusModal').classList.remove('hidden');
- pushAppHistoryState('status-create');
 };
 
 window.closeStatusModal = function(){
@@ -3713,14 +3822,14 @@ function startStatusAutoAdvance(durationMs){
   if(statusPlaylistIndex + 1 < statusPlaylist.length){
    openStatusAtIndex(statusPlaylistIndex + 1);
   }else{
-   window.closeStatusFullscreen();
+   closeStatusFullscreenInternal();
   }
  }, total);
 }
 
 async function openStatusAtIndex(idx){
  if(!Array.isArray(statusPlaylist) || idx < 0 || idx >= statusPlaylist.length){
-  window.closeStatusFullscreen();
+  closeStatusFullscreenInternal();
   return;
  }
  statusPlaylistIndex = idx;
@@ -3780,7 +3889,7 @@ window.stepStatusSequence = function(delta){
   return;
  }
  if(nextIdx >= statusPlaylist.length){
-  window.closeStatusFullscreen();
+  closeStatusFullscreenInternal();
   return;
  }
  openStatusAtIndex(nextIdx);
@@ -3797,23 +3906,27 @@ async function openStatusFullscreen(st){
   showToast('Only friends can view this status');
   return;
  }
+ pushNavState();
  statusPlaylist = allStatuses.filter(s => canViewUserStatus(s.uid));
  const foundIdx = statusPlaylist.findIndex(x => x.id === st.id);
  statusPlaylistIndex = foundIdx >= 0 ? foundIdx : 0;
  if(foundIdx < 0) statusPlaylist = [st];
 
  document.getElementById('statusFullscreenModal').classList.remove('hidden');
- pushAppHistoryState('status-view');
  await openStatusAtIndex(statusPlaylistIndex);
 }
 
-window.closeStatusFullscreen = function(){
+function closeStatusFullscreenInternal(){
  clearStatusAutoTimers();
  statusPlaylist = [];
  statusPlaylistIndex = 0;
  const modal = document.getElementById('statusFullscreenModal');
  modal.dataset.statusId = '';
  modal.classList.add('hidden');
+}
+
+window.closeStatusFullscreen = function(){
+ closeStatusFullscreenInternal();
 };
 
 function renderStatuses(){
@@ -4157,14 +4270,14 @@ function renderChatsList(){
 }
 
 function renderGroupsAndRooms(){
- const homeGroups = document.getElementById('homeGroupsList');
- const homeRooms = document.getElementById('homeRoomsList');
+ const menuGroups = document.getElementById('menuGroupsList');
+ const menuRooms = document.getElementById('menuRoomsList');
 
- if(homeGroups){
+ if(menuGroups){
   if(!allGroups.length){
-   homeGroups.innerHTML = '<div class="empty" style="padding:10px">No group chats yet.</div>';
+   menuGroups.innerHTML = '<div class="empty" style="padding:10px">No group chats yet.</div>';
   }else{
-   homeGroups.innerHTML = allGroups.map(g=>{
+   menuGroups.innerHTML = allGroups.map(g=>{
     const members = Array.isArray(g.members) ? g.members : [];
     const isMember = currentUser && members.includes(currentUser.uid);
     return `
@@ -4184,11 +4297,11 @@ function renderGroupsAndRooms(){
   }
  }
 
- if(homeRooms){
+ if(menuRooms){
   if(!allRooms.length){
-   homeRooms.innerHTML = '<div class="empty" style="padding:10px">No chat rooms yet.</div>';
+   menuRooms.innerHTML = '<div class="empty" style="padding:10px">No chat rooms yet.</div>';
   }else{
-   homeRooms.innerHTML = allRooms.map(r=>`
+   menuRooms.innerHTML = allRooms.map(r=>`
     <div class="chat-row" onclick="openRoomChat('${escapeHtml(r.id)}')">
      <div class="avatar">#</div>
      <div class="details">
@@ -4204,6 +4317,7 @@ function renderGroupsAndRooms(){
 
 window.openCreateGroupModal = function(){
  if(!currentUser) return;
+ pushNavState();
  document.getElementById('groupNameInput').value = '';
  document.getElementById('groupDescInput').value = '';
  const picker = document.getElementById('groupMembersPicker');
@@ -4219,7 +4333,6 @@ window.openCreateGroupModal = function(){
   `).join('');
  }
  document.getElementById('createGroupModal').classList.remove('hidden');
- pushAppHistoryState('create-group');
 };
 
 window.closeCreateGroupModal = function(){
@@ -4270,10 +4383,10 @@ window.joinGroupChat = async function(groupId){
 };
 
 window.openCreateRoomModal = function(){
+ pushNavState();
  document.getElementById('roomNameInput').value = '';
  document.getElementById('roomDescInput').value = '';
  document.getElementById('createRoomModal').classList.remove('hidden');
- pushAppHistoryState('create-room');
 };
 
 window.closeCreateRoomModal = function(){
@@ -4323,7 +4436,6 @@ function enterFullScreenChatUI(){
  roomCard.classList.remove('hidden');
  roomCard.classList.add('fullscreen-chat');
  setTimeout(()=>window.autoResizeChatInput(), 20);
- pushAppHistoryState('chat-room');
 }
 
 function attachMessageStream(colRef, isDirect){
@@ -4477,12 +4589,7 @@ window.deleteChatMessage = async function(msgId){
  }
 };
 
-window.openDirectChat = function(peerUid, peerName){
- if(!currentUser) return;
- if(isBlockedByMe(peerUid) || isBlockedByPeer(peerUid)){
-  showToast('Chat unavailable with this user');
-  return;
- }
+function openDirectChatInternal(peerUid, peerName){
  activeRoom = null;
  activeGroup = null;
  window.clearReplyTarget();
@@ -4492,7 +4599,7 @@ window.openDirectChat = function(peerUid, peerName){
  const freshPeer = allUsers.find(u => u.uid === peerUid) || { uid: peerUid, name: peerName || 'Member', photoUrl: getSavedPhoto(peerUid) };
  activePeer = freshPeer;
 
- window.showPage('messages');
+ applyPageOnly('messages');
  enterFullScreenChatUI();
 
  document.getElementById('chatPeerName').textContent = freshPeer.name || peerName || 'Member';
@@ -4507,10 +4614,19 @@ window.openDirectChat = function(peerUid, peerName){
  av.onclick = ()=>window.handleUserAvatarTap(freshPeer.uid, freshPeer.name || peerName);
 
  attachMessageStream(collection(db,'chats',getChatId(currentUser.uid, peerUid),'messages'), true);
+}
+
+window.openDirectChat = function(peerUid, peerName){
+ if(!currentUser) return;
+ if(isBlockedByMe(peerUid) || isBlockedByPeer(peerUid)){
+  showToast('Chat unavailable with this user');
+  return;
+ }
+ pushNavState();
+ openDirectChatInternal(peerUid, peerName);
 };
 
-window.openRoomChat = function(roomId){
- if(!currentUser) return;
+function openRoomChatInternal(roomId){
  const room = allRooms.find(r => r.id === roomId);
  if(!room) return;
  activePeer = null;
@@ -4520,7 +4636,7 @@ window.openRoomChat = function(roomId){
  window.clearChatMedia();
  hideChatPanels();
 
- window.showPage('messages');
+ applyPageOnly('messages');
  enterFullScreenChatUI();
 
  document.getElementById('chatPeerName').textContent = '# ' + room.name;
@@ -4535,10 +4651,17 @@ window.openRoomChat = function(roomId){
  av.onclick = null;
 
  attachMessageStream(collection(db,'rooms',room.id,'messages'), false);
+}
+
+window.openRoomChat = function(roomId){
+ if(!currentUser) return;
+ const room = allRooms.find(r => r.id === roomId);
+ if(!room) return;
+ pushNavState();
+ openRoomChatInternal(roomId);
 };
 
-window.openGroupChat = async function(groupId){
- if(!currentUser) return;
+async function openGroupChatInternal(groupId){
  const grp = allGroups.find(g => g.id === groupId);
  if(!grp) return;
  const members = Array.isArray(grp.members) ? grp.members : [];
@@ -4552,7 +4675,7 @@ window.openGroupChat = async function(groupId){
  window.clearChatMedia();
  hideChatPanels();
 
- window.showPage('messages');
+ applyPageOnly('messages');
  enterFullScreenChatUI();
 
  document.getElementById('chatPeerName').textContent = '👥 ' + grp.name;
@@ -4567,9 +4690,17 @@ window.openGroupChat = async function(groupId){
  av.onclick = null;
 
  attachMessageStream(collection(db,'groups',grp.id,'messages'), false);
+}
+
+window.openGroupChat = async function(groupId){
+ if(!currentUser) return;
+ const grp = allGroups.find(g => g.id === groupId);
+ if(!grp) return;
+ pushNavState();
+ await openGroupChatInternal(groupId);
 };
 
-window.closeChatRoom = function(){
+function closeChatRoomInternal(restoreSubtab){
  if(unsubMessages){ unsubMessages(); unsubMessages = null; }
  if(isRecordingVoice && mediaRecorder && mediaRecorder.state !== 'inactive'){
   mediaRecorder.stop();
@@ -4584,9 +4715,17 @@ window.closeChatRoom = function(){
  activeGroup = null;
  document.body.classList.remove('chat-fullscreen-active');
  const roomCard = document.getElementById('chatRoomCard');
- roomCard.classList.add('hidden');
- roomCard.classList.remove('fullscreen-chat');
- window.setChatSubtab(activeChatSubtab || 'chats');
+ if(roomCard){
+  roomCard.classList.add('hidden');
+  roomCard.classList.remove('fullscreen-chat');
+ }
+ if(restoreSubtab){
+  window.setChatSubtab(activeChatSubtab || 'chats');
+ }
+}
+
+window.closeChatRoom = function(){
+ closeChatRoomInternal(true);
 };
 
 window.triggerChatMedia = function(){
@@ -4763,6 +4902,7 @@ window.toggleVoiceNote = async function(){
 };
 
 function setupCallModalUI(peerName, kind, isIncoming, statusText){
+ pushNavState();
  callKind = kind || 'audio';
  isMicMuted = false;
  isCamOff = false;
@@ -4790,7 +4930,6 @@ function setupCallModalUI(peerName, kind, isIncoming, statusText){
   localVid.classList.add('hidden');
  }
  document.getElementById('callModal').classList.remove('hidden');
- pushAppHistoryState('call-modal');
 }
 
 async function initLocalMedia(kind){
@@ -5001,6 +5140,7 @@ let pendingDpFile = null;
 
 window.openEditProfile = function(){
  if(!currentUser) return;
+ pushNavState();
  pendingDpFile = null;
  const dpInput = document.getElementById('editDpInput');
  if(dpInput) dpInput.value = '';
@@ -5009,7 +5149,6 @@ window.openEditProfile = function(){
  document.getElementById('editUsernameInput').value = currentUser.username || '';
  document.getElementById('editBioInput').value = currentUser.bio || '';
  document.getElementById('editModal').classList.remove('hidden');
- pushAppHistoryState('edit-profile');
 };
 
 window.handleDpPreview = function(e){
