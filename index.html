@@ -283,6 +283,10 @@ body.dark-mode .presence-online{color:#4ade80!important}
  font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;
  pointer-events:none;
 }
+.media-stats-row{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ margin-top:6px;font-size:12px;color:var(--muted);font-weight:600;
+}
 audio.post-audio{width:100%;margin-top:8px}
 .post-actions{
  display:flex;justify-content:space-around;
@@ -318,18 +322,18 @@ body.dark-mode .post-actions button.saved{color:#60a5fa}
 }
 .vf-stage{
  position:relative;flex:1;display:flex;align-items:center;justify-content:center;
- overflow:hidden;padding:8px;
+ overflow:hidden;padding:8px 68px 8px 8px;
 }
 #vfVideoEl{
  width:100%;max-width:920px;max-height:74vh;border-radius:12px;background:#000;
 }
 .vf-side-rail{
- position:absolute;right:14px;bottom:18px;
- display:flex;flex-direction:column;gap:14px;align-items:center;z-index:3;
+ position:absolute;right:12px;bottom:18px;
+ display:flex;flex-direction:column;gap:12px;align-items:center;z-index:3;
 }
 .vf-rail-btn{
- background:rgba(15,23,42,0.72);border:1px solid rgba(255,255,255,0.2);
- color:#fff;width:48px;height:48px;border-radius:50%;
+ background:rgba(15,23,42,0.78);border:1px solid rgba(255,255,255,0.22);
+ color:#fff;width:46px;height:46px;border-radius:50%;
  display:grid;place-items:center;font-size:18px;
 }
 .vf-rail-btn.active-like{background:#ef4444;border-color:#ef4444}
@@ -337,6 +341,7 @@ body.dark-mode .post-actions button.saved{color:#60a5fa}
 .vf-rail-label{font-size:11px;font-weight:700;text-align:center;color:#f8fafc;margin-top:3px;text-shadow:0 1px 4px #000}
 .vf-bottom-bar{
  padding:12px 16px 18px;background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);
+ display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
 }
 .vf-drawer{
  position:fixed;left:0;right:0;bottom:0;max-height:65vh;
@@ -981,7 +986,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </main>
 
-<!-- FULL-SCREEN VIDEO PLAYER WITH LIKE, COMMENT, SAVE, SHARE -->
+<!-- FULL-SCREEN VIDEO PLAYER WITH LIKE, COMMENT (HIDDEN UNTIL OPENED), SAVE, SHARE & VIEWERS -->
 <div id="videoFullscreenModal" class="hidden">
  <div class="vf-top">
   <div style="display:flex;align-items:center;gap:10px;min-width:0">
@@ -995,7 +1000,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 
  <div class="vf-stage" onclick="if(event.target===this)closeVideoFullscreen()">
-  <video id="vfVideoEl" controls autoplay playsinline></video>
+  <video id="vfVideoEl" controls autoplay playsinline onplay="recordMediaEngagement(activeFullscreenPostId,'view')"></video>
 
   <div class="vf-side-rail">
    <div style="text-align:center">
@@ -1021,6 +1026,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 
  <div class="vf-bottom-bar" id="vfBottomInfo">
+  <span id="vfViewsLabel" style="font-size:12px;color:#e2e8f0;font-weight:600">👁 0 views</span>
   <span class="link" style="color:#93c5fd;font-size:13px" onclick="openLikesListModal(activeFullscreenPostId)">View who liked this video</span>
  </div>
 
@@ -1231,7 +1237,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </div>
 
-<!-- FULL SCREEN STATUS VIEWER WITH AUTO-ADVANCE -->
+<!-- FULL SCREEN STATUS VIEWER WITH AUTO-ADVANCE & VIEWERS -->
 <div id="statusFullscreenModal" class="fullscreen-modal hidden">
  <div>
   <div class="status-progress-row" id="statusProgressRow"></div>
@@ -1383,6 +1389,7 @@ let allStatuses = [];
 let allRooms = [];
 let allGroups = [];
 let openCommentPostIds = new Set();
+let countedEngagementKeys = new Set();
 let activeFullscreenPostId = null;
 let statusPlaylist = [];
 let statusPlaylistIndex = 0;
@@ -1458,6 +1465,53 @@ function isPostSaved(postId){
  if(!currentUser || !postId) return false;
  return getSavedPostsArray(currentUser).includes(postId);
 }
+
+function getPostEngagementCount(post, kind){
+ if(!post) return 0;
+ if(kind === 'play'){
+  const arr = Array.isArray(post.playedBy) ? post.playedBy : [];
+  return Math.max(Number(post.playsCount || 0), arr.length);
+ }
+ const arr = Array.isArray(post.viewedBy) ? post.viewedBy : [];
+ return Math.max(Number(post.viewsCount || 0), arr.length);
+}
+
+window.recordMediaEngagement = async function(postId, kind){
+ if(!currentUser || !postId) return;
+ const mode = kind === 'play' ? 'play' : 'view';
+ const sessionKey = `${postId}_${mode}`;
+ if(countedEngagementKeys.has(sessionKey)) return;
+
+ const post = allPosts.find(p => p.id === postId);
+ if(!post) return;
+
+ const listField = mode === 'play' ? 'playedBy' : 'viewedBy';
+ const countField = mode === 'play' ? 'playsCount' : 'viewsCount';
+ const existingList = Array.isArray(post[listField]) ? post[listField] : [];
+
+ if(existingList.includes(currentUser.uid)){
+  countedEngagementKeys.add(sessionKey);
+  return;
+ }
+
+ countedEngagementKeys.add(sessionKey);
+ const nextList = [...existingList, currentUser.uid];
+ const nextCount = Math.max(Number(post[countField] || 0) + 1, nextList.length);
+
+ post[listField] = nextList;
+ post[countField] = nextCount;
+ renderFeed();
+ if(activeFullscreenPostId === postId){
+  syncFullscreenVideoUI();
+ }
+
+ try{
+  await updateDoc(doc(db,'posts',postId), {
+   [listField]: arrayUnion(currentUser.uid),
+   [countField]: nextCount
+  });
+ }catch(e){}
+};
 
 window.toggleSavePost = async function(postId){
  if(!currentUser || !postId) return;
@@ -1591,6 +1645,7 @@ function syncFullscreenVideoUI(){
 
  const likes = Array.isArray(post.likes) ? post.likes : [];
  const comments = Array.isArray(post.comments) ? post.comments : [];
+ const viewsCount = getPostEngagementCount(post, 'view');
  const liked = Boolean(findMyLikeEntry(likes));
  const saved = isPostSaved(post.id);
  const authorUser = getFreshUser(post.uid);
@@ -1608,6 +1663,8 @@ function syncFullscreenVideoUI(){
  document.getElementById('vfCommentCount').textContent = String(comments.length);
  document.getElementById('vfDrawerCount').textContent = String(comments.length);
  document.getElementById('vfSaveLabel').textContent = saved ? 'Saved' : 'Save';
+ const viewsEl = document.getElementById('vfViewsLabel');
+ if(viewsEl) viewsEl.textContent = `👁 ${viewsCount} ${viewsCount === 1 ? 'view' : 'views'}`;
 
  const likeBtn = document.getElementById('vfLikeBtn');
  if(likeBtn) likeBtn.classList.toggle('active-like', liked);
@@ -1632,6 +1689,7 @@ window.openVideoFullscreen = function(postId){
  if(drawer) drawer.classList.add('hidden');
  syncFullscreenVideoUI();
  document.getElementById('videoFullscreenModal').classList.remove('hidden');
+ window.recordMediaEngagement(postId, 'view');
  vidEl.play().catch(()=>{});
  pushAppHistoryState('video-fullscreen');
 };
@@ -3144,6 +3202,10 @@ window.addPost = async function(){
    mediaType,
    likes: [],
    comments: [],
+   viewedBy: [],
+   viewsCount: 0,
+   playedBy: [],
+   playsCount: 0,
    createdAt: Date.now()
   });
 
@@ -3181,6 +3243,10 @@ function renderFeed(){
    : escapeHtml(getInitials(authorName));
 
   const isVideo = Boolean(p.mediaUrl) && ((p.mediaType && p.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(p.mediaUrl));
+  const isAudio = Boolean(p.mediaUrl) && ((p.mediaType && p.mediaType.startsWith('audio/')) || /\.(mp3|wav|ogg|m4a|aac)(\?|$)/i.test(p.mediaUrl));
+  const viewsCount = getPostEngagementCount(p, 'view');
+  const playsCount = getPostEngagementCount(p, 'play');
+
   let mediaHtml = '';
   if(p.mediaUrl){
    if(isVideo){
@@ -3189,9 +3255,19 @@ function renderFeed(){
       <video src="${escapeHtml(p.mediaUrl)}" preload="metadata" playsinline muted class="post-media"></video>
       <span class="feed-video-expand-badge">⛶ Full Screen</span>
      </div>
+     <div class="media-stats-row">
+      <span>👁 ${viewsCount} ${viewsCount === 1 ? 'viewer' : 'viewers'}</span>
+      <span class="link" style="font-size:12px" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">Watch Full Screen</span>
+     </div>
     `;
-   }else if((p.mediaType && p.mediaType.startsWith('audio/')) || /\.(mp3|wav|ogg|m4a|aac)(\?|$)/i.test(p.mediaUrl)){
-    mediaHtml = `<audio src="${escapeHtml(p.mediaUrl)}" controls class="post-audio"></audio>`;
+   }else if(isAudio){
+    mediaHtml = `
+     <audio src="${escapeHtml(p.mediaUrl)}" controls class="post-audio" onplay="recordMediaEngagement('${escapeHtml(p.id)}','play')"></audio>
+     <div class="media-stats-row">
+      <span>🎧 ${playsCount} ${playsCount === 1 ? 'listener' : 'listeners'}</span>
+      <span>🎵 Audio Track</span>
+     </div>
+    `;
    }else{
     mediaHtml = `<img src="${escapeHtml(p.mediaUrl)}" class="post-media" alt="Post media">`;
    }
@@ -3451,10 +3527,12 @@ async function openStatusAtIndex(idx){
     name: currentUser.name || currentUser.email || 'Member',
     viewedAt: Date.now()
    };
+   st.viewers = [...viewers, viewerEntry];
+   const allMatch = allStatuses.find(x => x.id === st.id);
+   if(allMatch) allMatch.viewers = st.viewers;
+   renderStatusViewers(st);
    try{
     await updateDoc(doc(db,'statuses',st.id), { viewers: arrayUnion(viewerEntry) });
-    st.viewers = [...viewers, viewerEntry];
-    renderStatusViewers(st);
    }catch(e){}
   }
  }
@@ -4044,12 +4122,10 @@ function attachMessageStream(colRef, isDirect){
 
   if(isDirect && currentUser && activePeer){
    const peerUid = activePeer.uid;
-   let unreadCount = 0;
    let lastDoc = null;
    msgs.forEach(m=>{
     lastDoc = m;
     if(m.senderId === peerUid && !m.readByPeer){
-     unreadCount += 1;
      updateDoc(doc(colRef, m.id), { readByPeer: true }).catch(()=>{});
     }
    });
