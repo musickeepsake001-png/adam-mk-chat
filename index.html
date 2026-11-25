@@ -295,7 +295,7 @@ audio.post-audio{width:100%;margin-top:8px}
 .post-actions button{
  background:none;border:0;color:var(--muted);
  font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;
- padding:5px 10px;border-radius:6px;
+ padding:5px 8px;border-radius:6px;
 }
 .post-actions button.liked{color:#ef4444}
 .post-actions button.saved{color:#1877f2}
@@ -986,7 +986,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </main>
 
-<!-- FULL-SCREEN VIDEO PLAYER WITH LIKE, COMMENT (HIDDEN UNTIL OPENED), SAVE, SHARE & VIEWERS -->
+<!-- FULL-SCREEN VIDEO PLAYER WITH LIKE, COMMENT (HIDDEN UNTIL OPENED), SAVE, SHARE/DOWNLOAD & VIEWERS -->
 <div id="videoFullscreenModal" class="hidden">
  <div class="vf-top">
   <div style="display:flex;align-items:center;gap:10px;min-width:0">
@@ -1019,15 +1019,18 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    </div>
 
    <div style="text-align:center">
-    <button type="button" class="vf-rail-btn" id="vfShareBtn" onclick="sharePost(activeFullscreenPostId)">↗</button>
-    <div class="vf-rail-label">Share</div>
+    <button type="button" class="vf-rail-btn" id="vfShareBtn" onclick="sharePost(activeFullscreenPostId)">⬇</button>
+    <div class="vf-rail-label">Download</div>
    </div>
   </div>
  </div>
 
  <div class="vf-bottom-bar" id="vfBottomInfo">
-  <span id="vfViewsLabel" style="font-size:12px;color:#e2e8f0;font-weight:600">👁 0 views</span>
-  <span class="link" style="color:#93c5fd;font-size:13px" onclick="openLikesListModal(activeFullscreenPostId)">View who liked this video</span>
+  <span class="like-count-click" id="vfViewsLabel" style="font-size:12px;color:#e2e8f0;font-weight:600" onclick="openMediaViewersModal(activeFullscreenPostId,'view')">👁 0 viewers</span>
+  <div style="display:flex;gap:14px;align-items:center">
+   <span class="link" style="color:#93c5fd;font-size:13px" onclick="openMediaViewersModal(activeFullscreenPostId,'view')">Viewers</span>
+   <span class="link" style="color:#93c5fd;font-size:13px" onclick="openLikesListModal(activeFullscreenPostId)">Likes</span>
+  </div>
  </div>
 
  <div id="vfCommentDrawer" class="vf-drawer hidden">
@@ -1043,7 +1046,30 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </div>
 
-<!-- LIKES LIST MODAL (WADANDA SUKA YI LIKE) -->
+<!-- SHARE & DIRECT DOWNLOAD MODAL -->
+<div id="shareDownloadModal" class="modal hidden" onclick="if(event.target===this)closeShareDownloadModal()">
+ <div class="modal-content" style="max-width:370px">
+  <h3 id="shareModalTitle" style="margin-bottom:8px;color:var(--blue)">Share & Download</h3>
+  <p id="shareModalSub" style="font-size:13px;color:var(--muted);margin-bottom:14px"></p>
+  <div class="wa-menu-list">
+   <button type="button" class="wa-menu-item" id="directDownloadBtn">
+    <span>⬇ Direct Download to Device</span>
+    <span>Save</span>
+   </button>
+   <button type="button" class="wa-menu-item" id="shareExternalBtn">
+    <span>↗ Share via Apps / WhatsApp</span>
+    <span>Share</span>
+   </button>
+   <button type="button" class="wa-menu-item" id="copyPostLinkBtn">
+    <span>📋 Copy Post Link</span>
+    <span>Copy</span>
+   </button>
+  </div>
+  <button type="button" class="primary" style="background:#64748b;margin-top:12px" onclick="closeShareDownloadModal()">Close</button>
+ </div>
+</div>
+
+<!-- LIKES & VIEWERS LIST MODAL -->
 <div id="likesListModal" class="modal hidden" onclick="if(event.target===this)closeLikesListModal()">
  <div class="modal-content" style="max-width:360px">
   <h3 id="likesModalTitle" style="margin-bottom:12px;color:var(--blue)">Likes</h3>
@@ -1391,10 +1417,12 @@ let allGroups = [];
 let openCommentPostIds = new Set();
 let countedEngagementKeys = new Set();
 let activeFullscreenPostId = null;
+let activeSharePostId = null;
 let statusPlaylist = [];
 let statusPlaylistIndex = 0;
 let statusAutoAdvanceTimer = null;
 let statusProgressInterval = null;
+let feedViewObserver = null;
 let activePeer = null;
 let activeRoom = null;
 let activeGroup = null;
@@ -1466,14 +1494,29 @@ function isPostSaved(postId){
  return getSavedPostsArray(currentUser).includes(postId);
 }
 
+function getEngagementEntries(post, kind){
+ if(!post) return [];
+ const listField = kind === 'play' ? 'playedBy' : 'viewedBy';
+ const raw = Array.isArray(post[listField]) ? post[listField] : [];
+ return raw.map(entry => {
+  if(typeof entry === 'string'){
+   const u = getFreshUser(entry);
+   return { uid: entry, name: (u && u.name) || 'Member', username: (u && u.username) || '' };
+  }
+  const u = getFreshUser(entry && entry.uid);
+  return {
+   uid: (entry && entry.uid) || '',
+   name: (u && u.name) || (entry && entry.name) || 'Member',
+   username: (u && u.username) || (entry && entry.username) || ''
+  };
+ });
+}
+
 function getPostEngagementCount(post, kind){
  if(!post) return 0;
- if(kind === 'play'){
-  const arr = Array.isArray(post.playedBy) ? post.playedBy : [];
-  return Math.max(Number(post.playsCount || 0), arr.length);
- }
- const arr = Array.isArray(post.viewedBy) ? post.viewedBy : [];
- return Math.max(Number(post.viewsCount || 0), arr.length);
+ const entries = getEngagementEntries(post, kind);
+ const countField = kind === 'play' ? 'playsCount' : 'viewsCount';
+ return Math.max(Number(post[countField] || 0), entries.length);
 }
 
 window.recordMediaEngagement = async function(postId, kind){
@@ -1489,13 +1532,23 @@ window.recordMediaEngagement = async function(postId, kind){
  const countField = mode === 'play' ? 'playsCount' : 'viewsCount';
  const existingList = Array.isArray(post[listField]) ? post[listField] : [];
 
- if(existingList.includes(currentUser.uid)){
+ const alreadyRecorded = existingList.some(item =>
+  (typeof item === 'string' && item === currentUser.uid) ||
+  (item && item.uid === currentUser.uid)
+ );
+
+ if(alreadyRecorded){
   countedEngagementKeys.add(sessionKey);
   return;
  }
 
  countedEngagementKeys.add(sessionKey);
- const nextList = [...existingList, currentUser.uid];
+ const viewerObj = {
+  uid: currentUser.uid,
+  name: currentUser.name || currentUser.email || 'Member',
+  username: currentUser.username || ''
+ };
+ const nextList = [...existingList, viewerObj];
  const nextCount = Math.max(Number(post[countField] || 0) + 1, nextList.length);
 
  post[listField] = nextList;
@@ -1507,10 +1560,176 @@ window.recordMediaEngagement = async function(postId, kind){
 
  try{
   await updateDoc(doc(db,'posts',postId), {
-   [listField]: arrayUnion(currentUser.uid),
+   [listField]: arrayUnion(viewerObj),
    [countField]: nextCount
   });
  }catch(e){}
+};
+
+function setupFeedViewObserver(){
+ if(feedViewObserver){
+  feedViewObserver.disconnect();
+  feedViewObserver = null;
+ }
+ if(typeof IntersectionObserver === 'undefined') return;
+ feedViewObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(ent=>{
+   if(ent.isIntersecting){
+    const pid = ent.target.getAttribute('data-view-post-id');
+    const kind = ent.target.getAttribute('data-view-kind') || 'view';
+    if(pid){
+     window.recordMediaEngagement(pid, kind);
+    }
+   }
+  });
+ }, { threshold: 0.45 });
+
+ document.querySelectorAll('[data-view-post-id]').forEach(el=>{
+  feedViewObserver.observe(el);
+ });
+}
+
+window.openMediaViewersModal = function(postId, kind){
+ const post = allPosts.find(p => p.id === postId);
+ if(!post) return;
+ const mode = kind === 'play' ? 'play' : 'view';
+ const entries = getEngagementEntries(post, mode);
+ const total = getPostEngagementCount(post, mode);
+ document.getElementById('likesModalTitle').textContent = mode === 'play'
+  ? `Listeners (${total})`
+  : `Viewers (${total})`;
+ const body = document.getElementById('likesModalBody');
+ if(!entries.length){
+  body.innerHTML = `<div class="empty" style="padding:12px">${total > 0 ? `${total} ${mode === 'play' ? 'listener(s)' : 'viewer(s)'} recorded.` : 'No views recorded yet.'}</div>`;
+ }else{
+  body.innerHTML = entries.map(u=>{
+   const fresh = getFreshUser(u.uid);
+   const photo = (fresh && fresh.photoUrl) || '';
+   const av = photo
+    ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(u.name)}" onerror="this.remove();this.parentElement.textContent='${escapeHtml(getInitials(u.name))}'">`
+    : escapeHtml(getInitials(u.name));
+   return `
+    <div class="chat-row" onclick="closeLikesListModal();${u.uid ? `viewProfilePic('${escapeHtml(u.uid)}','${escapeHtml(u.name)}')` : ''}">
+     <div class="avatar">${av}</div>
+     <div class="details">
+      <strong>${escapeHtml(u.name)}</strong>
+      <small>${u.username ? '@' + escapeHtml(u.username) : 'Member'}</small>
+     </div>
+    </div>
+   `;
+  }).join('');
+ }
+ document.getElementById('likesListModal').classList.remove('hidden');
+ pushAppHistoryState('media-viewers');
+};
+
+function guessDownloadFilename(post){
+ const rawUrl = (post && post.mediaUrl) || '';
+ const cleanUrl = rawUrl.split('?')[0];
+ const extMatch = cleanUrl.match(/\.(mp4|mov|webm|m4v|mp3|wav|ogg|m4a|aac|jpg|jpeg|png|webp|gif)$/i);
+ let ext = extMatch ? extMatch[1].toLowerCase() : '';
+ if(!ext){
+  if(post && post.mediaType && post.mediaType.startsWith('video/')) ext = 'mp4';
+  else if(post && post.mediaType && post.mediaType.startsWith('audio/')) ext = 'mp3';
+  else if(post && post.mediaType && post.mediaType.startsWith('image/')) ext = 'jpg';
+  else ext = 'bin';
+ }
+ const safeAuthor = String((post && post.authorName) || 'adam_mk')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '_')
+  .replace(/^_+|_+$/g, '') || 'adam_mk';
+ return `${safeAuthor}_${(post && post.id) || Date.now()}.${ext}`;
+}
+
+async function triggerDirectFileDownload(post){
+ if(!post || !post.mediaUrl){
+  await window.copyInviteLink(false);
+  return;
+ }
+ const filename = guessDownloadFilename(post);
+ showToast(`Downloading ${filename}...`);
+ try{
+  const resp = await fetch(post.mediaUrl, { mode: 'cors' });
+  if(!resp.ok) throw new Error('Network error');
+  const blob = await resp.blob();
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(blobUrl), 4000);
+  showToast('Download started!');
+ }catch(e){
+  const a = document.createElement('a');
+  a.href = post.mediaUrl;
+  a.download = filename;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+ }
+}
+
+window.closeShareDownloadModal = function(){
+ activeSharePostId = null;
+ document.getElementById('shareDownloadModal').classList.add('hidden');
+};
+
+window.sharePost = async function(postId){
+ if(!postId) return;
+ const post = allPosts.find(p => p.id === postId);
+ activeSharePostId = postId;
+ const postUrl = `${SHARE_URL}?post=${encodeURIComponent(postId)}`;
+ const hasMedia = Boolean(post && post.mediaUrl);
+
+ document.getElementById('shareModalTitle').textContent = hasMedia ? 'Download & Share' : 'Share Post';
+ document.getElementById('shareModalSub').textContent = hasMedia
+  ? 'Save directly to your device or share with other apps.'
+  : 'Copy link or share this post with friends.';
+
+ const dlBtn = document.getElementById('directDownloadBtn');
+ dlBtn.classList.toggle('hidden', !hasMedia);
+ dlBtn.onclick = async ()=>{
+  const p = allPosts.find(x => x.id === postId);
+  closeShareDownloadModal();
+  await triggerDirectFileDownload(p);
+ };
+
+ const extBtn = document.getElementById('shareExternalBtn');
+ extBtn.onclick = async ()=>{
+  closeShareDownloadModal();
+  const shareText = (post && post.text) ? `${post.text}\n${postUrl}` : postUrl;
+  if(navigator.share){
+   try{
+    await navigator.share({
+     title: (post && post.authorName) ? `${post.authorName} - ADAM MK CHAT` : 'ADAM MK CHAT',
+     text: shareText,
+     url: postUrl
+    });
+    return;
+   }catch(e){}
+  }
+  window.open('https://wa.me/?text=' + encodeURIComponent(shareText), '_blank');
+ };
+
+ const copyBtn = document.getElementById('copyPostLinkBtn');
+ copyBtn.onclick = async ()=>{
+  closeShareDownloadModal();
+  try{
+   if(navigator.clipboard && navigator.clipboard.writeText){
+    await navigator.clipboard.writeText(postUrl);
+   }
+   showToast('Post link copied!');
+  }catch(e){
+   showToast('Link: ' + postUrl);
+  }
+ };
+
+ document.getElementById('shareDownloadModal').classList.remove('hidden');
+ pushAppHistoryState('share-download');
 };
 
 window.toggleSavePost = async function(postId){
@@ -1559,6 +1778,7 @@ function renderSavedPostsList(){
      <small>${escapeHtml(sub)}</small>
     </div>
     <div class="row-actions">
+     ${p.mediaUrl ? `<button class="mini-action-btn" onclick="triggerDirectFileDownload(allPosts.find(x=>x.id==='${escapeHtml(p.id)}'))">⬇</button>` : ''}
      ${isVid ? `<button class="mini-action-btn" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">Play</button>` : ''}
      <button class="mini-action-btn muted-btn" onclick="toggleSavePost('${escapeHtml(p.id)}')">Unsave</button>
     </div>
@@ -1664,7 +1884,7 @@ function syncFullscreenVideoUI(){
  document.getElementById('vfDrawerCount').textContent = String(comments.length);
  document.getElementById('vfSaveLabel').textContent = saved ? 'Saved' : 'Save';
  const viewsEl = document.getElementById('vfViewsLabel');
- if(viewsEl) viewsEl.textContent = `👁 ${viewsCount} ${viewsCount === 1 ? 'view' : 'views'}`;
+ if(viewsEl) viewsEl.textContent = `👁 ${viewsCount} ${viewsCount === 1 ? 'viewer' : 'viewers'}`;
 
  const likeBtn = document.getElementById('vfLikeBtn');
  if(likeBtn) likeBtn.classList.toggle('active-like', liked);
@@ -1922,6 +2142,7 @@ function closeAnyOpenModalByBack(){
  const modalsInOrder = [
   { id: 'statusFullscreenModal', closeFn: ()=>window.closeStatusFullscreen && window.closeStatusFullscreen() },
   { id: 'videoFullscreenModal', closeFn: ()=>window.closeVideoFullscreen && window.closeVideoFullscreen() },
+  { id: 'shareDownloadModal', closeFn: ()=>window.closeShareDownloadModal && window.closeShareDownloadModal() },
   { id: 'likesListModal', closeFn: ()=>window.closeLikesListModal && window.closeLikesListModal() },
   { id: 'callModal', closeFn: ()=>window.endCall && window.endCall() },
   { id: 'threeDotsModal', closeFn: ()=>window.closeUserActionMenu && window.closeUserActionMenu() },
@@ -2911,6 +3132,7 @@ window.logoutUser = async function(){
 
 function stopAllListeners(){
  stopDirectMessageWatchers();
+ if(feedViewObserver){ feedViewObserver.disconnect(); feedViewObserver = null; }
  if(unsubPosts){ unsubPosts(); unsubPosts = null; }
  if(unsubStatuses){ unsubStatuses(); unsubStatuses = null; }
  if(unsubUsers){ unsubUsers(); unsubUsers = null; }
@@ -3251,21 +3473,23 @@ function renderFeed(){
   if(p.mediaUrl){
    if(isVideo){
     mediaHtml = `
-     <div class="feed-video-wrap" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">
+     <div class="feed-video-wrap" data-view-post-id="${escapeHtml(p.id)}" data-view-kind="view" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">
       <video src="${escapeHtml(p.mediaUrl)}" preload="metadata" playsinline muted class="post-media"></video>
       <span class="feed-video-expand-badge">⛶ Full Screen</span>
      </div>
      <div class="media-stats-row">
-      <span>👁 ${viewsCount} ${viewsCount === 1 ? 'viewer' : 'viewers'}</span>
-      <span class="link" style="font-size:12px" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">Watch Full Screen</span>
+      <span class="like-count-click" onclick="openMediaViewersModal('${escapeHtml(p.id)}','view')">👁 ${viewsCount} ${viewsCount === 1 ? 'viewer' : 'viewers'}</span>
+      <span class="link" style="font-size:12px" onclick="openMediaViewersModal('${escapeHtml(p.id)}','view')">See Viewers</span>
      </div>
     `;
    }else if(isAudio){
     mediaHtml = `
-     <audio src="${escapeHtml(p.mediaUrl)}" controls class="post-audio" onplay="recordMediaEngagement('${escapeHtml(p.id)}','play')"></audio>
+     <div data-view-post-id="${escapeHtml(p.id)}" data-view-kind="play">
+      <audio src="${escapeHtml(p.mediaUrl)}" controls class="post-audio" onplay="recordMediaEngagement('${escapeHtml(p.id)}','play')"></audio>
+     </div>
      <div class="media-stats-row">
-      <span>🎧 ${playsCount} ${playsCount === 1 ? 'listener' : 'listeners'}</span>
-      <span>🎵 Audio Track</span>
+      <span class="like-count-click" onclick="openMediaViewersModal('${escapeHtml(p.id)}','play')">🎧 ${playsCount} ${playsCount === 1 ? 'listener' : 'listeners'}</span>
+      <span class="link" style="font-size:12px" onclick="openMediaViewersModal('${escapeHtml(p.id)}','play')">See Listeners</span>
      </div>
     `;
    }else{
@@ -3309,12 +3533,14 @@ function renderFeed(){
      <button class="${liked ? 'liked' : ''}" onclick="toggleLike('${escapeHtml(p.id)}')">♥ Like <span class="like-count-click" onclick="event.stopPropagation();openLikesListModal('${escapeHtml(p.id)}')">(${likes.length})</span></button>
      <button onclick="toggleFeedCommentBox('${escapeHtml(p.id)}')">💬 Comment (${comments.length})</button>
      <button class="${saved ? 'saved' : ''}" onclick="toggleSavePost('${escapeHtml(p.id)}')">🔖 ${saved ? 'Saved' : 'Save'}</button>
-     <button onclick="sharePost('${escapeHtml(p.id)}')">↗ Share</button>
+     <button onclick="sharePost('${escapeHtml(p.id)}')">⬇ Share</button>
     </div>
     ${commentBoxHtml}
    </div>
   `;
  }).join('');
+
+ setupFeedViewObserver();
 }
 
 window.toggleLike = async function(postId){
@@ -3368,19 +3594,6 @@ window.deletePost = async function(postId){
  if(!currentUser) return;
  await deleteDoc(doc(db,'posts',postId));
  showToast('Post deleted');
-};
-
-window.sharePost = async function(postId){
- if(!postId) return;
- const url = `${SHARE_URL}?post=${encodeURIComponent(postId)}`;
- try{
-  if(navigator.clipboard && navigator.clipboard.writeText){
-   await navigator.clipboard.writeText(url);
-  }
-  showToast('Post link copied!');
- }catch(e){
-  showToast('Link: ' + url);
- }
 };
 
 window.openStatusCreate = function(){
