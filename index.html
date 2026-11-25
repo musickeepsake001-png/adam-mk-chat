@@ -285,12 +285,12 @@ body.dark-mode .presence-online{color:#4ade80!important}
 }
 .media-stats-row{
  display:flex;align-items:center;justify-content:space-between;gap:10px;
- margin-top:6px;font-size:12px;color:var(--muted);font-weight:600;
+ margin-top:8px;font-size:12px;color:var(--muted);font-weight:600;
 }
 audio.post-audio{width:100%;margin-top:8px}
 .post-actions{
  display:flex;justify-content:space-around;
- border-top:1px solid var(--border);padding-top:10px;margin-top:12px;
+ border-top:1px solid var(--border);padding-top:10px;margin-top:10px;
 }
 .post-actions button{
  background:none;border:0;color:var(--muted);
@@ -1496,7 +1496,9 @@ function isPostSaved(postId){
 
 function getEngagementEntries(post, kind){
  if(!post) return [];
- const listField = kind === 'play' ? 'playedBy' : 'viewedBy';
+ let listField = 'postViewedBy';
+ if(kind === 'play') listField = 'playedBy';
+ else if(kind === 'mediaView') listField = 'viewedBy';
  const raw = Array.isArray(post[listField]) ? post[listField] : [];
  return raw.map(entry => {
   if(typeof entry === 'string'){
@@ -1515,23 +1517,32 @@ function getEngagementEntries(post, kind){
 function getPostEngagementCount(post, kind){
  if(!post) return 0;
  const entries = getEngagementEntries(post, kind);
- const countField = kind === 'play' ? 'playsCount' : 'viewsCount';
+ let countField = 'postViewsCount';
+ if(kind === 'play') countField = 'playsCount';
+ else if(kind === 'mediaView') countField = 'viewsCount';
  return Math.max(Number(post[countField] || 0), entries.length);
 }
 
 window.recordMediaEngagement = async function(postId, kind){
  if(!currentUser || !postId) return;
- const mode = kind === 'play' ? 'play' : 'view';
+ const mode = (kind === 'play' || kind === 'mediaView' || kind === 'postView') ? kind : 'postView';
  const sessionKey = `${postId}_${mode}`;
  if(countedEngagementKeys.has(sessionKey)) return;
 
  const post = allPosts.find(p => p.id === postId);
  if(!post) return;
 
- const listField = mode === 'play' ? 'playedBy' : 'viewedBy';
- const countField = mode === 'play' ? 'playsCount' : 'viewsCount';
- const existingList = Array.isArray(post[listField]) ? post[listField] : [];
+ let listField = 'postViewedBy';
+ let countField = 'postViewsCount';
+ if(mode === 'play'){
+  listField = 'playedBy';
+  countField = 'playsCount';
+ }else if(mode === 'mediaView'){
+  listField = 'viewedBy';
+  countField = 'viewsCount';
+ }
 
+ const existingList = Array.isArray(post[listField]) ? post[listField] : [];
  const alreadyRecorded = existingList.some(item =>
   (typeof item === 'string' && item === currentUser.uid) ||
   (item && item.uid === currentUser.uid)
@@ -1576,13 +1587,13 @@ function setupFeedViewObserver(){
   entries.forEach(ent=>{
    if(ent.isIntersecting){
     const pid = ent.target.getAttribute('data-view-post-id');
-    const kind = ent.target.getAttribute('data-view-kind') || 'view';
+    const kind = ent.target.getAttribute('data-view-kind') || 'postView';
     if(pid){
      window.recordMediaEngagement(pid, kind);
     }
    }
   });
- }, { threshold: 0.45 });
+ }, { threshold: 0.35 });
 
  document.querySelectorAll('[data-view-post-id]').forEach(el=>{
   feedViewObserver.observe(el);
@@ -1592,15 +1603,19 @@ function setupFeedViewObserver(){
 window.openMediaViewersModal = function(postId, kind){
  const post = allPosts.find(p => p.id === postId);
  if(!post) return;
- const mode = kind === 'play' ? 'play' : 'view';
+ const mode = (kind === 'play' || kind === 'mediaView' || kind === 'postView') ? kind : 'postView';
  const entries = getEngagementEntries(post, mode);
  const total = getPostEngagementCount(post, mode);
- document.getElementById('likesModalTitle').textContent = mode === 'play'
-  ? `Listeners (${total})`
-  : `Viewers (${total})`;
+ if(mode === 'play'){
+  document.getElementById('likesModalTitle').textContent = `Listeners (${total})`;
+ }else if(mode === 'mediaView'){
+  document.getElementById('likesModalTitle').textContent = `Video Viewers (${total})`;
+ }else{
+  document.getElementById('likesModalTitle').textContent = `Post Viewers (${total})`;
+ }
  const body = document.getElementById('likesModalBody');
  if(!entries.length){
-  body.innerHTML = `<div class="empty" style="padding:12px">${total > 0 ? `${total} ${mode === 'play' ? 'listener(s)' : 'viewer(s)'} recorded.` : 'No views recorded yet.'}</div>`;
+  body.innerHTML = `<div class="empty" style="padding:12px">${total > 0 ? `${total} viewer(s)/listener(s) recorded.` : 'No views recorded yet.'}</div>`;
  }else{
   body.innerHTML = entries.map(u=>{
    const fresh = getFreshUser(u.uid);
@@ -1865,7 +1880,7 @@ function syncFullscreenVideoUI(){
 
  const likes = Array.isArray(post.likes) ? post.likes : [];
  const comments = Array.isArray(post.comments) ? post.comments : [];
- const viewsCount = getPostEngagementCount(post, 'view');
+ const viewsCount = getPostEngagementCount(post, 'mediaView');
  const liked = Boolean(findMyLikeEntry(likes));
  const saved = isPostSaved(post.id);
  const authorUser = getFreshUser(post.uid);
@@ -1909,7 +1924,7 @@ window.openVideoFullscreen = function(postId){
  if(drawer) drawer.classList.add('hidden');
  syncFullscreenVideoUI();
  document.getElementById('videoFullscreenModal').classList.remove('hidden');
- window.recordMediaEngagement(postId, 'view');
+ window.recordMediaEngagement(postId, 'mediaView');
  vidEl.play().catch(()=>{});
  pushAppHistoryState('video-fullscreen');
 };
@@ -3424,6 +3439,8 @@ window.addPost = async function(){
    mediaType,
    likes: [],
    comments: [],
+   postViewedBy: [],
+   postViewsCount: 0,
    viewedBy: [],
    viewsCount: 0,
    playedBy: [],
@@ -3466,20 +3483,21 @@ function renderFeed(){
 
   const isVideo = Boolean(p.mediaUrl) && ((p.mediaType && p.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(p.mediaUrl));
   const isAudio = Boolean(p.mediaUrl) && ((p.mediaType && p.mediaType.startsWith('audio/')) || /\.(mp3|wav|ogg|m4a|aac)(\?|$)/i.test(p.mediaUrl));
-  const viewsCount = getPostEngagementCount(p, 'view');
+  const postViewsCount = getPostEngagementCount(p, 'postView');
+  const mediaViewsCount = getPostEngagementCount(p, 'mediaView');
   const playsCount = getPostEngagementCount(p, 'play');
 
   let mediaHtml = '';
   if(p.mediaUrl){
    if(isVideo){
     mediaHtml = `
-     <div class="feed-video-wrap" data-view-post-id="${escapeHtml(p.id)}" data-view-kind="view" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">
+     <div class="feed-video-wrap" data-view-post-id="${escapeHtml(p.id)}" data-view-kind="mediaView" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">
       <video src="${escapeHtml(p.mediaUrl)}" preload="metadata" playsinline muted class="post-media"></video>
       <span class="feed-video-expand-badge">⛶ Full Screen</span>
      </div>
      <div class="media-stats-row">
-      <span class="like-count-click" onclick="openMediaViewersModal('${escapeHtml(p.id)}','view')">👁 ${viewsCount} ${viewsCount === 1 ? 'viewer' : 'viewers'}</span>
-      <span class="link" style="font-size:12px" onclick="openMediaViewersModal('${escapeHtml(p.id)}','view')">See Viewers</span>
+      <span class="like-count-click" onclick="openMediaViewersModal('${escapeHtml(p.id)}','mediaView')">🎥 ${mediaViewsCount} ${mediaViewsCount === 1 ? 'video view' : 'video views'}</span>
+      <span class="link" style="font-size:12px" onclick="openMediaViewersModal('${escapeHtml(p.id)}','mediaView')">See Video Viewers</span>
      </div>
     `;
    }else if(isAudio){
@@ -3515,7 +3533,7 @@ function renderFeed(){
   const isOtherUser = currentUser && p.uid && p.uid !== currentUser.uid;
 
   return `
-   <div class="card">
+   <div class="card" data-view-post-id="${escapeHtml(p.id)}" data-view-kind="postView">
     <div class="post-header">
      <div class="avatar ${ringClass}" onclick="handleUserAvatarTap('${escapeHtml(p.uid || '')}','${escapeHtml(authorName)}')">${avHtml}</div>
      <div class="details">
@@ -3529,6 +3547,10 @@ function renderFeed(){
     </div>
     ${p.text ? `<div class="post-text">${escapeHtml(p.text)}</div>` : ''}
     ${mediaHtml}
+    <div class="media-stats-row">
+     <span class="like-count-click" onclick="openMediaViewersModal('${escapeHtml(p.id)}','postView')">👁 ${postViewsCount} ${postViewsCount === 1 ? 'post viewer' : 'post viewers'}</span>
+     <span class="link" style="font-size:12px" onclick="openMediaViewersModal('${escapeHtml(p.id)}','postView')">Viewers</span>
+    </div>
     <div class="post-actions">
      <button class="${liked ? 'liked' : ''}" onclick="toggleLike('${escapeHtml(p.id)}')">♥ Like <span class="like-count-click" onclick="event.stopPropagation();openLikesListModal('${escapeHtml(p.id)}')">(${likes.length})</span></button>
      <button onclick="toggleFeedCommentBox('${escapeHtml(p.id)}')">💬 Comment (${comments.length})</button>
