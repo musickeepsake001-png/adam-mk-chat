@@ -885,6 +885,10 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
   <section id="settingsPage" class="hidden">
    <h2 class="page-title">Settings</h2>
    <div class="card">
+    <div class="menu-item" onclick="requestPhoneNotificationPermission(true)">
+     <span>🔔 Phone Notifications</span>
+     <strong id="phoneNotifStatus">Check</strong>
+    </div>
     <div class="menu-item" onclick="toggleDarkMode()">
      <span>🌙 Dark Mode</span>
      <strong id="darkModeStatus">Off</strong>
@@ -1252,6 +1256,9 @@ let unsubMessages = null;
 let unsubActiveCall = null;
 let unsubIncomingCalls = null;
 let unsubCallCandidates = null;
+let unsubDirectWatchers = [];
+let notifiedMsgIds = new Set();
+let directWatchInitialized = false;
 let presenceHeartbeatTimer = null;
 let typingResetTimer = null;
 let messageSoundInitialized = false;
@@ -1291,6 +1298,156 @@ function showToast(msg){
  t.style.display = 'block';
  clearTimeout(showToast._timer);
  showToast._timer = setTimeout(()=>{ t.style.display = 'none'; }, 2800);
+}
+
+function syncPhoneNotifStatusUI(){
+ const el = document.getElementById('phoneNotifStatus');
+ if(!el) return;
+ if(!('Notification' in window)){
+  el.textContent = 'Not Supported';
+  return;
+ }
+ if(Notification.permission === 'granted') el.textContent = 'Enabled';
+ else if(Notification.permission === 'denied') el.textContent = 'Blocked';
+ else el.textContent = 'Tap to Enable';
+}
+
+window.requestPhoneNotificationPermission = async function(showFeedback){
+ if(!('Notification' in window)){
+  if(showFeedback) showToast('Wannan browser baya goyon bayan phone notifications');
+  syncPhoneNotifStatusUI();
+  return 'unsupported';
+ }
+ if(Notification.permission === 'granted'){
+  syncPhoneNotifStatusUI();
+  if(showFeedback) showToast('Phone notifications suna kunne');
+  return 'granted';
+ }
+ if(Notification.permission === 'denied'){
+  syncPhoneNotifStatusUI();
+  if(showFeedback) showToast('An toshe notification—ka kunna shi a browser/phone settings');
+  return 'denied';
+ }
+ try{
+  const perm = await Notification.requestPermission();
+  syncPhoneNotifStatusUI();
+  if(showFeedback){
+   showToast(perm === 'granted' ? 'An kunna notifications din waya!' : 'Ba a bada izinin notification ba');
+  }
+  return perm;
+ }catch(e){
+  syncPhoneNotifStatusUI();
+  return 'default';
+ }
+};
+
+function shouldFirePhoneNotification(senderId, chatPeerUid){
+ if(!currentUser || !senderId || senderId === currentUser.uid) return false;
+ if(isBlockedByMe(senderId) || isBlockedByPeer(senderId)) return false;
+ const isAppHidden = document.visibilityState !== 'visible' || !document.hasFocus();
+ const isViewingThisExactChat = !isAppHidden && activePeer && !activeRoom && !activeGroup && activePeer.uid === chatPeerUid;
+ return isAppHidden || !isViewingThisExactChat;
+}
+
+async function triggerPhoneNotification(title, body, peerUid, peerName){
+ if(!('Notification' in window) || Notification.permission !== 'granted') return;
+ const cleanTitle = String(title || 'ADAM MK CHAT');
+ const cleanBody = String(body || 'Sabon sako ya shigo');
+ const tagId = `amk-msg-${peerUid || 'general'}`;
+
+ try{
+  if(navigator.vibrate){
+   navigator.vibrate([180, 80, 180]);
+  }
+ }catch(e){}
+
+ const openTargetChat = ()=>{
+  try{ window.focus(); }catch(e){}
+  if(peerUid && currentUser){
+   window.openDirectChat(peerUid, peerName || cleanTitle);
+  }
+ };
+
+ try{
+  if('serviceWorker' in navigator){
+   const reg = await navigator.serviceWorker.getRegistration();
+   if(reg && typeof reg.showNotification === 'function'){
+    await reg.showNotification(cleanTitle, {
+     body: cleanBody,
+     icon: './icon.svg',
+     badge: './icon.svg',
+     tag: tagId,
+     renotify: true,
+     vibrate: [180, 80, 180],
+     data: { peerUid: peerUid || '', peerName: peerName || cleanTitle }
+    });
+    return;
+   }
+  }
+ }catch(e){}
+
+ try{
+  const n = new Notification(cleanTitle, {
+   body: cleanBody,
+   icon: './icon.svg',
+   tag: tagId,
+   renotify: true
+  });
+  n.onclick = openTargetChat;
+ }catch(e){}
+}
+
+function stopDirectMessageWatchers(){
+ if(Array.isArray(unsubDirectWatchers) && unsubDirectWatchers.length){
+  unsubDirectWatchers.forEach(fn => { try{ fn(); }catch(e){} });
+ }
+ unsubDirectWatchers = [];
+ directWatchInitialized = false;
+}
+
+function syncDirectMessageWatchers(){
+ if(!currentUser || !currentUser.uid){
+  stopDirectMessageWatchers();
+  return;
+ }
+ stopDirectMessageWatchers();
+ const others = allUsers.filter(u => u.uid && u.uid !== currentUser.uid);
+
+ others.forEach((peer)=>{
+  const chatId = getChatId(currentUser.uid, peer.uid);
+  const qMsg = query(collection(db,'chats',chatId,'messages'), orderBy('createdAt','asc'));
+  let firstSnapDone = false;
+
+  const unsub = onSnapshot(qMsg, (snap)=>{
+   if(!firstSnapDone){
+    firstSnapDone = true;
+    snap.forEach(d => notifiedMsgIds.add(d.id));
+    return;
+   }
+
+   snap.docChanges().forEach((chg)=>{
+    if(chg.type === 'added'){
+     const msgId = chg.doc.id;
+     if(notifiedMsgIds.has(msgId)) return;
+     notifiedMsgIds.add(msgId);
+
+     const m = chg.doc.data();
+     if(m && m.senderId && m.senderId !== currentUser.uid){
+      const senderObj = getFreshUser(m.senderId);
+      const senderLabel = (senderObj && senderObj.name) || m.senderName || peer.name || 'Member';
+      const preview = getMessagePreviewLabel(m);
+      playMessageSound(true);
+      if(shouldFirePhoneNotification(m.senderId, peer.uid)){
+       triggerPhoneNotification(senderLabel, preview, peer.uid, senderLabel);
+      }
+     }
+    }
+   });
+  });
+
+  unsubDirectWatchers.push(unsub);
+ });
+ directWatchInitialized = true;
 }
 
 function escapeHtml(str){
@@ -1408,6 +1565,7 @@ window.toggleDarkMode = function(){
   }
  }catch(e){}
  syncDarkModeLabels();
+ syncPhoneNotifStatusUI();
 })();
 
 function getLatestStatusForUid(uid){
@@ -2209,6 +2367,7 @@ window.showPage = function(page){
  }
  if(page === 'profile') updateProfileUI();
  if(page === 'notifications') renderNotifications();
+ if(page === 'settings') syncPhoneNotifStatusUI();
  if(currentUser && page !== 'home'){
   pushAppHistoryState('page-' + page);
  }
@@ -2296,6 +2455,7 @@ window.logoutUser = async function(){
 };
 
 function stopAllListeners(){
+ stopDirectMessageWatchers();
  if(unsubPosts){ unsubPosts(); unsubPosts = null; }
  if(unsubStatuses){ unsubStatuses(); unsubStatuses = null; }
  if(unsubUsers){ unsubUsers(); unsubUsers = null; }
@@ -2403,6 +2563,11 @@ onAuthStateChanged(auth, async (user)=>{
    pushAppHistoryState('init');
   }
 
+  if('Notification' in window && Notification.permission === 'default'){
+   setTimeout(()=>{ window.requestPhoneNotificationPermission(false); }, 1200);
+  }
+  syncPhoneNotifStatusUI();
+
   startPresenceHeartbeat();
   updateProfileUI();
   listenRealtime();
@@ -2442,6 +2607,7 @@ function updateProfileUI(){
 
 function listenRealtime(){
  unsubUsers = onSnapshot(collection(db,'users'), (snap)=>{
+  const prevCount = allUsers.length;
   allUsers = [];
   snap.forEach(d=>{
    const data = d.data();
@@ -2454,6 +2620,9 @@ function listenRealtime(){
     if(mergedPhoto) savePhotoLocal(uid, mergedPhoto);
    }
   });
+  if(!directWatchInitialized || allUsers.length !== prevCount){
+   syncDirectMessageWatchers();
+  }
   updateProfileUI();
   renderPeople();
   renderChatsList();
@@ -3346,12 +3515,22 @@ function attachMessageStream(colRef, isDirect){
  unsubMessages = onSnapshot(qMsg, (snap)=>{
   const box = document.getElementById('chatMessages');
   const msgs = [];
-  snap.forEach(d=>msgs.push({ id:d.id, ...d.data() }));
+  snap.forEach(d=>{
+   notifiedMsgIds.add(d.id);
+   msgs.push({ id:d.id, ...d.data() });
+  });
 
   if(messageSoundInitialized && msgs.length > lastRenderedMsgCount){
    const newest = msgs[msgs.length - 1];
-   if(newest && currentUser){
-    playMessageSound(newest.senderId !== currentUser.uid);
+   if(newest && currentUser && newest.senderId !== currentUser.uid){
+    playMessageSound(true);
+    if(!isDirect){
+     const senderObj = getFreshUser(newest.senderId);
+     const senderLabel = (senderObj && senderObj.name) || newest.senderName || 'Group Member';
+     if(shouldFirePhoneNotification(newest.senderId, '')){
+      triggerPhoneNotification(senderLabel, getMessagePreviewLabel(newest), '', senderLabel);
+     }
+    }
    }
   }
   messageSoundInitialized = true;
@@ -3624,6 +3803,9 @@ function getCurrentTargetMessagesCollection(){
 
 window.sendMessage = async function(){
  if(!currentUser) return;
+ if('Notification' in window && Notification.permission === 'default'){
+  window.requestPhoneNotificationPermission(false);
+ }
  const colRef = getCurrentTargetMessagesCollection();
  if(!colRef) return;
  const inp = document.getElementById('chatMsgInput');
@@ -3899,6 +4081,14 @@ function listenForIncomingCalls(){
      incomingCallDoc = d;
      setupCallModalUI(d.callerName || 'Incoming Call', d.kind || 'audio', true, 'Incoming call...');
      startCallRingtone();
+     if(shouldFirePhoneNotification(d.callerId, d.callerId)){
+      triggerPhoneNotification(
+       d.callerName || 'Incoming Call',
+       (d.kind === 'video' ? '🎥 Incoming Video Call' : '📞 Incoming Voice Call'),
+       d.callerId,
+       d.callerName || 'Member'
+      );
+     }
     }
     if(activeCallDocId && d.id === activeCallDocId && (d.status === 'ended' || d.status === 'declined')){
      cleanupCallResources();
