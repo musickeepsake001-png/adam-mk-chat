@@ -276,6 +276,13 @@ body.dark-mode .presence-online{color:#4ade80!important}
 .post-header small{color:var(--muted);font-size:12px}
 .post-text{line-height:1.5;margin:10px 0;white-space:pre-wrap}
 .post-media{width:100%;max-height:420px;object-fit:cover;border-radius:10px;margin-top:8px}
+.feed-video-wrap{position:relative;margin-top:8px;cursor:pointer}
+.feed-video-expand-badge{
+ position:absolute;right:10px;bottom:10px;
+ background:rgba(15,23,42,0.8);color:#fff;
+ font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;
+ pointer-events:none;
+}
 audio.post-audio{width:100%;margin-top:8px}
 .post-actions{
  display:flex;justify-content:space-around;
@@ -287,6 +294,10 @@ audio.post-audio{width:100%;margin-top:8px}
  padding:5px 10px;border-radius:6px;
 }
 .post-actions button.liked{color:#ef4444}
+.post-actions button.saved{color:#1877f2}
+body.dark-mode .post-actions button.saved{color:#60a5fa}
+.like-count-click{cursor:pointer;text-decoration:underline;text-decoration-color:transparent}
+.like-count-click:hover{text-decoration-color:currentColor}
 .comments-box{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
 .comment-item{background:var(--bg);padding:8px 12px;border-radius:10px;margin-bottom:6px;font-size:13px}
 .comment-form{display:flex;gap:8px;margin-top:8px}
@@ -294,6 +305,61 @@ audio.post-audio{width:100%;margin-top:8px}
  flex:1;padding:8px 12px;border-radius:20px;
  border:1px solid var(--border);background:var(--bg);font-size:13px;
 }
+
+/* FULLSCREEN VIDEO VIEWER MODAL */
+#videoFullscreenModal{
+ position:fixed;inset:0;background:#050811;color:#fff;
+ z-index:60;display:flex;flex-direction:column;justify-content:space-between;
+}
+.vf-top{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:14px 16px;background:linear-gradient(to bottom,rgba(0,0,0,0.75),transparent);
+ z-index:2;
+}
+.vf-stage{
+ position:relative;flex:1;display:flex;align-items:center;justify-content:center;
+ overflow:hidden;padding:8px;
+}
+#vfVideoEl{
+ width:100%;max-width:920px;max-height:74vh;border-radius:12px;background:#000;
+}
+.vf-side-rail{
+ position:absolute;right:14px;bottom:18px;
+ display:flex;flex-direction:column;gap:14px;align-items:center;z-index:3;
+}
+.vf-rail-btn{
+ background:rgba(15,23,42,0.72);border:1px solid rgba(255,255,255,0.2);
+ color:#fff;width:48px;height:48px;border-radius:50%;
+ display:grid;place-items:center;font-size:18px;
+}
+.vf-rail-btn.active-like{background:#ef4444;border-color:#ef4444}
+.vf-rail-btn.active-save{background:#1877f2;border-color:#1877f2}
+.vf-rail-label{font-size:11px;font-weight:700;text-align:center;color:#f8fafc;margin-top:3px;text-shadow:0 1px 4px #000}
+.vf-bottom-bar{
+ padding:12px 16px 18px;background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);
+}
+.vf-drawer{
+ position:fixed;left:0;right:0;bottom:0;max-height:65vh;
+ background:var(--card);color:var(--text);
+ border-top-left-radius:18px;border-top-right-radius:18px;
+ padding:16px;z-index:65;overflow-y:auto;box-shadow:0 -8px 28px rgba(0,0,0,0.45);
+}
+
+/* STATUS PROGRESS BARS */
+.status-progress-row{
+ display:flex;gap:4px;width:100%;margin-bottom:12px;
+}
+.status-seg{
+ flex:1;height:3px;border-radius:999px;background:rgba(255,255,255,0.28);overflow:hidden;
+}
+.status-seg-fill{
+ height:100%;width:0%;background:#fff;transition:width 0.1s linear;
+}
+.status-seg.done .status-seg-fill{width:100%}
+.status-nav-row{
+ display:flex;justify-content:space-between;gap:10px;width:100%;max-width:440px;margin-top:12px;
+}
+
 .navbar{
  position:fixed;bottom:0;left:0;right:0;
  background:var(--card);border-top:1px solid var(--border);
@@ -517,7 +583,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  text-align:center;overflow-y:auto;padding:16px 6px;
 }
 .fullscreen-img{
- max-width:100%;max-height:52vh;object-fit:contain;border-radius:12px;margin:12px 0;
+ max-width:100%;max-height:48vh;object-fit:contain;border-radius:12px;margin:10px 0;
 }
 .viewers-box{
  width:100%;max-width:440px;background:rgba(255,255,255,0.08);
@@ -551,7 +617,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 #toast{
  position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
  background:#0f172a;color:#fff;padding:10px 16px;border-radius:20px;
- font-size:13px;display:none;z-index:60;box-shadow:0 4px 14px rgba(0,0,0,0.25);
+ font-size:13px;display:none;z-index:70;box-shadow:0 4px 14px rgba(0,0,0,0.25);
  max-width:90%;text-align:center;
 }
 @media(min-width:700px){
@@ -870,7 +936,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
     <div class="stats">
      <div><strong id="statPosts">0</strong><small>Posts</small></div>
      <div><strong id="statFriends">0</strong><small>Friends</small></div>
-     <div><strong id="statFollowing">0</strong><small>Following</small></div>
+     <div><strong id="statSaved">0</strong><small>Saved</small></div>
      <div><strong id="statUsers">0</strong><small>Members</small></div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -878,6 +944,11 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
      <button class="secondary-btn" style="flex:1;justify-content:center;padding:12px" onclick="toggleDarkMode()">🌙 Dark Mode: <span class="dark-mode-label">Off</span></button>
      <button class="secondary-btn" style="flex:1;justify-content:center;padding:12px" onclick="viewMyProfilePic()">🖼 View DP</button>
     </div>
+   </div>
+
+   <div class="card">
+    <div class="section-title" style="margin-bottom:10px">🔖 Saved Posts & Videos</div>
+    <div id="savedPostsList"></div>
    </div>
   </section>
 
@@ -909,6 +980,71 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 
  </div>
 </main>
+
+<!-- FULL-SCREEN VIDEO PLAYER WITH LIKE, COMMENT, SAVE, SHARE -->
+<div id="videoFullscreenModal" class="hidden">
+ <div class="vf-top">
+  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+   <div class="avatar" id="vfAuthorAvatar" style="width:38px;height:38px">MK</div>
+   <div style="min-width:0">
+    <strong id="vfAuthorName" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Author</strong>
+    <small id="vfCaptionText" style="color:#cbd5e1;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></small>
+   </div>
+  </div>
+  <button type="button" class="call-btn" style="background:rgba(255,255,255,0.18);padding:8px 14px" onclick="closeVideoFullscreen()">✕ Close</button>
+ </div>
+
+ <div class="vf-stage" onclick="if(event.target===this)closeVideoFullscreen()">
+  <video id="vfVideoEl" controls autoplay playsinline></video>
+
+  <div class="vf-side-rail">
+   <div style="text-align:center">
+    <button type="button" class="vf-rail-btn" id="vfLikeBtn" onclick="toggleLikeActiveVideo()">♥</button>
+    <div class="vf-rail-label like-count-click" id="vfLikeCount" onclick="openLikesListModal(activeFullscreenPostId)">0</div>
+   </div>
+
+   <div style="text-align:center">
+    <button type="button" class="vf-rail-btn" id="vfCommentBtn" onclick="toggleVideoCommentDrawer()">💬</button>
+    <div class="vf-rail-label" id="vfCommentCount">0</div>
+   </div>
+
+   <div style="text-align:center">
+    <button type="button" class="vf-rail-btn" id="vfSaveBtn" onclick="toggleSaveActiveVideo()">🔖</button>
+    <div class="vf-rail-label" id="vfSaveLabel">Save</div>
+   </div>
+
+   <div style="text-align:center">
+    <button type="button" class="vf-rail-btn" id="vfShareBtn" onclick="sharePost(activeFullscreenPostId)">↗</button>
+    <div class="vf-rail-label">Share</div>
+   </div>
+  </div>
+ </div>
+
+ <div class="vf-bottom-bar" id="vfBottomInfo">
+  <span class="link" style="color:#93c5fd;font-size:13px" onclick="openLikesListModal(activeFullscreenPostId)">View who liked this video</span>
+ </div>
+
+ <div id="vfCommentDrawer" class="vf-drawer hidden">
+  <div class="section-title-row" style="margin-bottom:8px">
+   <div class="section-title">Comments (<span id="vfDrawerCount">0</span>)</div>
+   <button type="button" class="link" onclick="toggleVideoCommentDrawer(false)" style="color:#ef4444">✕ Close</button>
+  </div>
+  <div id="vfCommentsList"></div>
+  <div class="comment-form" style="margin-top:10px">
+   <input id="vfCommentInput" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addVideoDrawerComment()">
+   <button type="button" class="mini-action-btn" onclick="addVideoDrawerComment()">Send</button>
+  </div>
+ </div>
+</div>
+
+<!-- LIKES LIST MODAL (WADANDA SUKA YI LIKE) -->
+<div id="likesListModal" class="modal hidden" onclick="if(event.target===this)closeLikesListModal()">
+ <div class="modal-content" style="max-width:360px">
+  <h3 id="likesModalTitle" style="margin-bottom:12px;color:var(--blue)">Likes</h3>
+  <div id="likesModalBody"></div>
+  <button type="button" class="primary" style="background:#64748b;margin-top:14px" onclick="closeLikesListModal()">Close</button>
+ </div>
+</div>
 
 <!-- WHATSAPP-STYLE 3-DOTS ACTION MENU MODAL -->
 <div id="threeDotsModal" class="modal hidden" onclick="if(event.target===this)closeUserActionMenu()">
@@ -1095,25 +1231,33 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
  </div>
 </div>
 
-<!-- FULL SCREEN STATUS VIEWER -->
+<!-- FULL SCREEN STATUS VIEWER WITH AUTO-ADVANCE -->
 <div id="statusFullscreenModal" class="fullscreen-modal hidden">
- <div class="fullscreen-top">
-  <div style="display:flex;align-items:center;gap:10px">
-   <div class="avatar" id="fsStatusAvatar" style="width:40px;height:40px">U</div>
-   <div>
-    <strong id="fsStatusAuthor">User</strong><br>
-    <small id="fsStatusTime" style="color:#cbd5e1"></small>
+ <div>
+  <div class="status-progress-row" id="statusProgressRow"></div>
+  <div class="fullscreen-top">
+   <div style="display:flex;align-items:center;gap:10px">
+    <div class="avatar" id="fsStatusAvatar" style="width:40px;height:40px">U</div>
+    <div>
+     <strong id="fsStatusAuthor">User</strong><br>
+     <small id="fsStatusTime" style="color:#cbd5e1"></small>
+    </div>
    </div>
-  </div>
-  <div style="display:flex;gap:8px">
-   <button class="call-btn" style="background:#1877f2;padding:8px 12px;font-size:12px" onclick="closeStatusFullscreen();openStatusCreate()">+ New</button>
-   <button class="call-btn" style="background:#ef4444;padding:8px 14px" onclick="closeStatusFullscreen()">✕ Close</button>
+   <div style="display:flex;gap:8px">
+    <button class="call-btn" style="background:#1877f2;padding:8px 12px;font-size:12px" onclick="closeStatusFullscreen();openStatusCreate()">+ New</button>
+    <button class="call-btn" style="background:#ef4444;padding:8px 14px" onclick="closeStatusFullscreen()">✕ Close</button>
+   </div>
   </div>
  </div>
 
  <div class="fullscreen-body">
   <img id="fsStatusImg" class="fullscreen-img hidden" alt="Status image">
   <p id="fsStatusText" style="font-size:18px;line-height:1.5;max-width:540px"></p>
+
+  <div class="status-nav-row">
+   <button type="button" class="call-btn" style="background:rgba(255,255,255,0.16);flex:1" onclick="stepStatusSequence(-1)">‹ Prev</button>
+   <button type="button" class="call-btn" style="background:rgba(255,255,255,0.16);flex:1" onclick="stepStatusSequence(1)">Next ›</button>
+  </div>
 
   <div class="viewers-box">
    <strong id="fsViewersCount">👁 Viewed by (0)</strong>
@@ -1238,6 +1382,12 @@ let allPosts = [];
 let allStatuses = [];
 let allRooms = [];
 let allGroups = [];
+let openCommentPostIds = new Set();
+let activeFullscreenPostId = null;
+let statusPlaylist = [];
+let statusPlaylistIndex = 0;
+let statusAutoAdvanceTimer = null;
+let statusProgressInterval = null;
 let activePeer = null;
 let activeRoom = null;
 let activeGroup = null;
@@ -1299,6 +1449,246 @@ function showToast(msg){
  clearTimeout(showToast._timer);
  showToast._timer = setTimeout(()=>{ t.style.display = 'none'; }, 2800);
 }
+
+function getSavedPostsArray(userObj){
+ return Array.isArray(userObj && userObj.savedPosts) ? userObj.savedPosts : [];
+}
+
+function isPostSaved(postId){
+ if(!currentUser || !postId) return false;
+ return getSavedPostsArray(currentUser).includes(postId);
+}
+
+window.toggleSavePost = async function(postId){
+ if(!currentUser || !postId) return;
+ const saved = getSavedPostsArray(currentUser);
+ const exists = saved.includes(postId);
+ const ref = doc(db,'users',currentUser.uid);
+ try{
+  if(exists){
+   currentUser.savedPosts = saved.filter(id => id !== postId);
+   await updateDoc(ref, { savedPosts: arrayRemove(postId) }).catch(()=>{});
+   showToast('Removed from Saved');
+  }else{
+   currentUser.savedPosts = [...saved, postId];
+   await setDoc(ref, { savedPosts: arrayUnion(postId) }, { merge:true });
+   showToast('Saved to your profile!');
+  }
+  renderFeed();
+  updateProfileUI();
+  renderSavedPostsList();
+  if(activeFullscreenPostId === postId){
+   syncFullscreenVideoUI();
+  }
+ }catch(e){
+  showToast('Could not update saved item');
+ }
+};
+
+function renderSavedPostsList(){
+ const box = document.getElementById('savedPostsList');
+ if(!box || !currentUser) return;
+ const savedIds = getSavedPostsArray(currentUser);
+ const items = savedIds.map(id => allPosts.find(p => p.id === id)).filter(Boolean);
+ if(!items.length){
+  box.innerHTML = '<div class="empty" style="padding:10px">No saved posts or videos yet.</div>';
+  return;
+ }
+ box.innerHTML = items.map(p=>{
+  const isVid = (p.mediaType && p.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(p.mediaUrl || '');
+  const sub = p.text || (isVid ? '🎥 Video post' : '📄 Post');
+  return `
+   <div class="chat-row">
+    <div class="avatar">${isVid ? '🎥' : '🔖'}</div>
+    <div class="details" onclick="${isVid ? `openVideoFullscreen('${escapeHtml(p.id)}')` : `showPage('home')`}">
+     <strong>${escapeHtml(p.authorName || 'Member')}</strong>
+     <small>${escapeHtml(sub)}</small>
+    </div>
+    <div class="row-actions">
+     ${isVid ? `<button class="mini-action-btn" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">Play</button>` : ''}
+     <button class="mini-action-btn muted-btn" onclick="toggleSavePost('${escapeHtml(p.id)}')">Unsave</button>
+    </div>
+   </div>
+  `;
+ }).join('');
+}
+
+function getLikeUserEntries(likesArr){
+ const arr = Array.isArray(likesArr) ? likesArr : [];
+ return arr.map(entry => {
+  if(typeof entry === 'string'){
+   const u = getFreshUser(entry);
+   return { uid: entry, name: (u && u.name) || 'Member', username: (u && u.username) || '' };
+  }
+  const u = getFreshUser(entry && entry.uid);
+  return {
+   uid: (entry && entry.uid) || '',
+   name: (u && u.name) || (entry && entry.name) || 'Member',
+   username: (u && u.username) || (entry && entry.username) || ''
+  };
+ });
+}
+
+function findMyLikeEntry(likesArr){
+ if(!currentUser || !Array.isArray(likesArr)) return null;
+ return likesArr.find(x => (typeof x === 'string' && x === currentUser.uid) || (x && x.uid === currentUser.uid)) || null;
+}
+
+window.openLikesListModal = function(postId){
+ const post = allPosts.find(p => p.id === postId);
+ if(!post) return;
+ const entries = getLikeUserEntries(post.likes);
+ document.getElementById('likesModalTitle').textContent = `Likes (${entries.length})`;
+ const body = document.getElementById('likesModalBody');
+ if(!entries.length){
+  body.innerHTML = '<div class="empty" style="padding:12px">No likes yet.</div>';
+ }else{
+  body.innerHTML = entries.map(u=>{
+   const fresh = getFreshUser(u.uid);
+   const photo = (fresh && fresh.photoUrl) || '';
+   const av = photo
+    ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(u.name)}" onerror="this.remove();this.parentElement.textContent='${escapeHtml(getInitials(u.name))}'">`
+    : escapeHtml(getInitials(u.name));
+   return `
+    <div class="chat-row" onclick="closeLikesListModal();${u.uid ? `viewProfilePic('${escapeHtml(u.uid)}','${escapeHtml(u.name)}')` : ''}">
+     <div class="avatar">${av}</div>
+     <div class="details">
+      <strong>${escapeHtml(u.name)}</strong>
+      <small>${u.username ? '@' + escapeHtml(u.username) : 'Member'}</small>
+     </div>
+    </div>
+   `;
+  }).join('');
+ }
+ document.getElementById('likesListModal').classList.remove('hidden');
+ pushAppHistoryState('likes-list');
+};
+
+window.closeLikesListModal = function(){
+ document.getElementById('likesListModal').classList.add('hidden');
+};
+
+window.toggleFeedCommentBox = function(postId){
+ if(!postId) return;
+ if(openCommentPostIds.has(postId)){
+  openCommentPostIds.delete(postId);
+ }else{
+  openCommentPostIds.add(postId);
+ }
+ renderFeed();
+ if(openCommentPostIds.has(postId)){
+  setTimeout(()=>{
+   const inp = document.getElementById('comment-input-' + postId);
+   if(inp) inp.focus();
+  }, 40);
+ }
+};
+
+function syncFullscreenVideoUI(){
+ if(!activeFullscreenPostId) return;
+ const post = allPosts.find(p => p.id === activeFullscreenPostId);
+ if(!post){ closeVideoFullscreen(); return; }
+
+ const likes = Array.isArray(post.likes) ? post.likes : [];
+ const comments = Array.isArray(post.comments) ? post.comments : [];
+ const liked = Boolean(findMyLikeEntry(likes));
+ const saved = isPostSaved(post.id);
+ const authorUser = getFreshUser(post.uid);
+ const authorName = (authorUser && authorUser.name) || post.authorName || 'Member';
+ const photo = (authorUser && authorUser.photoUrl) || post.authorPhoto || '';
+
+ const avEl = document.getElementById('vfAuthorAvatar');
+ avEl.innerHTML = photo
+  ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(authorName)}" onerror="this.remove();this.parentElement.textContent='${escapeHtml(getInitials(authorName))}'">`
+  : escapeHtml(getInitials(authorName));
+
+ document.getElementById('vfAuthorName').textContent = authorName;
+ document.getElementById('vfCaptionText').textContent = post.text || '';
+ document.getElementById('vfLikeCount').textContent = String(likes.length);
+ document.getElementById('vfCommentCount').textContent = String(comments.length);
+ document.getElementById('vfDrawerCount').textContent = String(comments.length);
+ document.getElementById('vfSaveLabel').textContent = saved ? 'Saved' : 'Save';
+
+ const likeBtn = document.getElementById('vfLikeBtn');
+ if(likeBtn) likeBtn.classList.toggle('active-like', liked);
+ const saveBtn = document.getElementById('vfSaveBtn');
+ if(saveBtn) saveBtn.classList.toggle('active-save', saved);
+
+ const cList = document.getElementById('vfCommentsList');
+ if(cList){
+  cList.innerHTML = comments.length
+   ? comments.map(c=>`<div class="comment-item"><strong>${escapeHtml(c.authorName || 'Member')}:</strong> ${escapeHtml(c.text || '')}</div>`).join('')
+   : '<div class="empty" style="padding:10px">No comments yet.</div>';
+ }
+}
+
+window.openVideoFullscreen = function(postId){
+ const post = allPosts.find(p => p.id === postId);
+ if(!post || !post.mediaUrl) return;
+ activeFullscreenPostId = postId;
+ const vidEl = document.getElementById('vfVideoEl');
+ vidEl.src = post.mediaUrl;
+ const drawer = document.getElementById('vfCommentDrawer');
+ if(drawer) drawer.classList.add('hidden');
+ syncFullscreenVideoUI();
+ document.getElementById('videoFullscreenModal').classList.remove('hidden');
+ vidEl.play().catch(()=>{});
+ pushAppHistoryState('video-fullscreen');
+};
+
+window.closeVideoFullscreen = function(){
+ const vidEl = document.getElementById('vfVideoEl');
+ if(vidEl){
+  vidEl.pause();
+  vidEl.removeAttribute('src');
+  vidEl.load();
+ }
+ const drawer = document.getElementById('vfCommentDrawer');
+ if(drawer) drawer.classList.add('hidden');
+ activeFullscreenPostId = null;
+ document.getElementById('videoFullscreenModal').classList.add('hidden');
+};
+
+window.toggleLikeActiveVideo = async function(){
+ if(!activeFullscreenPostId) return;
+ await window.toggleLike(activeFullscreenPostId);
+};
+
+window.toggleSaveActiveVideo = async function(){
+ if(!activeFullscreenPostId) return;
+ await window.toggleSavePost(activeFullscreenPostId);
+};
+
+window.toggleVideoCommentDrawer = function(forceOpen){
+ const drawer = document.getElementById('vfCommentDrawer');
+ if(!drawer) return;
+ const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : drawer.classList.contains('hidden');
+ drawer.classList.toggle('hidden', !shouldOpen);
+ if(shouldOpen){
+  syncFullscreenVideoUI();
+  setTimeout(()=>{
+   const inp = document.getElementById('vfCommentInput');
+   if(inp) inp.focus();
+  }, 40);
+ }
+};
+
+window.addVideoDrawerComment = async function(){
+ if(!currentUser || !activeFullscreenPostId) return;
+ const inp = document.getElementById('vfCommentInput');
+ const text = inp.value.trim();
+ if(!text) return;
+ const ref = doc(db,'posts',activeFullscreenPostId);
+ await updateDoc(ref, {
+  comments: arrayUnion({
+   uid: currentUser.uid,
+   authorName: currentUser.name || currentUser.email,
+   text,
+   createdAt: Date.now()
+  })
+ });
+ inp.value = '';
+};
 
 function syncPhoneNotifStatusUI(){
  const el = document.getElementById('phoneNotifStatus');
@@ -1473,6 +1863,8 @@ function pushAppHistoryState(tag){
 function closeAnyOpenModalByBack(){
  const modalsInOrder = [
   { id: 'statusFullscreenModal', closeFn: ()=>window.closeStatusFullscreen && window.closeStatusFullscreen() },
+  { id: 'videoFullscreenModal', closeFn: ()=>window.closeVideoFullscreen && window.closeVideoFullscreen() },
+  { id: 'likesListModal', closeFn: ()=>window.closeLikesListModal && window.closeLikesListModal() },
   { id: 'callModal', closeFn: ()=>window.endCall && window.endCall() },
   { id: 'threeDotsModal', closeFn: ()=>window.closeUserActionMenu && window.closeUserActionMenu() },
   { id: 'reportModal', closeFn: ()=>window.closeReportModal && window.closeReportModal() },
@@ -1908,6 +2300,7 @@ function fallbackUserFromAuth(user){
   following: [],
   followers: [],
   blockedUsers: [],
+  savedPosts: [],
   typingTo: '',
   typingAt: 0,
   isOnline: true,
@@ -2365,7 +2758,10 @@ window.showPage = function(page){
   renderPeople();
   renderStatuses();
  }
- if(page === 'profile') updateProfileUI();
+ if(page === 'profile'){
+  updateProfileUI();
+  renderSavedPostsList();
+ }
  if(page === 'notifications') renderNotifications();
  if(page === 'settings') syncPhoneNotifStatusUI();
  if(currentUser && page !== 'home'){
@@ -2414,6 +2810,7 @@ window.registerUser = async function(){
    following: [],
    followers: [],
    blockedUsers: [],
+   savedPosts: [],
    typingTo: '',
    typingAt: 0,
    isOnline: true,
@@ -2545,6 +2942,7 @@ onAuthStateChanged(auth, async (user)=>{
     following: Array.isArray(currentUser.following) ? currentUser.following : [],
     followers: Array.isArray(currentUser.followers) ? currentUser.followers : [],
     blockedUsers: getBlockedArray(currentUser),
+    savedPosts: getSavedPostsArray(currentUser),
     isOnline: true,
     lastSeen: Date.now()
    }, { merge:true });
@@ -2600,7 +2998,8 @@ function updateProfileUI(){
  const myPostsCount = allPosts.filter(p => p.uid === currentUser.uid).length;
  document.getElementById('statPosts').textContent = myPostsCount;
  document.getElementById('statFriends').textContent = getFriendsArray(currentUser).length;
- document.getElementById('statFollowing').textContent = (currentUser.following || []).length;
+ const savedEl = document.getElementById('statSaved');
+ if(savedEl) savedEl.textContent = getSavedPostsArray(currentUser).length;
  document.getElementById('statUsers').textContent = allUsers.length;
  updateUnreadBadgesUI();
 }
@@ -2624,6 +3023,7 @@ function listenRealtime(){
    syncDirectMessageWatchers();
   }
   updateProfileUI();
+  renderSavedPostsList();
   renderPeople();
   renderChatsList();
   renderStatuses();
@@ -2650,6 +3050,10 @@ function listenRealtime(){
   snap.forEach(d=>allPosts.push({ id:d.id, ...d.data() }));
   renderFeed();
   updateProfileUI();
+  renderSavedPostsList();
+  if(activeFullscreenPostId){
+   syncFullscreenVideoUI();
+  }
  });
 
  unsubStatuses = onSnapshot(collection(db,'statuses'), (snap)=>{
@@ -2662,7 +3066,7 @@ function listenRealtime(){
     allStatuses.push(st);
    }
   });
-  allStatuses.sort((a,b)=>parseTimestampMs(b.createdAt) - parseTimestampMs(a.createdAt));
+  allStatuses.sort((a,b)=>parseTimestampMs(a.createdAt) - parseTimestampMs(b.createdAt));
   renderStatuses();
   updateProfileUI();
   if(activePeer && !activeRoom && !activeGroup){
@@ -2765,7 +3169,9 @@ function renderFeed(){
  feed.innerHTML = visiblePosts.map(p=>{
   const likes = Array.isArray(p.likes) ? p.likes : [];
   const comments = Array.isArray(p.comments) ? p.comments : [];
-  const liked = currentUser && likes.includes(currentUser.uid);
+  const liked = Boolean(findMyLikeEntry(likes));
+  const saved = isPostSaved(p.id);
+  const commentsOpen = openCommentPostIds.has(p.id);
   const authorUser = getFreshUser(p.uid);
   const authorName = (authorUser && authorUser.name) || p.authorName || 'Member';
   const photo = (authorUser && authorUser.photoUrl) || p.authorPhoto || '';
@@ -2774,10 +3180,16 @@ function renderFeed(){
    ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(authorName)}" onerror="this.remove();this.parentElement.textContent='${escapeHtml(getInitials(authorName))}'">`
    : escapeHtml(getInitials(authorName));
 
+  const isVideo = Boolean(p.mediaUrl) && ((p.mediaType && p.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(p.mediaUrl));
   let mediaHtml = '';
   if(p.mediaUrl){
-   if((p.mediaType && p.mediaType.startsWith('video/')) || /\.(mp4|mov|webm|m4v)(\?|$)/i.test(p.mediaUrl)){
-    mediaHtml = `<video src="${escapeHtml(p.mediaUrl)}" controls class="post-media"></video>`;
+   if(isVideo){
+    mediaHtml = `
+     <div class="feed-video-wrap" onclick="openVideoFullscreen('${escapeHtml(p.id)}')">
+      <video src="${escapeHtml(p.mediaUrl)}" preload="metadata" playsinline muted class="post-media"></video>
+      <span class="feed-video-expand-badge">⛶ Full Screen</span>
+     </div>
+    `;
    }else if((p.mediaType && p.mediaType.startsWith('audio/')) || /\.(mp3|wav|ogg|m4a|aac)(\?|$)/i.test(p.mediaUrl)){
     mediaHtml = `<audio src="${escapeHtml(p.mediaUrl)}" controls class="post-audio"></audio>`;
    }else{
@@ -2788,6 +3200,16 @@ function renderFeed(){
   const commentsHtml = comments.map(c=>`
    <div class="comment-item"><strong>${escapeHtml(c.authorName || 'Member')}:</strong> ${escapeHtml(c.text || '')}</div>
   `).join('');
+
+  const commentBoxHtml = commentsOpen ? `
+   <div class="comments-box">
+    <div id="comments-${escapeHtml(p.id)}">${commentsHtml || '<div class="empty" style="padding:6px">No comments yet.</div>'}</div>
+    <div class="comment-form">
+     <input id="comment-input-${escapeHtml(p.id)}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addComment('${escapeHtml(p.id)}')">
+     <button class="link" onclick="addComment('${escapeHtml(p.id)}')">Send</button>
+    </div>
+   </div>
+  ` : '';
 
   const canDelete = currentUser && p.uid === currentUser.uid;
   const isOtherUser = currentUser && p.uid && p.uid !== currentUser.uid;
@@ -2808,17 +3230,12 @@ function renderFeed(){
     ${p.text ? `<div class="post-text">${escapeHtml(p.text)}</div>` : ''}
     ${mediaHtml}
     <div class="post-actions">
-     <button class="${liked ? 'liked' : ''}" onclick="toggleLike('${escapeHtml(p.id)}')">♥ Like (${likes.length})</button>
-     <button onclick="focusComment('${escapeHtml(p.id)}')">💬 Comment (${comments.length})</button>
+     <button class="${liked ? 'liked' : ''}" onclick="toggleLike('${escapeHtml(p.id)}')">♥ Like <span class="like-count-click" onclick="event.stopPropagation();openLikesListModal('${escapeHtml(p.id)}')">(${likes.length})</span></button>
+     <button onclick="toggleFeedCommentBox('${escapeHtml(p.id)}')">💬 Comment (${comments.length})</button>
+     <button class="${saved ? 'saved' : ''}" onclick="toggleSavePost('${escapeHtml(p.id)}')">🔖 ${saved ? 'Saved' : 'Save'}</button>
      <button onclick="sharePost('${escapeHtml(p.id)}')">↗ Share</button>
     </div>
-    <div class="comments-box">
-     <div id="comments-${escapeHtml(p.id)}">${commentsHtml}</div>
-     <div class="comment-form">
-      <input id="comment-input-${escapeHtml(p.id)}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addComment('${escapeHtml(p.id)}')">
-      <button class="link" onclick="addComment('${escapeHtml(p.id)}')">Send</button>
-     </div>
-    </div>
+    ${commentBoxHtml}
    </div>
   `;
  }).join('');
@@ -2830,16 +3247,27 @@ window.toggleLike = async function(postId){
  if(!post) return;
  const likes = Array.isArray(post.likes) ? post.likes : [];
  const ref = doc(db,'posts',postId);
- if(likes.includes(currentUser.uid)){
-  await updateDoc(ref, { likes: arrayRemove(currentUser.uid) });
+ const existingEntry = findMyLikeEntry(likes);
+ if(existingEntry){
+  await updateDoc(ref, { likes: arrayRemove(existingEntry) });
  }else{
-  await updateDoc(ref, { likes: arrayUnion(currentUser.uid) });
+  await updateDoc(ref, {
+   likes: arrayUnion({
+    uid: currentUser.uid,
+    name: currentUser.name || currentUser.email || 'Member',
+    username: currentUser.username || ''
+   })
+  });
  }
 };
 
 window.focusComment = function(postId){
- const inp = document.getElementById('comment-input-' + postId);
- if(inp) inp.focus();
+ openCommentPostIds.add(postId);
+ renderFeed();
+ setTimeout(()=>{
+  const inp = document.getElementById('comment-input-' + postId);
+  if(inp) inp.focus();
+ }, 40);
 };
 
 window.addComment = async function(postId){
@@ -2857,6 +3285,7 @@ window.addComment = async function(postId){
   })
  });
  inp.value = '';
+ openCommentPostIds.add(postId);
 };
 
 window.deletePost = async function(postId){
@@ -2866,6 +3295,7 @@ window.deletePost = async function(postId){
 };
 
 window.sharePost = async function(postId){
+ if(!postId) return;
  const url = `${SHARE_URL}?post=${encodeURIComponent(postId)}`;
  try{
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -2935,17 +3365,57 @@ function renderStatusViewers(st){
  listEl.innerHTML = viewers.map(v => `<span class="viewer-pill">${escapeHtml(v.name || 'Member')}</span>`).join('');
 }
 
-window.openStatusById = function(statusId){
- const st = allStatuses.find(x => x.id === statusId);
- if(st) openStatusFullscreen(st);
-};
+function clearStatusAutoTimers(){
+ if(statusAutoAdvanceTimer){
+  clearTimeout(statusAutoAdvanceTimer);
+  statusAutoAdvanceTimer = null;
+ }
+ if(statusProgressInterval){
+  clearInterval(statusProgressInterval);
+  statusProgressInterval = null;
+ }
+}
 
-async function openStatusFullscreen(st){
- if(!st || !currentUser) return;
- if(!canViewUserStatus(st.uid)){
-  showToast('Only friends can view this status');
+function buildStatusProgressBars(){
+ const row = document.getElementById('statusProgressRow');
+ if(!row) return;
+ row.innerHTML = statusPlaylist.map((_, idx)=>{
+  const cls = idx < statusPlaylistIndex ? 'status-seg done' : 'status-seg';
+  return `<div class="${cls}"><div class="status-seg-fill" id="statusSegFill_${idx}"></div></div>`;
+ }).join('');
+}
+
+function startStatusAutoAdvance(durationMs){
+ clearStatusAutoTimers();
+ buildStatusProgressBars();
+ const total = durationMs || 6000;
+ const startTime = Date.now();
+ const activeFill = document.getElementById(`statusSegFill_${statusPlaylistIndex}`);
+
+ statusProgressInterval = setInterval(()=>{
+  const elapsed = Date.now() - startTime;
+  const pct = Math.min(100, (elapsed / total) * 100);
+  if(activeFill) activeFill.style.width = pct + '%';
+ }, 80);
+
+ statusAutoAdvanceTimer = setTimeout(()=>{
+  if(statusPlaylistIndex + 1 < statusPlaylist.length){
+   openStatusAtIndex(statusPlaylistIndex + 1);
+  }else{
+   window.closeStatusFullscreen();
+  }
+ }, total);
+}
+
+async function openStatusAtIndex(idx){
+ if(!Array.isArray(statusPlaylist) || idx < 0 || idx >= statusPlaylist.length){
+  window.closeStatusFullscreen();
   return;
  }
+ statusPlaylistIndex = idx;
+ const st = statusPlaylist[idx];
+ if(!st || !currentUser) return;
+
  const modal = document.getElementById('statusFullscreenModal');
  modal.dataset.statusId = st.id;
 
@@ -2970,8 +3440,7 @@ async function openStatusFullscreen(st){
 
  document.getElementById('fsStatusText').textContent = st.text || '';
  renderStatusViewers(st);
- modal.classList.remove('hidden');
- pushAppHistoryState('status-view');
+ startStatusAutoAdvance(6000);
 
  if(st.uid !== currentUser.uid){
   const viewers = Array.isArray(st.viewers) ? st.viewers : [];
@@ -2991,7 +3460,44 @@ async function openStatusFullscreen(st){
  }
 }
 
+window.stepStatusSequence = function(delta){
+ const nextIdx = statusPlaylistIndex + (delta || 1);
+ if(nextIdx < 0){
+  openStatusAtIndex(0);
+  return;
+ }
+ if(nextIdx >= statusPlaylist.length){
+  window.closeStatusFullscreen();
+  return;
+ }
+ openStatusAtIndex(nextIdx);
+};
+
+window.openStatusById = function(statusId){
+ const st = allStatuses.find(x => x.id === statusId);
+ if(st) openStatusFullscreen(st);
+};
+
+async function openStatusFullscreen(st){
+ if(!st || !currentUser) return;
+ if(!canViewUserStatus(st.uid)){
+  showToast('Only friends can view this status');
+  return;
+ }
+ statusPlaylist = allStatuses.filter(s => canViewUserStatus(s.uid));
+ const foundIdx = statusPlaylist.findIndex(x => x.id === st.id);
+ statusPlaylistIndex = foundIdx >= 0 ? foundIdx : 0;
+ if(foundIdx < 0) statusPlaylist = [st];
+
+ document.getElementById('statusFullscreenModal').classList.remove('hidden');
+ pushAppHistoryState('status-view');
+ await openStatusAtIndex(statusPlaylistIndex);
+}
+
 window.closeStatusFullscreen = function(){
+ clearStatusAutoTimers();
+ statusPlaylist = [];
+ statusPlaylistIndex = 0;
  const modal = document.getElementById('statusFullscreenModal');
  modal.dataset.statusId = '';
  modal.classList.add('hidden');
