@@ -715,7 +715,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 </header>
 
 <!-- REGISTER -->
-<section id="register" class="container auth">
+<section id="register" class="container auth hidden">
  <div class="card">
   <h2>Create Account</h2>
   <p>Join ADAM MK CHAT and connect with the world.</p>
@@ -1591,6 +1591,55 @@ const rtcConfig = {
   { urls: "stun:stun1.l.google.com:19302" }
  ]
 };
+
+function setAccountFlags(hasAccount, loggedOut){
+ try{
+  if(typeof hasAccount === 'boolean') localStorage.setItem('amk_has_account', hasAccount ? '1' : '0');
+  if(typeof loggedOut === 'boolean') localStorage.setItem('amk_logged_out', loggedOut ? '1' : '0');
+ }catch(e){}
+}
+
+function getAccountFlags(){
+ let hasAccount = false;
+ let loggedOut = false;
+ try{
+  hasAccount = localStorage.getItem('amk_has_account') === '1';
+  loggedOut = localStorage.getItem('amk_logged_out') === '1';
+ }catch(e){}
+ return { hasAccount, loggedOut };
+}
+
+function syncAccountScreenState(isAuthenticated){
+ const regEl = document.getElementById('register');
+ const logEl = document.getElementById('login');
+ const appEl = document.getElementById('app');
+ const navEl = document.getElementById('navbar');
+ const actEl = document.getElementById('headerActions');
+ const { hasAccount, loggedOut } = getAccountFlags();
+
+ if(isAuthenticated){
+  if(regEl) regEl.classList.add('hidden');
+  if(logEl) logEl.classList.add('hidden');
+  if(appEl) appEl.classList.remove('hidden');
+  if(navEl) navEl.classList.remove('hidden');
+  if(actEl) actEl.classList.remove('hidden');
+  return;
+ }
+
+ if(appEl) appEl.classList.add('hidden');
+ if(navEl) navEl.classList.add('hidden');
+ if(actEl) actEl.classList.add('hidden');
+
+ if(hasAccount && !loggedOut){
+  if(regEl) regEl.classList.add('hidden');
+  if(logEl) logEl.classList.remove('hidden');
+ }else{
+  if(regEl) regEl.classList.remove('hidden');
+  if(logEl) logEl.classList.add('hidden');
+ }
+}
+
+syncAccountScreenState(false);
 
 function showToast(msg){
  const t = document.getElementById('toast');
@@ -3482,6 +3531,7 @@ window.registerUser = async function(){
    createdAt: Date.now()
   };
   await setDoc(doc(db,'users',cred.user.uid), userObj);
+  setAccountFlags(true, false);
   currentUser = userObj;
   showToast('Account created!');
  }catch(err){
@@ -3495,6 +3545,7 @@ window.loginUser = async function(){
  if(!email || !password){ showToast('Enter email and password'); return; }
  try{
   await signInWithEmailAndPassword(auth, email, password);
+  setAccountFlags(true, false);
   showToast('Logged in!');
  }catch(err){
   showToast(err.message || 'Login failed');
@@ -3502,6 +3553,7 @@ window.loginUser = async function(){
 };
 
 window.logoutUser = async function(){
+ setAccountFlags(true, true);
  stopPresenceHeartbeat();
  stopAllListeners();
  cleanupCallResources();
@@ -3510,10 +3562,7 @@ window.logoutUser = async function(){
  locationFetchedForCurrentOpen = false;
  await signOut(auth);
  currentUser = null;
- document.getElementById('app').classList.add('hidden');
- document.getElementById('navbar').classList.add('hidden');
- document.getElementById('headerActions').classList.add('hidden');
- showAuth('login');
+ syncAccountScreenState(false);
 };
 
 function stopAllListeners(){
@@ -3589,6 +3638,7 @@ window.notifyTypingState = function(){
 
 onAuthStateChanged(auth, async (user)=>{
  if(user){
+  setAccountFlags(true, false);
   stopAllListeners();
   try{
    const snap = await getDoc(doc(db,'users',user.uid));
@@ -3617,11 +3667,7 @@ onAuthStateChanged(auth, async (user)=>{
    currentUser = fallbackUserFromAuth(user);
   }
 
-  document.getElementById('register').classList.add('hidden');
-  document.getElementById('login').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  document.getElementById('navbar').classList.remove('hidden');
-  document.getElementById('headerActions').classList.remove('hidden');
+  syncAccountScreenState(true);
 
   navHistoryStack = [];
   try{ window.history.replaceState({ amkRoot: true }, '', window.location.href); }catch(e){}
@@ -3646,10 +3692,7 @@ onAuthStateChanged(auth, async (user)=>{
   backExitArmed = false;
   locationFetchedForCurrentOpen = false;
   currentUser = null;
-  document.getElementById('app').classList.add('hidden');
-  document.getElementById('navbar').classList.add('hidden');
-  document.getElementById('headerActions').classList.add('hidden');
-  showAuth('login');
+  syncAccountScreenState(false);
  }
 });
 
@@ -3696,6 +3739,7 @@ function listenRealtime(){
   }
   updateProfileUI();
   renderSavedPostsList();
+  renderFeed();
   renderPeople();
   renderChatsList();
   renderStatuses();
@@ -3852,14 +3896,15 @@ function renderFeed(){
     !isBlockedByMe(u.uid) &&
     !isBlockedByPeer(u.uid) && (
      (u.name || '').toLowerCase().includes(q) ||
-     (u.username || '').toLowerCase().includes(q)
+     (u.username || '').toLowerCase().includes(q) ||
+     (u.email || '').toLowerCase().includes(q)
     )
    );
    peopleBox.classList.remove('hidden');
    if(!matchedMembers.length){
     peopleBox.innerHTML = `<div class="empty" style="padding:8px">Babu wanda ya dace da "${escapeHtml(q)}" a sunayen mutane.</div>`;
    }else{
-    peopleBox.innerHTML = `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700">Members (${matchedMembers.length})</div>` + matchedMembers.slice(0, 6).map(u=>{
+    peopleBox.innerHTML = `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700">Members (${matchedMembers.length})</div>` + matchedMembers.slice(0, 8).map(u=>{
      const photo = u.photoUrl || '';
      const av = photo
       ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(u.name)}" onerror="this.remove();this.parentElement.textContent='${escapeHtml(getInitials(u.name))}'">`
@@ -4305,7 +4350,8 @@ function renderPeople(){
   if(!q) return true;
   const n = (u.name || '').toLowerCase();
   const un = (u.username || '').toLowerCase();
-  return n.includes(q) || un.includes(q);
+  const em = (u.email || '').toLowerCase();
+  return n.includes(q) || un.includes(q) || em.includes(q);
  };
 
  const incomingIds = getFriendRequestsArray(currentUser);
@@ -4452,9 +4498,10 @@ function renderChatsList(){
   if(!q) return true;
   const name = (u.name || '').toLowerCase();
   const uname = (u.username || '').toLowerCase();
+  const email = (u.email || '').toLowerCase();
   const meta = chatMetaByPeer[u.uid];
   const lastMsg = (meta && meta.lastText || '').toLowerCase();
-  return name.includes(q) || uname.includes(q) || lastMsg.includes(q);
+  return name.includes(q) || uname.includes(q) || email.includes(q) || lastMsg.includes(q);
  });
 
  if(strip){
