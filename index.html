@@ -137,7 +137,6 @@ header{
 }
 .badge-pill.red{background:#ef4444}
 
-/* FULL SCREEN CONTAINER & AUTH */
 .container{
  width:100%;
  max-width:none;
@@ -622,7 +621,6 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 }
 .chat-input-bar textarea:focus{border-color:var(--blue)}
 
-/* FULL SCREEN MODALS */
 .modal{
  position:fixed;inset:0;width:100vw;height:100dvh;
  background:var(--card);
@@ -778,7 +776,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
 <main id="app" class="hidden">
  <div class="container">
 
-  <!-- HOME (FOLLOWS APP LIGHT/DARK MODE + SEARCH) -->
+  <!-- HOME -->
   <section id="homePage">
    <div class="card">
     <input id="homeSearchInput" class="search-box" style="margin-bottom:12px" placeholder="Search people, @username, or posts..." oninput="renderFeed()">
@@ -810,7 +808,7 @@ body:not(.dark-mode) .msg-recv{color:#111b21}
    <div id="feed"></div>
   </section>
 
-  <!-- CHATS PAGE (LIGHT MODE) -->
+  <!-- CHATS PAGE -->
   <section id="messagesPage" class="hidden">
    <div class="page-header-row">
     <button type="button" class="link" onclick="goBackNavigation()">← Back</button>
@@ -1566,8 +1564,7 @@ let locationFetchedForCurrentOpen = false;
 
 let navHistoryStack = [];
 let isHandlingPopState = false;
-let backExitArmed = false;
-let backExitTimer = null;
+let authResolvedOnce = false;
 
 let chatMetaByPeer = {};
 
@@ -1617,7 +1614,9 @@ function syncAccountScreenState(isAuthenticated){
  const actEl = document.getElementById('headerActions');
  const { hasAccount, loggedOut } = getAccountFlags();
 
- if(isAuthenticated){
+ const activeFirebaseUser = isAuthenticated || Boolean(auth && auth.currentUser);
+
+ if(activeFirebaseUser){
   if(regEl) regEl.classList.add('hidden');
   if(logEl) logEl.classList.add('hidden');
   if(appEl) appEl.classList.remove('hidden');
@@ -1737,7 +1736,7 @@ function triggerLocationOnceOnAppOpen(){
  window.refreshAppOpenLocation(false);
 }
 
-/* PAGE THEME SYNC: HOME FOLLOWS APP LIGHT/DARK MODE, CHATS = LIGHT MODE WITH BLUE/WHITE MK LOGO */
+/* THEME SYNC: RESPECTS APP DARK MODE ON ALL PAGES INCLUDING CHATS */
 function syncPageThemeAndHeader(page){
  if(!currentUser) return;
  const isChats = page === 'messages';
@@ -1747,11 +1746,7 @@ function syncPageThemeAndHeader(page){
   isAppDark = localStorage.getItem('amk_dark_mode') === '1';
  }catch(e){}
 
- if(isChats){
-  document.body.classList.remove('dark-mode');
- }else{
-  document.body.classList.toggle('dark-mode', isAppDark);
- }
+ document.body.classList.toggle('dark-mode', isAppDark);
 
  const titleEl = document.getElementById('headerBrandTitle');
  const tagEl = document.getElementById('headerBrandTagline');
@@ -1850,9 +1845,6 @@ function captureCurrentNavEntry(){
 function pushNavState(){
  if(!currentUser || isHandlingPopState) return;
  navHistoryStack.push(captureCurrentNavEntry());
- try{
-  window.history.pushState({ amkStackLen: navHistoryStack.length }, '', window.location.href);
- }catch(e){}
 }
 
 function applyNavEntry(entry){
@@ -1936,14 +1928,7 @@ window.addEventListener('popstate', ()=>{
   isHandlingPopState = true;
   applyPageOnly('home');
   setTimeout(()=>{ isHandlingPopState = false; }, 30);
-  return;
  }
- if(backExitArmed) return;
- backExitArmed = true;
- showToast('Danna Back sake idan kana son fita');
- try{ window.history.pushState({ amkExitGuard: true }, '', window.location.href); }catch(e){}
- clearTimeout(backExitTimer);
- backExitTimer = setTimeout(()=>{ backExitArmed = false; }, 3000);
 });
 
 function getSavedPostsArray(userObj){
@@ -2077,7 +2062,7 @@ window.openMediaViewersModal = function(postId, kind){
  }
  const body = document.getElementById('likesModalBody');
  if(!entries.length){
-  body.innerHTML = `<div class="empty" style="padding:12px">${total > 0 ? `${total} viewer(s)/listener(s) recorded.` : 'No views recorded yet.'}</div>`;
+  body.innerHTML = `<div class="empty" style="padding:12px">${total > 0 ? `${total} viewer(s)/listener(s) recorded.` : 'Babu wanda ya kalla tukuna.'}</div>`;
  }else{
   body.innerHTML = entries.map(u=>{
    const fresh = getFreshUser(u.uid);
@@ -2240,7 +2225,7 @@ function renderSavedPostsList(){
  const savedIds = getSavedPostsArray(currentUser);
  const items = savedIds.map(id => allPosts.find(p => p.id === id)).filter(Boolean);
  if(!items.length){
-  box.innerHTML = '<div class="empty" style="padding:10px">No saved posts or videos yet.</div>';
+  box.innerHTML = '<div class="empty" style="padding:10px">Babu abin da aka adana tukuna.</div>';
   return;
  }
  box.innerHTML = items.map(p=>{
@@ -2292,7 +2277,7 @@ window.openLikesListModal = function(postId){
  document.getElementById('likesModalTitle').textContent = `Likes (${entries.length})`;
  const body = document.getElementById('likesModalBody');
  if(!entries.length){
-  body.innerHTML = '<div class="empty" style="padding:12px">No likes yet.</div>';
+  body.innerHTML = '<div class="empty" style="padding:12px">Babu wanda ya yi like tukuna.</div>';
  }else{
   body.innerHTML = entries.map(u=>{
    const fresh = getFreshUser(u.uid);
@@ -2371,7 +2356,7 @@ function syncFullscreenVideoUI(){
  if(cList){
   cList.innerHTML = comments.length
    ? comments.map(c=>`<div class="comment-item"><strong>${escapeHtml(c.authorName || 'Member')}:</strong> ${escapeHtml(c.text || '')}</div>`).join('')
-   : '<div class="empty" style="padding:10px">No comments yet.</div>';
+   : '<div class="empty" style="padding:10px">Babu sharhi tukuna.</div>';
  }
 }
 
@@ -3533,6 +3518,7 @@ window.registerUser = async function(){
   await setDoc(doc(db,'users',cred.user.uid), userObj);
   setAccountFlags(true, false);
   currentUser = userObj;
+  syncAccountScreenState(true);
   showToast('Account created!');
  }catch(err){
   showToast(err.message || 'Registration failed');
@@ -3544,8 +3530,12 @@ window.loginUser = async function(){
  const password = document.getElementById('loginPassword').value;
  if(!email || !password){ showToast('Enter email and password'); return; }
  try{
-  await signInWithEmailAndPassword(auth, email, password);
+  const cred = await signInWithEmailAndPassword(auth, email, password);
   setAccountFlags(true, false);
+  if(cred && cred.user && !currentUser){
+   currentUser = fallbackUserFromAuth(cred.user);
+  }
+  syncAccountScreenState(true);
   showToast('Logged in!');
  }catch(err){
   showToast(err.message || 'Login failed');
@@ -3558,7 +3548,6 @@ window.logoutUser = async function(){
  stopAllListeners();
  cleanupCallResources();
  navHistoryStack = [];
- backExitArmed = false;
  locationFetchedForCurrentOpen = false;
  await signOut(auth);
  currentUser = null;
@@ -3638,7 +3627,12 @@ window.notifyTypingState = function(){
 
 onAuthStateChanged(auth, async (user)=>{
  if(user){
+  authResolvedOnce = true;
   setAccountFlags(true, false);
+  if(!currentUser){
+   currentUser = fallbackUserFromAuth(user);
+  }
+  syncAccountScreenState(true);
   stopAllListeners();
   try{
    const snap = await getDoc(doc(db,'users',user.uid));
@@ -3669,9 +3663,6 @@ onAuthStateChanged(auth, async (user)=>{
 
   syncAccountScreenState(true);
 
-  navHistoryStack = [];
-  try{ window.history.replaceState({ amkRoot: true }, '', window.location.href); }catch(e){}
-
   if('Notification' in window && Notification.permission === 'default'){
    setTimeout(()=>{ window.requestPhoneNotificationPermission(false); }, 1200);
   }
@@ -3686,10 +3677,15 @@ onAuthStateChanged(auth, async (user)=>{
   updateProfileUI();
   listenRealtime();
  }else{
+  if(!authResolvedOnce && getAccountFlags().hasAccount && !getAccountFlags().loggedOut){
+   authResolvedOnce = true;
+   syncAccountScreenState(false);
+   return;
+  }
+  authResolvedOnce = true;
   stopPresenceHeartbeat();
   stopAllListeners();
   navHistoryStack = [];
-  backExitArmed = false;
   locationFetchedForCurrentOpen = false;
   currentUser = null;
   syncAccountScreenState(false);
@@ -3902,7 +3898,7 @@ function renderFeed(){
    );
    peopleBox.classList.remove('hidden');
    if(!matchedMembers.length){
-    peopleBox.innerHTML = `<div class="empty" style="padding:8px">Babu wanda ya dace da "${escapeHtml(q)}" a sunayen mutane.</div>`;
+    peopleBox.innerHTML = `<div class="empty" style="padding:8px">Babu wanda aka samu mai suna "${escapeHtml(q)}" ba.</div>`;
    }else{
     peopleBox.innerHTML = `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700">Members (${matchedMembers.length})</div>` + matchedMembers.slice(0, 8).map(u=>{
      const photo = u.photoUrl || '';
@@ -3936,8 +3932,8 @@ function renderFeed(){
 
  if(!visiblePosts.length){
   feed.innerHTML = q
-   ? `<div class="card empty">No posts found matching "${escapeHtml(q)}".</div>`
-   : '<div class="card empty">No posts yet. Be the first to post!</div>';
+   ? `<div class="card empty">Babu abin da aka samu mai alaka da "${escapeHtml(q)}" ba.</div>`
+   : '<div class="card empty">Babu post tukuna. Ka fara wallafawa!</div>';
   return;
  }
 
@@ -3995,7 +3991,7 @@ function renderFeed(){
 
   const commentBoxHtml = commentsOpen ? `
    <div class="comments-box">
-    <div id="comments-${escapeHtml(p.id)}">${commentsHtml || '<div class="empty" style="padding:6px">No comments yet.</div>'}</div>
+    <div id="comments-${escapeHtml(p.id)}">${commentsHtml || '<div class="empty" style="padding:6px">Babu sharhi tukuna.</div>'}</div>
     <div class="comment-form">
      <input id="comment-input-${escapeHtml(p.id)}" placeholder="Write a comment..." onkeypress="if(event.key==='Enter')addComment('${escapeHtml(p.id)}')">
      <button class="link" onclick="addComment('${escapeHtml(p.id)}')">Send</button>
@@ -4144,7 +4140,7 @@ function renderStatusViewers(st){
  document.getElementById('fsViewersCount').textContent = `👁 Viewed by (${viewers.length})`;
  const listEl = document.getElementById('fsViewersList');
  if(!viewers.length){
-  listEl.textContent = 'No views yet.';
+  listEl.textContent = 'Babu wanda ya kalla tukuna.';
   return;
  }
  listEl.innerHTML = viewers.map(v => `<span class="viewer-pill">${escapeHtml(v.name || 'Member')}</span>`).join('');
@@ -4334,7 +4330,7 @@ function renderStatuses(){
   `;
  }).join('');
 
- target.innerHTML = addTile + (itemsHtml || '<div class="empty" style="padding:10px">No friends status yet.</div>');
+ target.innerHTML = addTile + (itemsHtml || '<div class="empty" style="padding:10px">Babu status din abokai tukuna.</div>');
 }
 
 function renderPeople(){
@@ -4361,7 +4357,9 @@ function renderPeople(){
    .filter(u => u && !isBlockedByMe(u.uid) && !isBlockedByPeer(u.uid) && matchesQuery(u));
 
   if(!incomingUsers.length){
-   reqList.innerHTML = '<div class="empty" style="padding:10px">No pending friend requests.</div>';
+   reqList.innerHTML = q
+    ? `<div class="empty" style="padding:10px">Babu bukatar abota da ta dace da "${escapeHtml(q)}" ba.</div>`
+    : '<div class="empty" style="padding:10px">Babu bukatar abota a yanzu.</div>';
   }else{
    reqList.innerHTML = incomingUsers.map(u=>{
     const photo = u.photoUrl || '';
@@ -4392,7 +4390,9 @@ function renderPeople(){
    .filter(u => u && !isBlockedByMe(u.uid) && !isBlockedByPeer(u.uid) && matchesQuery(u));
 
   if(!myFriends.length){
-   friendsList.innerHTML = '<div class="empty" style="padding:10px">No friends added yet. Send a friend request to connect!</div>';
+   friendsList.innerHTML = q
+    ? `<div class="empty" style="padding:10px">Babu abokin da aka samu mai suna "${escapeHtml(q)}" ba.</div>`
+    : '<div class="empty" style="padding:10px">Babu abokai tukuna. Tura bukatar abota don fara magana!</div>';
   }else{
    friendsList.innerHTML = myFriends.map(u=>{
     const photo = u.photoUrl || '';
@@ -4426,7 +4426,7 @@ function renderPeople(){
  if(!others.length){
   list.innerHTML = `
    <div class="empty">
-    ${q ? `No matching members found for "${escapeHtml(q)}".` : 'No other registered members yet.'}
+    ${q ? `Babu wanda aka samu mai suna "${escapeHtml(q)}" ba.` : 'Babu wasu mutane da suka yi rijista tukuna.'}
     <div class="invite-box">
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
@@ -4542,7 +4542,7 @@ function renderChatsList(){
  if(!sortedUsers.length){
   list.innerHTML = `
    <div class="empty">
-    ${q ? `No matching user or chat found for "${escapeHtml(q)}".` : 'No conversations yet.'}
+    ${q ? `Babu wanda aka samu mai suna "${escapeHtml(q)}" a wajen chat ba.` : 'Babu hira tukuna.'}
     <div class="invite-box">
      <button class="secondary-btn" onclick="inviteFriends()">➕ Invite Friends</button>
      <button class="secondary-btn" onclick="copyInviteLink()">📋 Copy Link</button>
@@ -4607,12 +4607,12 @@ function renderChatsList(){
     <span class="link">Join</span>
    </div>
   `).join('');
-  groupsTabList.innerHTML = (gHtml + rHtml) || '<div class="empty">No groups or rooms yet.</div>';
+  groupsTabList.innerHTML = (gHtml + rHtml) || '<div class="empty">Babu groups ko rooms tukuna.</div>';
  }
 
  if(callsTabList){
   if(!others.length){
-   callsTabList.innerHTML = '<div class="empty">No contacts available for calls.</div>';
+   callsTabList.innerHTML = '<div class="empty">Babu wanda za a kira a yanzu.</div>';
   }else{
    callsTabList.innerHTML = others.map(u=>{
     const photo = u.photoUrl || '';
@@ -4643,7 +4643,7 @@ function renderGroupsAndRooms(){
 
  if(menuGroups){
   if(!allGroups.length){
-   menuGroups.innerHTML = '<div class="empty" style="padding:10px">No group chats yet.</div>';
+   menuGroups.innerHTML = '<div class="empty" style="padding:10px">Babu group chats tukuna.</div>';
   }else{
    menuGroups.innerHTML = allGroups.map(g=>{
     const members = Array.isArray(g.members) ? g.members : [];
@@ -4667,7 +4667,7 @@ function renderGroupsAndRooms(){
 
  if(menuRooms){
   if(!allRooms.length){
-   menuRooms.innerHTML = '<div class="empty" style="padding:10px">No chat rooms yet.</div>';
+   menuRooms.innerHTML = '<div class="empty" style="padding:10px">Babu chat rooms tukuna.</div>';
   }else{
    menuRooms.innerHTML = allRooms.map(r=>`
     <div class="chat-row" onclick="openRoomChat('${escapeHtml(r.id)}')">
@@ -4858,7 +4858,7 @@ function attachMessageStream(colRef, isDirect){
   }
 
   if(!msgs.length){
-   box.innerHTML = '<div class="empty">No messages yet. Say hello!</div>';
+   box.innerHTML = '<div class="empty">Babu sako tukuna. Fara gaisawa!</div>';
    return;
   }
 
@@ -5594,24 +5594,28 @@ function renderNotifications(){
  }
  box.className = 'card';
  box.innerHTML = reqs.map(uid=>{
-  const u = allUsers.find(x => x.uid === uid);
-  const name = (u && u.name) || 'Member';
+  const u = allUsers.find(x => x.uid === uid) || { uid, name: 'Member', username: 'member' };
   return `
    <div class="chat-row">
-    <div class="avatar">${escapeHtml(getInitials(name))}</div>
+    <div class="avatar">${escapeHtml(getInitials(u.name))}</div>
     <div class="details">
-     <strong>${escapeHtml(name)}</strong>
-     <small>Sent you a friend request</small>
+     <strong>${escapeHtml(u.name)}</strong>
+     <small>Sent you a friend request (@${escapeHtml(u.username || 'member')})</small>
     </div>
     <div class="row-actions">
-     <button class="mini-action-btn" onclick="acceptFriendRequest('${escapeHtml(uid)}')">Accept</button>
-     <button class="mini-action-btn muted-btn" onclick="declineFriendRequest('${escapeHtml(uid)}')">Decline</button>
+     <button class="mini-action-btn" onclick="acceptFriendRequest('${escapeHtml(uid)}');renderNotifications()">Accept</button>
+     <button class="mini-action-btn muted-btn" onclick="declineFriendRequest('${escapeHtml(uid)}');renderNotifications()">Decline</button>
     </div>
    </div>
   `;
  }).join('');
 }
-</script>
 
+if('serviceWorker' in navigator){
+ window.addEventListener('load', ()=>{
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+ });
+}
+</script>
 </body>
 </html>
